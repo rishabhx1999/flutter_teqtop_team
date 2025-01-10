@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
 import 'package:html/dom.dart' as html_dom;
 import 'package:html/parser.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
@@ -66,5 +67,82 @@ class Helpers {
         file.endsWith('.gif') ||
         file.endsWith('.bmp') ||
         file.endsWith('.svg'));
+  }
+
+  static String capitalizeFirstLetter(String text) {
+    String capitalizedString =
+        text.split(' ').map((word) => word.capitalize!).join(' ');
+    return capitalizedString;
+  }
+
+  static DateTime getLastSundayDate() {
+    DateTime today = DateTime.now();
+
+    if (today.weekday == DateTime.sunday) {
+      return today;
+    }
+
+    int daysToLastSunday = today.weekday;
+    DateTime lastSunday = today.subtract(Duration(days: daysToLastSunday));
+
+    return lastSunday;
+  }
+
+  static DateTime getNextSaturday() {
+    DateTime today = DateTime.now();
+    int daysUntilSaturday = (DateTime.saturday - today.weekday) % 7;
+    return today.add(Duration(days: daysUntilSaturday));
+  }
+
+  static DateTime getFirstDayOfCurrentMonth() {
+    final now = DateTime.now();
+
+    if (now.day == 1) {
+      return now;
+    }
+
+    return DateTime(now.year, now.month, 1);
+  }
+
+  static DateTime getLastDayOfCurrentMonth() {
+    final today = DateTime.now();
+
+    if (today.day == DateTime(today.year, today.month + 1, 0).day) {
+      return today;
+    }
+
+    return DateTime(today.year, today.month + 1, 0);
+  }
+
+  static DateTime getFirstDayOfLastMonth() {
+    DateTime now = DateTime.now();
+    DateTime firstDayOfLastMonth = DateTime(now.year, now.month - 1, 1);
+    return firstDayOfLastMonth;
+  }
+
+  static DateTime getLastDayOfLastMonth() {
+    DateTime now = DateTime.now();
+
+    DateTime firstDayOfCurrentMonth = DateTime(now.year, now.month, 1);
+
+    DateTime lastDayOfLastMonth =
+        firstDayOfCurrentMonth.subtract(Duration(days: 1));
+
+    return lastDayOfLastMonth;
+  }
+
+  static DateTime convert12HourTimeStringToDateTime(String time, DateTime date) {
+    final parts = time.split(' ');
+    final hourMinute = parts[0].split(':');
+    int hour = int.parse(hourMinute[0]);
+    int minute = int.parse(hourMinute[1]);
+
+    if (parts[1] == 'PM' && hour != 12) {
+      hour += 12;
+    } else if (parts[1] == 'AM' && hour == 12) {
+      hour = 0;
+    }
+
+    return DateTime(date.year, date.month, date.day, hour, minute);
   }
 }

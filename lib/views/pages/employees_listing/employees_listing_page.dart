@@ -7,9 +7,10 @@ import 'package:teqtop_team/config/app_routes.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
 import 'package:teqtop_team/controllers/employees_listing/employees_listing_controller.dart';
-import 'package:teqtop_team/model/search/member.dart';
+import 'package:teqtop_team/model/employees_listing/employee_model.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/drawer_widget.dart';
 import 'package:teqtop_team/views/pages/employees_listing/components/employee_widget.dart';
+import 'package:teqtop_team/views/pages/employees_listing/components/employee_widget_shimmer.dart';
 
 import '../../../consts/app_images.dart';
 import '../../widgets/common/common_search_field.dart';
@@ -42,15 +43,20 @@ class EmployeesListingPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 16, bottom: 12),
-                          child: Text("${"employees".tr} (32)",
-                              style: Theme.of(context)
-                                  .appBarTheme
-                                  .titleTextStyle
-                                  ?.copyWith(
-                                      fontSize:
-                                          AppConsts.commonFontSizeFactor * 32)),
+                        Obx(
+                          () => Padding(
+                            padding:
+                                const EdgeInsets.only(left: 16, bottom: 12),
+                            child: Text(
+                                "${"employees".tr} (${employeesListingController.isLoading.value ? employeesListingController.employeeCountLoadingDots[employeesListingController.employeeCountLoadingDotIndex.value] : employeesListingController.employees.length})",
+                                style: Theme.of(context)
+                                    .appBarTheme
+                                    .titleTextStyle
+                                    ?.copyWith(
+                                        fontSize:
+                                            AppConsts.commonFontSizeFactor *
+                                                32)),
+                          ),
                         ),
                         Container(
                           width: double.infinity,
@@ -183,21 +189,30 @@ class EmployeesListingPage extends StatelessWidget {
                   const SizedBox(
                     height: 14,
                   ),
-                  ListView.separated(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        return EmployeeWidget(
-                          employeeData: Member(),
-                          onTap: employeesListingController.handleEmployeeOnTap,
-                        );
-                      },
-                      separatorBuilder: (context, index) {
-                        return const SizedBox(
-                          height: 14,
-                        );
-                      },
-                      itemCount: 10),
+                  Obx(
+                    () => ListView.separated(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          return employeesListingController.isLoading.value
+                              ? EmployeeWidgetShimmer()
+                              : EmployeeWidget(
+                                  employeeData: employeesListingController
+                                          .employees[index] ??
+                                      EmployeeModel(),
+                                  onTap: employeesListingController
+                                      .handleEmployeeOnTap,
+                                );
+                        },
+                        separatorBuilder: (context, index) {
+                          return const SizedBox(
+                            height: 14,
+                          );
+                        },
+                        itemCount: employeesListingController.isLoading.value
+                            ? 5
+                            : employeesListingController.employees.length),
+                  ),
                   const SizedBox(
                     height: 14,
                   ),

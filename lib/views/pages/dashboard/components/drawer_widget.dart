@@ -7,9 +7,12 @@ import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
 import 'package:teqtop_team/consts/app_images.dart';
 import 'package:teqtop_team/controllers/dashboard/dashboard_controller.dart';
+import 'package:teqtop_team/views/dialogs/common/common_alert_dialog.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/drawer_menu_list_tile.dart';
 
+import '../../../../config/app_colors.dart';
 import '../../../../utils/helpers.dart';
+import '../../../dialogs/common/common_dialog.dart';
 
 class DrawerWidget extends StatelessWidget {
   const DrawerWidget({super.key});
@@ -69,9 +72,9 @@ class DrawerWidget extends StatelessWidget {
                           Get.find<DashboardController>();
                       dashboardController.scaffoldKey.currentState
                           ?.closeDrawer();
-                      Get.toNamed(AppRoutes.routeDailyReports);
+                      Get.toNamed(AppRoutes.routeDailyReportsListing);
                     } else {
-                      Get.offNamed(AppRoutes.routeDailyReports);
+                      Get.offNamed(AppRoutes.routeDailyReportsListing);
                     }
                     Helpers.printLog(
                         description: "DRAWER_WIDGET_ITEM_ON_TAP",
@@ -81,17 +84,60 @@ class DrawerWidget extends StatelessWidget {
                   leading: AppIcons.icDailyReport,
                   title: "daily_report"),
               DrawerMenuListTile(
-                  onTap: () {},
+                  onTap: () {
+                    if (Get.currentRoute == AppRoutes.routeDashboard) {
+                      final dashboardController =
+                          Get.find<DashboardController>();
+                      dashboardController.scaffoldKey.currentState
+                          ?.closeDrawer();
+                      Get.toNamed(AppRoutes.routeProjectsListing);
+                    } else {
+                      Get.offNamed(AppRoutes.routeProjectsListing);
+                    }
+                    Helpers.printLog(
+                        description: "DRAWER_WIDGET_ITEM_ON_TAP",
+                        message:
+                            "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
+                  },
                   leading: AppIcons.icProjects,
                   title: "projects"),
               DrawerMenuListTile(
-                  onTap: () {}, leading: AppIcons.icTasks, title: "tasks"),
+                  onTap: () {
+                    if (Get.currentRoute == AppRoutes.routeDashboard) {
+                      final dashboardController =
+                          Get.find<DashboardController>();
+                      dashboardController.scaffoldKey.currentState
+                          ?.closeDrawer();
+                      Get.toNamed(AppRoutes.routeTasksListing);
+                    } else {
+                      Get.offNamed(AppRoutes.routeTasksListing);
+                    }
+                    Helpers.printLog(
+                        description: "DRAWER_WIDGET_ITEM_ON_TAP",
+                        message:
+                            "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
+                  },
+                  leading: AppIcons.icTasks,
+                  title: "tasks"),
               DrawerMenuListTile(
                   onTap: () {}, leading: AppIcons.icLogs, title: "logs"),
               DrawerMenuListTile(
                   onTap: () {}, leading: AppIcons.icLeaves, title: "leaves"),
               DrawerMenuListTile(
-                  onTap: () {}, leading: AppIcons.icLogOut, title: "log_out"),
+                  onTap: () {
+                    Get.back();
+                    final dashboardController = Get.find<DashboardController>();
+                    CommonAlertDialog.showDialog(
+                        isShowNegativeBtn: true,
+                        isPositiveBtnOutlined: true,
+                        message: "message_logout",
+                        positiveText: "logout",
+                        positiveBtnCallback: dashboardController.logOut,
+                        negativeText: 'no',
+                        positiveBtnColor: AppColors.colorFE7A7A);
+                  },
+                  leading: AppIcons.icLogOut,
+                  title: "log_out"),
               const SizedBox(
                 height: 56,
               ),

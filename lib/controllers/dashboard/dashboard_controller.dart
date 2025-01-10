@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:teqtop_team/model/dashboard/comment_list.dart';
-import 'package:teqtop_team/model/dashboard/feed.dart';
-import 'package:teqtop_team/model/dashboard/user.dart';
+import 'package:teqtop_team/model/dashboard/user_model.dart';
 import 'package:teqtop_team/network/get_requests.dart';
 import 'package:teqtop_team/network/post_requests.dart';
 import 'package:teqtop_team/utils/permission_handler.dart';
 
+import '../../config/app_routes.dart';
+import '../../model/dashboard/feed_model.dart';
 import '../../utils/preference_manager.dart';
 
 class DashboardController extends GetxController {
@@ -22,8 +23,8 @@ class DashboardController extends GetxController {
   RxList<PlatformFile?> selectedDocuments = <PlatformFile?>[].obs;
   RxBool arePostsLoading = false.obs;
   RxBool areCommentsLoading = false.obs;
-  RxList<Feed?> posts = <Feed>[].obs;
-  Rx<User?> loggedInUser = Rx<User?>(null);
+  RxList<FeedModel?> posts = <FeedModel>[].obs;
+  Rx<UserModel?> loggedInUser = Rx<UserModel?>(null);
   final ScrollController scrollController = ScrollController();
   int feedPage = 1;
 
@@ -222,7 +223,7 @@ class DashboardController extends GetxController {
     handlePostButtonEnable();
   }
 
-  void saveDataToPref(User loggedInUser) {
+  void saveDataToPref(UserModel loggedInUser) {
     PreferenceManager.saveToPref(
         PreferenceManager.prefUserProfilePhoto, loggedInUser.profile ?? "");
     PreferenceManager.saveToPref(
@@ -237,5 +238,11 @@ class DashboardController extends GetxController {
         loggedInUser.currentAddress ?? "");
     PreferenceManager.saveToPref(PreferenceManager.prefUserAdditionalInfo,
         loggedInUser.additionalInfo ?? "");
+  }
+
+  void logOut() {
+    PreferenceManager.clean();
+    PreferenceManager.saveToPref(PreferenceManager.prefIsLogin, false);
+    Get.offAllNamed(AppRoutes.routeLogin);
   }
 }

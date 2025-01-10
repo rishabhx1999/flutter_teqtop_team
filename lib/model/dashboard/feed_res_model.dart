@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import 'feed.dart';
+import 'feed_model.dart';
 
 FeedResModel feedResModelFromJson(String str) =>
     FeedResModel.fromJson(json.decode(str));
@@ -12,7 +12,7 @@ FeedResModel feedResModelFromJson(String str) =>
 String feedResModelToJson(FeedResModel data) => json.encode(data.toJson());
 
 class FeedResModel {
-  List<Feed?>? feeds;
+  List<FeedModel?>? feeds;
   int? feedCt;
   bool? permission;
   String? time;
@@ -27,7 +27,7 @@ class FeedResModel {
   factory FeedResModel.fromJson(Map<String, dynamic> json) => FeedResModel(
         feeds: json["feeds"] == null
             ? null
-            : List<Feed>.from(json["feeds"].map((x) => Feed.fromJson(x))),
+            : List<FeedModel>.from(json["feeds"].map((x) => FeedModel.fromJson(x))),
         feedCt: json["feed_ct"],
         permission: json["permission"],
         time: json["time"],

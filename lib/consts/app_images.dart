@@ -14,4 +14,5 @@ class AppImages {
   static const String imgPersonPlaceholder =
       "assets/images/img_person_placeholder.png";
   static const String imgPlaceholder = "assets/images/img_placeholder.jpeg";
+  static const String imgDrive = "assets/images/img_drive.png";
 }

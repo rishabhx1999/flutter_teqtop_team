@@ -9,6 +9,12 @@ class AppRoutes {
   static const String routeEditProfile = "/route_edit_profile";
   static const String routeNotifications = "/route_notifications";
   static const String routeEmployeesListing = "/route_employees_listing";
-  static const String routeDailyReports = "/route_daily_reports";
+  static const String routeDailyReportsListing = "/route_daily_reports_listing";
   static const String routeEmployeeDetail = "/route_employee_detail";
+  static const String routeEmployeeDailyReports = "/route_employee_daily_reports";
+  static const String routeProjectsListing = "/route_projects_listing";
+  static const String routeProjectDetail = "/route_projects_detail";
+  static const String routeDriveDetail = "/route_drive_detail";
+  static const String routeTasksListing = "/route_tasks_listing";
+  static const String routeProjectCreateEdit = "/route_project_create_edit";
 }

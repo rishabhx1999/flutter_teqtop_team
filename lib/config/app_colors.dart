@@ -20,6 +20,12 @@ class AppColors {
   static Color colorCF0A0A = HexColor("#CF0A0A");
   static Color colorAEAEAE = HexColor("#AEAEAE");
   static Color color54B435 = HexColor("#54B435");
+  static Color colorF7F7F7 = HexColor("#F7F7F7");
+  static Color colorF49D1A = HexColor("#F49D1A");
+  static Color color7E869E = HexColor("#7E869E");
+  static Color color222222 = HexColor("#222222");
+  static Color colorFE7A7A = HexColor("#FE7A7A");
+  static Color colorFFD674 = HexColor("#FFD674");
 
   //shimmer colors
   static Color shimmerBaseColor = HexColor('#E0E0E0');

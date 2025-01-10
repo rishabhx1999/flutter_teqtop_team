@@ -3,13 +3,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
-import 'package:teqtop_team/model/search/member.dart';
 
 import '../../../../consts/app_images.dart';
+import '../../../../model/employees_listing/employee_model.dart';
 
 class EmployeeWidget extends StatelessWidget {
-  final Member employeeData;
-  final Function() onTap;
+  final EmployeeModel employeeData;
+  final Function(int?) onTap;
 
   const EmployeeWidget(
       {super.key, required this.employeeData, required this.onTap});
@@ -18,7 +18,9 @@ class EmployeeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onTap,
+      onTap: () {
+        onTap(employeeData.id);
+      },
       child: Stack(
         children: [
           Container(
@@ -57,7 +59,7 @@ class EmployeeWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          employeeData.name ?? "Cynthia E. Landis",
+                          employeeData.name ?? "",
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
@@ -67,7 +69,7 @@ class EmployeeWidget extends StatelessWidget {
                           height: 2,
                         ),
                         Text(
-                          "UI/UX Designer",
+                          employeeData.roles ?? "",
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
@@ -95,7 +97,7 @@ class EmployeeWidget extends StatelessWidget {
                     color: AppColors.colorFFF7E5,
                     borderRadius: BorderRadius.zero),
                 child: Text(
-                  "3569",
+                  employeeData.employeeId ?? "",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: AppColors.colorFFB300,
                       fontSize: AppConsts.commonFontSizeFactor * 10,

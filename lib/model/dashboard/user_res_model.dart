@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import 'package:teqtop_team/model/dashboard/user.dart';
+import 'package:teqtop_team/model/dashboard/user_model.dart';
 
 UserResModel userResModelFromJson(String str) =>
     UserResModel.fromJson(json.decode(str));
@@ -12,7 +12,7 @@ UserResModel userResModelFromJson(String str) =>
 String userResModelToJson(UserResModel data) => json.encode(data.toJson());
 
 class UserResModel {
-  User? user;
+  UserModel? user;
   int? id;
 
   UserResModel({
@@ -21,7 +21,7 @@ class UserResModel {
   });
 
   factory UserResModel.fromJson(Map<String, dynamic> json) => UserResModel(
-        user: json["user"] == null ? null : User.fromJson(json["user"]),
+        user: json["user"] == null ? null : UserModel.fromJson(json["user"]),
         id: json["id"],
       );
 

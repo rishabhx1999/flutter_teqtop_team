@@ -16,7 +16,7 @@ class SplashPage extends StatelessWidget {
   SplashPage({super.key});
 
   void _moveToNextScreen() {
-    var nextScreen = PreferenceManager.isUserLoggedIn()
+    var nextScreen = PreferenceManager.isUserLoggedIn() && isLoginDay()
         ? AppRoutes.routeDashboard
         : AppRoutes.routeLogin;
     Get.offNamed(nextScreen);
@@ -24,6 +24,22 @@ class SplashPage extends StatelessWidget {
         description: "SPLASH_PAGE_MOVE_TO_NEXT_SCREEN",
         message:
             "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
+  }
+
+  bool isLoginDay() {
+    String? loginDateTimeString =
+        PreferenceManager.getPref(PreferenceManager.prefLoginDate) as String?;
+    if (loginDateTimeString != null && loginDateTimeString.isNotEmpty) {
+      DateTime loginDateTime = DateTime.parse(loginDateTimeString);
+      DateTime currentDateTime = DateTime.now();
+
+      if (loginDateTime.year == currentDateTime.year &&
+          loginDateTime.month == currentDateTime.month &&
+          loginDateTime.day == currentDateTime.day) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @override

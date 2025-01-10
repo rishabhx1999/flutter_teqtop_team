@@ -7,7 +7,6 @@ import 'package:teqtop_team/config/app_routes.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
 import 'package:teqtop_team/controllers/dashboard/dashboard_controller.dart';
-import 'package:teqtop_team/model/dashboard/feed.dart';
 import 'package:teqtop_team/views/bottom_sheets/comment_bottom_sheet.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/create_comment_widget.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/create_post_widget.dart';
@@ -16,6 +15,7 @@ import 'package:teqtop_team/views/pages/dashboard/components/post_widget.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/post_widget_shimmer.dart';
 
 import '../../../consts/app_images.dart';
+import '../../../model/dashboard/feed_model.dart';
 
 class DashboardPage extends StatelessWidget {
   final dashboardController = Get.put(DashboardController());
@@ -232,7 +232,7 @@ class DashboardPage extends StatelessWidget {
                                     },
                                     postData:
                                         dashboardController.posts[index] ??
-                                            Feed(),
+                                            FeedModel(),
                                   );
                           },
                           separatorBuilder: (context, index) {

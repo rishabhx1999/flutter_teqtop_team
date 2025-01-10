@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:teqtop_team/config/app_routes.dart';
-import 'package:teqtop_team/model/search/member.dart';
-import 'package:teqtop_team/model/search/project.dart';
-import 'package:teqtop_team/model/search/task.dart';
+import 'package:teqtop_team/model/employees_listing/employee_model.dart';
 
-import '../../model/search/drive.dart';
+import '../../model/global_search/drive_model.dart';
+import '../../model/global_search/project_model.dart';
+import '../../model/global_search/task_model.dart';
 import '../../network/post_requests.dart';
 import '../../utils/preference_manager.dart';
 
@@ -14,10 +14,10 @@ class GlobalSearchController extends GetxController {
   RxBool showSearchFieldTrailing = false.obs;
   late Worker searchTextChangeListenerWorker;
   RxBool isLoading = false.obs;
-  RxList<Member?> employees = <Member>[].obs;
-  RxList<Task?> tasks = <Task>[].obs;
-  RxList<Drive?> drives = <Drive>[].obs;
-  RxList<Project?> projects = <Project>[].obs;
+  RxList<EmployeeModel?> employees = <EmployeeModel>[].obs;
+  RxList<TaskModel?> tasks = <TaskModel>[].obs;
+  RxList<DriveModel?> drives = <DriveModel>[].obs;
+  RxList<ProjectModel?> projects = <ProjectModel>[].obs;
 
   @override
   void onInit() {
@@ -84,10 +84,10 @@ class GlobalSearchController extends GetxController {
         };
         var response = await PostRequests.searchGlobal(requestBody);
         if (response != null) {
-          employees.assignAll(response.members as Iterable<Member?>);
-          tasks.assignAll(response.tasks as Iterable<Task?>);
-          projects.assignAll(response.projects as Iterable<Project?>);
-          drives.assignAll(response.drives as Iterable<Drive?>);
+          employees.assignAll(response.members as Iterable<EmployeeModel?>);
+          tasks.assignAll(response.tasks as Iterable<TaskModel?>);
+          projects.assignAll(response.projects as Iterable<ProjectModel?>);
+          drives.assignAll(response.drives as Iterable<DriveModel?>);
         } else {
           Get.snackbar('error'.tr, 'message_server_error'.tr);
         }
@@ -102,7 +102,9 @@ class GlobalSearchController extends GetxController {
     }
   }
 
-  void handleEmployeeOnTap() {
-    Get.toNamed(AppRoutes.routeEmployeeDetail);
+  void handleEmployeeOnTap(int? employeeId) {}
+
+  void handleProjectOnTap(int? projectId) {
+    Get.toNamed(AppRoutes.routeProjectDetail, arguments: {});
   }
 }

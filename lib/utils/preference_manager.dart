@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferenceManager {
   static const prefIsLogin = "pref_key_is_user_login";
+  static const prefLoginDate = "pref_key_login_date";
   static const prefUserToken = "pref_key_user_token";
   static const prefUserProfilePhoto = "pref_key_user_profile_photo";
   static const prefUserName = "pref_key_user_name";
@@ -44,5 +45,13 @@ class PreferenceManager {
     } else if (value is String) {
       _prefs.setString(key, value);
     }
+  }
+
+  static void remove(String key) {
+    _prefs.remove(key);
+  }
+
+  static void clean() {
+    _prefs.clear();
   }
 }

@@ -9,16 +9,22 @@ import 'package:teqtop_team/config/local_strings.dart';
 import 'package:teqtop_team/config/size_config.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/utils/preference_manager.dart';
-import 'package:teqtop_team/views/pages/daily_reports/daily_reports_page.dart';
+import 'package:teqtop_team/views/pages/daily_reports_listing/daily_reports_listing_page.dart';
 import 'package:teqtop_team/views/pages/dashboard/dashboard_page.dart';
+import 'package:teqtop_team/views/pages/drive_detail/drive_detail_page.dart';
 import 'package:teqtop_team/views/pages/edit_profile/edit_profile_page.dart';
+import 'package:teqtop_team/views/pages/employee_daily_reports/employee_daily_reports_page.dart';
 import 'package:teqtop_team/views/pages/employee_detail/employee_detail_page.dart';
 import 'package:teqtop_team/views/pages/employees_listing/employees_listing_page.dart';
 import 'package:teqtop_team/views/pages/global_search/global_search_page.dart';
 import 'package:teqtop_team/views/pages/login/login_page.dart';
 import 'package:teqtop_team/views/pages/notifications/notifications_page.dart';
 import 'package:teqtop_team/views/pages/profile_detail/profile_detail_page.dart';
+import 'package:teqtop_team/views/pages/project_create_edit/project_create_edit_page.dart';
+import 'package:teqtop_team/views/pages/project_detail/project_detail_page.dart';
+import 'package:teqtop_team/views/pages/projects_listing/projects_listing_page.dart';
 import 'package:teqtop_team/views/pages/splash/splash_page.dart';
+import 'package:teqtop_team/views/pages/tasks_listing/tasks_listing_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -99,14 +105,50 @@ class MyApp extends StatelessWidget {
                     transitionDuration:
                         Duration(milliseconds: transitionDuration)),
                 GetPage(
-                    name: AppRoutes.routeDailyReports,
-                    page: () => DailyReportsPage(),
+                    name: AppRoutes.routeDailyReportsListing,
+                    page: () => DailyReportsListingPage(),
                     transition: Transition.rightToLeft,
                     transitionDuration:
                         Duration(milliseconds: transitionDuration)),
                 GetPage(
                     name: AppRoutes.routeEmployeeDetail,
                     page: () => EmployeeDetailPage(),
+                    transition: Transition.rightToLeft,
+                    transitionDuration:
+                        Duration(milliseconds: transitionDuration)),
+                GetPage(
+                    name: AppRoutes.routeEmployeeDailyReports,
+                    page: () => EmployeeDailyReportsPage(),
+                    transition: Transition.rightToLeft,
+                    transitionDuration:
+                        Duration(milliseconds: transitionDuration)),
+                GetPage(
+                    name: AppRoutes.routeProjectsListing,
+                    page: () => ProjectsListingPage(),
+                    transition: Transition.rightToLeft,
+                    transitionDuration:
+                        Duration(milliseconds: transitionDuration)),
+                GetPage(
+                    name: AppRoutes.routeProjectDetail,
+                    page: () => ProjectDetailPage(),
+                    transition: Transition.rightToLeft,
+                    transitionDuration:
+                        Duration(milliseconds: transitionDuration)),
+                GetPage(
+                    name: AppRoutes.routeDriveDetail,
+                    page: () => DriveDetailPage(),
+                    transition: Transition.rightToLeft,
+                    transitionDuration:
+                        Duration(milliseconds: transitionDuration)),
+                GetPage(
+                    name: AppRoutes.routeTasksListing,
+                    page: () => TasksListingPage(),
+                    transition: Transition.rightToLeft,
+                    transitionDuration:
+                        Duration(milliseconds: transitionDuration)),
+                GetPage(
+                    name: AppRoutes.routeProjectCreateEdit,
+                    page: () => ProjectCreateEditPage(),
                     transition: Transition.rightToLeft,
                     transitionDuration:
                         Duration(milliseconds: transitionDuration)),

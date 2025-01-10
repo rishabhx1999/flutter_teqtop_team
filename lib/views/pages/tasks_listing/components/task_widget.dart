@@ -3,10 +3,11 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
-import 'package:teqtop_team/model/search/task.dart';
+
+import '../../../../model/global_search/task_model.dart';
 
 class TaskWidget extends StatelessWidget {
-  final Task taskData;
+  final TaskModel taskData;
 
   const TaskWidget({super.key, required this.taskData});
 

@@ -9,4 +9,8 @@ class ApiUrls {
   static const feedsSearch = 'feeds/search';
   static const commentFeedsMore = 'comment/feeds-more';
   static const searchGlobally = 'search-globally';
+  static const users = 'users';
+  static const projects = 'projects';
+  static const leaves = 'leaves';
+  static const dailyReport = 'daily-report';
 }

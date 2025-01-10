@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:teqtop_team/model/search/drive.dart';
-import 'package:teqtop_team/model/search/member.dart';
-import 'package:teqtop_team/model/search/project.dart';
-import 'package:teqtop_team/model/search/task.dart';
-import 'package:teqtop_team/views/pages/drive/components/drive_header_widget.dart';
+import 'package:teqtop_team/model/employees_listing/employee_model.dart';
 import 'package:teqtop_team/views/pages/tasks_listing/components/task_widget.dart';
 import 'package:teqtop_team/views/widgets/common/common_search_field.dart';
 
 import '../../../config/app_colors.dart';
 import '../../../consts/app_icons.dart';
 import '../../../controllers/global_search/global_search_controller.dart';
+import '../../../model/global_search/drive_model.dart';
+import '../../../model/global_search/project_model.dart';
+import '../../../model/global_search/task_model.dart';
+import '../drive_detail/components/drive_header_widget.dart';
 import '../employees_listing/components/employee_widget.dart';
 import '../projects_listing/components/project_widget.dart';
 
@@ -128,7 +128,7 @@ class GlobalSearchPage extends StatelessWidget {
                                       return TaskWidget(
                                         taskData: globalSearchController
                                                 .tasks[index] ??
-                                            Task(),
+                                            TaskModel(),
                                       );
                                     },
                                     separatorBuilder: (context, index) {
@@ -174,7 +174,9 @@ class GlobalSearchPage extends StatelessWidget {
                                       return ProjectWidget(
                                         projectData: globalSearchController
                                                 .projects[index] ??
-                                            Project(),
+                                            ProjectModel(),
+                                        onTap: globalSearchController
+                                            .handleProjectOnTap,
                                       );
                                     },
                                     separatorBuilder: (context, index) {
@@ -221,7 +223,7 @@ class GlobalSearchPage extends StatelessWidget {
                                         textAlignment: TextAlign.start,
                                         driveData: globalSearchController
                                                 .drives[index] ??
-                                            Drive(),
+                                            DriveModel(),
                                       );
                                     },
                                     separatorBuilder: (context, index) {
@@ -268,7 +270,7 @@ class GlobalSearchPage extends StatelessWidget {
                                       return EmployeeWidget(
                                         employeeData: globalSearchController
                                                 .employees[index] ??
-                                            Member(),
+                                            EmployeeModel(),
                                         onTap: globalSearchController
                                             .handleEmployeeOnTap,
                                       );

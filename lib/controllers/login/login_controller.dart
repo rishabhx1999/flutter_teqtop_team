@@ -73,6 +73,8 @@ class LoginController extends GetxController {
     PreferenceManager.saveToPref(PreferenceManager.prefIsLogin, true);
     PreferenceManager.saveToPref(
         PreferenceManager.prefUserToken, loginData.accessToken);
+    PreferenceManager.saveToPref(
+        PreferenceManager.prefLoginDate, DateTime.now().toString());
 
     moveToDashboard();
   }

@@ -1,10 +1,11 @@
 import 'package:teqtop_team/model/dashboard/comments_res_model.dart';
 import 'package:teqtop_team/model/dashboard/feed_res_model.dart';
 import 'package:teqtop_team/model/login/login_res_model.dart';
-import 'package:teqtop_team/model/search/global_search_res_model.dart';
 import 'package:teqtop_team/network/api_urls.dart';
 import 'package:teqtop_team/network/remote_services.dart';
 import 'package:teqtop_team/utils/helpers.dart';
+
+import '../model/global_search/global_search_res_model.dart';
 
 class PostRequests {
   PostRequests._();
@@ -17,7 +18,8 @@ class PostRequests {
           "Accept": "application/json",
           "Content-Type": "application/json;charset=utf-8"
         },
-        requestBody: requestBody);
+        requestBody: requestBody,
+        isLogin: true);
 
     if (apiResponse != null) {
       return loginResModelFromJson(apiResponse.response!);

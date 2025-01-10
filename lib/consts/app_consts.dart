@@ -13,4 +13,11 @@ class AppConsts {
 
   static double commonFontSizeFactor =
       SizeConfig.isMobile ? mobileFontFactor : tabFontFactor;
+
+  //Data Transfer Keys
+  static String keyEmployeeId = 'key_employee_id';
+  static String keyProjectId = 'key_project_id';
+  static String keyEmployeeProfilePhoto = 'key_employee_profile_photo';
+  static String keyEmployeeName = 'key_employee_name';
+  static String keyDailyReportDate = 'key_daily_report_date';
 }

@@ -32,6 +32,39 @@ class Validations {
     }
   }
 
+  static String? checkProfileValidations(String? value) {
+    var enteredValue = value?.trim() ?? '';
+    if (enteredValue.isEmpty) {
+      return "message_enter_profile".tr;
+    } else if (!AppFormatters.validNameExp.hasMatch(enteredValue)) {
+      return "message_enter_valid_profile".tr;
+    } else {
+      return null;
+    }
+  }
+
+  static String? checkURLValidations(String? value) {
+    var enteredValue = value?.trim() ?? '';
+    if (enteredValue.isEmpty) {
+      return "message_enter_url".tr;
+    } else if (!AppFormatters.validUrlExp.hasMatch(enteredValue)) {
+      return "message_enter_valid_url".tr;
+    } else {
+      return null;
+    }
+  }
+
+  static String? checkPortalValidations(String? value) {
+    var enteredValue = value?.trim() ?? '';
+    if (enteredValue.isEmpty) {
+      return "message_enter_portal".tr;
+    } else if (!AppFormatters.validUrlExp.hasMatch(enteredValue)) {
+      return "message_enter_valid_portal".tr;
+    } else {
+      return null;
+    }
+  }
+
   static String? checkContactNoValidations(String? value) {
     var enteredValue = value?.trim() ?? '';
     if (enteredValue.isEmpty) {
@@ -81,10 +114,28 @@ class Validations {
     }
   }
 
+  static String? checkProjectDescriptionValidations(String? value) {
+    var enteredValue = value?.trim() ?? '';
+    if (enteredValue.isEmpty) {
+      return "message_enter_project_description".tr;
+    } else {
+      return null;
+    }
+  }
+
   static String? checkAdditionalInfoValidations(String? value) {
     var enteredValue = value?.trim() ?? '';
     if (enteredValue.isEmpty) {
       return "message_enter_additional_info".tr;
+    } else {
+      return null;
+    }
+  }
+
+  static String? checkProjectNameValidations(String? value) {
+    var enteredValue = value?.trim() ?? '';
+    if (enteredValue.isEmpty) {
+      return "message_enter_project_name".tr;
     } else {
       return null;
     }

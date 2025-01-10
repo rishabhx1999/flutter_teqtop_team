@@ -15,7 +15,9 @@ class CommonAlertDialog {
       required String positiveText,
       bool? isShowNegativeBtn,
       VoidCallback? negativeBtnCallback,
-      required VoidCallback positiveBtnCallback}) {
+      required VoidCallback positiveBtnCallback,
+      bool? isPositiveBtnOutlined,
+      Color? positiveBtnColor}) {
     Get.dialog(Dialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
@@ -27,6 +29,8 @@ class CommonAlertDialog {
         isShowNegativeBtn: isShowNegativeBtn,
         positiveBtnCallback: positiveBtnCallback,
         negativeBtnCallback: negativeBtnCallback,
+        isPositiveBtnOutlined: isPositiveBtnOutlined,
+        positiveBtnColor: positiveBtnColor,
       ),
     ));
   }
@@ -40,6 +44,8 @@ class CommonDialogContent extends StatelessWidget {
   final bool? isShowNegativeBtn;
   final VoidCallback positiveBtnCallback;
   final VoidCallback? negativeBtnCallback;
+  final bool? isPositiveBtnOutlined;
+  final Color? positiveBtnColor;
 
   const CommonDialogContent(
       {super.key,
@@ -49,7 +55,9 @@ class CommonDialogContent extends StatelessWidget {
       required this.positiveText,
       this.isShowNegativeBtn,
       required this.positiveBtnCallback,
-      this.negativeBtnCallback});
+      this.negativeBtnCallback,
+      this.isPositiveBtnOutlined,
+      this.positiveBtnColor});
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +104,10 @@ class CommonDialogContent extends StatelessWidget {
                   child: Expanded(
                       child: CommonButtonOutline(
                     text: negativeText ?? "".tr,
-                    onClick: negativeBtnCallback ?? () {},
+                    onClick: negativeBtnCallback ??
+                        () {
+                          Get.back();
+                        },
                     fontWeight: FontWeight.w600,
                     fontSize: AppConsts.commonFontSizeFactor * 16,
                   ))),
@@ -106,12 +117,20 @@ class CommonDialogContent extends StatelessWidget {
                     width: 12,
                   )),
               Expanded(
-                  child: CommonButton(
-                text: positiveText.tr,
-                onClick: positiveBtnCallback,
-                fontWeight: FontWeight.w600,
-                fontSize: AppConsts.commonFontSizeFactor * 16,
-              ))
+                  child: isPositiveBtnOutlined ?? false
+                      ? CommonButtonOutline(
+                          borderColor: positiveBtnColor,
+                          text: positiveText.tr,
+                          onClick: positiveBtnCallback,
+                          fontWeight: FontWeight.w600,
+                          fontSize: AppConsts.commonFontSizeFactor * 16,
+                        )
+                      : CommonButton(
+                          text: positiveText.tr,
+                          onClick: positiveBtnCallback,
+                          fontWeight: FontWeight.w600,
+                          fontSize: AppConsts.commonFontSizeFactor * 16,
+                        ))
             ],
           )
         ],

@@ -10,14 +10,14 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
-import 'package:teqtop_team/model/dashboard/feed.dart';
+import 'package:teqtop_team/model/dashboard/feed_model.dart';
 import 'package:teqtop_team/utils/helpers.dart';
 
 import '../../../../consts/app_images.dart';
 
 class PostWidget extends StatelessWidget {
   final Function()? commentOnTap;
-  final Feed postData;
+  final FeedModel postData;
   final List<String> images = [];
   final List<String> documents = [];
   final RxInt activeIndex = 0.obs;
