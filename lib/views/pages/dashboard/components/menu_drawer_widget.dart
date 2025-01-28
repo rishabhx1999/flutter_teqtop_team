@@ -12,10 +12,9 @@ import 'package:teqtop_team/views/pages/dashboard/components/drawer_menu_list_ti
 
 import '../../../../config/app_colors.dart';
 import '../../../../utils/helpers.dart';
-import '../../../dialogs/common/common_dialog.dart';
 
-class DrawerWidget extends StatelessWidget {
-  const DrawerWidget({super.key});
+class MenuDrawerWidget extends StatelessWidget {
+  const MenuDrawerWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -120,9 +119,41 @@ class DrawerWidget extends StatelessWidget {
                   leading: AppIcons.icTasks,
                   title: "tasks"),
               DrawerMenuListTile(
-                  onTap: () {}, leading: AppIcons.icLogs, title: "logs"),
+                  onTap: () {
+                    if (Get.currentRoute == AppRoutes.routeDashboard) {
+                      final dashboardController =
+                          Get.find<DashboardController>();
+                      dashboardController.scaffoldKey.currentState
+                          ?.closeDrawer();
+                      Get.toNamed(AppRoutes.routeLogsListing);
+                    } else {
+                      Get.offNamed(AppRoutes.routeLogsListing);
+                    }
+                    Helpers.printLog(
+                        description: "DRAWER_WIDGET_ITEM_ON_TAP",
+                        message:
+                            "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
+                  },
+                  leading: AppIcons.icLogs,
+                  title: "logs"),
               DrawerMenuListTile(
-                  onTap: () {}, leading: AppIcons.icLeaves, title: "leaves"),
+                  onTap: () {
+                    if (Get.currentRoute == AppRoutes.routeDashboard) {
+                      final dashboardController =
+                          Get.find<DashboardController>();
+                      dashboardController.scaffoldKey.currentState
+                          ?.closeDrawer();
+                      Get.toNamed(AppRoutes.routeLeavesListing);
+                    } else {
+                      Get.offNamed(AppRoutes.routeLeavesListing);
+                    }
+                    Helpers.printLog(
+                        description: "DRAWER_WIDGET_ITEM_ON_TAP",
+                        message:
+                            "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
+                  },
+                  leading: AppIcons.icLeaves,
+                  title: "leaves"),
               DrawerMenuListTile(
                   onTap: () {
                     Get.back();

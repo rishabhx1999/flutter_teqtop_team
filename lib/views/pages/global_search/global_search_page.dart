@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/model/employees_listing/employee_model.dart';
+import 'package:teqtop_team/views/pages/global_search/components/group_widget.dart';
 import 'package:teqtop_team/views/pages/tasks_listing/components/task_widget.dart';
 import 'package:teqtop_team/views/widgets/common/common_search_field.dart';
 
@@ -95,6 +97,86 @@ class GlobalSearchPage extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Visibility(
+                            visible: globalSearchController.projects.isNotEmpty,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(
+                                  height: 24,
+                                ),
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    globalSearchController
+                                            .areGroupsShowing.value =
+                                        !globalSearchController
+                                            .areGroupsShowing.value;
+                                  },
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                        color: AppColors.kPrimaryColor),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "${"groups".tr} (${globalSearchController.projects.length})",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontSize: AppConsts
+                                                          .commonFontSizeFactor *
+                                                      18),
+                                        ),
+                                        Icon(
+                                          globalSearchController
+                                                  .areGroupsShowing.value
+                                              ? Icons.arrow_drop_up
+                                              : Icons.arrow_drop_down,
+                                          color: Colors.white,
+                                          size: 24,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: globalSearchController
+                                      .areGroupsShowing.value,
+                                  child: ListView.separated(
+                                      padding: const EdgeInsets.only(top: 20),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) {
+                                        return GroupWidget(
+                                          groupData: globalSearchController
+                                                  .projects[index] ??
+                                              ProjectModel(),
+                                          onTap: globalSearchController
+                                              .handleGroupOnTap,
+                                        );
+                                      },
+                                      separatorBuilder: (context, index) {
+                                        return const SizedBox(
+                                          height: 16,
+                                        );
+                                      },
+                                      itemCount: globalSearchController
+                                          .projects.length),
+                                )
+                              ],
+                            )),
+                        Visibility(
                             visible: globalSearchController.tasks.isNotEmpty,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -104,40 +186,74 @@ class GlobalSearchPage extends StatelessWidget {
                                 const SizedBox(
                                   height: 24,
                                 ),
-                                Container(
-                                  width: double.infinity,
-                                  padding: EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                      color: AppColors.kPrimaryColor),
-                                  child: Text(
-                                    "tasks".tr,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineMedium
-                                        ?.copyWith(color: Colors.white),
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    globalSearchController
+                                            .areTasksShowing.value =
+                                        !globalSearchController
+                                            .areTasksShowing.value;
+                                  },
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                        color: AppColors.kPrimaryColor),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "${"tasks".tr} (${globalSearchController.tasks.length})",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontSize: AppConsts
+                                                          .commonFontSizeFactor *
+                                                      18),
+                                        ),
+                                        Icon(
+                                          globalSearchController
+                                                  .areTasksShowing.value
+                                              ? Icons.arrow_drop_up
+                                              : Icons.arrow_drop_down,
+                                          color: Colors.white,
+                                          size: 24,
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                ListView.separated(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemBuilder: (context, index) {
-                                      return TaskWidget(
-                                        taskData: globalSearchController
-                                                .tasks[index] ??
-                                            TaskModel(),
-                                      );
-                                    },
-                                    separatorBuilder: (context, index) {
-                                      return const SizedBox(
-                                        height: 16,
-                                      );
-                                    },
-                                    itemCount:
-                                        globalSearchController.tasks.length)
+                                Visibility(
+                                  visible: globalSearchController
+                                      .areTasksShowing.value,
+                                  child: ListView.separated(
+                                      padding: const EdgeInsets.only(top: 20),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) {
+                                        return TaskWidget(
+                                          taskData: globalSearchController
+                                                  .tasks[index] ??
+                                              TaskModel(),
+                                          onTap: globalSearchController
+                                              .handleTaskOnTap,
+                                        );
+                                      },
+                                      separatorBuilder: (context, index) {
+                                        return const SizedBox(
+                                          height: 16,
+                                        );
+                                      },
+                                      itemCount:
+                                          globalSearchController.tasks.length),
+                                )
                               ],
                             )),
                         Visibility(
@@ -150,42 +266,74 @@ class GlobalSearchPage extends StatelessWidget {
                                 const SizedBox(
                                   height: 24,
                                 ),
-                                Container(
-                                  width: double.infinity,
-                                  padding: EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                      color: AppColors.kPrimaryColor),
-                                  child: Text(
-                                    "projects".tr,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineMedium
-                                        ?.copyWith(color: Colors.white),
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    globalSearchController
+                                            .areProjectsShowing.value =
+                                        !globalSearchController
+                                            .areProjectsShowing.value;
+                                  },
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                        color: AppColors.kPrimaryColor),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "${"projects".tr} (${globalSearchController.projects.length})",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontSize: AppConsts
+                                                          .commonFontSizeFactor *
+                                                      18),
+                                        ),
+                                        Icon(
+                                          globalSearchController
+                                                  .areProjectsShowing.value
+                                              ? Icons.arrow_drop_up
+                                              : Icons.arrow_drop_down,
+                                          color: Colors.white,
+                                          size: 24,
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                ListView.separated(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemBuilder: (context, index) {
-                                      return ProjectWidget(
-                                        projectData: globalSearchController
-                                                .projects[index] ??
-                                            ProjectModel(),
-                                        onTap: globalSearchController
-                                            .handleProjectOnTap,
-                                      );
-                                    },
-                                    separatorBuilder: (context, index) {
-                                      return const SizedBox(
-                                        height: 16,
-                                      );
-                                    },
-                                    itemCount:
-                                        globalSearchController.projects.length)
+                                Visibility(
+                                  visible: globalSearchController
+                                      .areProjectsShowing.value,
+                                  child: ListView.separated(
+                                      padding: EdgeInsets.only(top: 20),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) {
+                                        return ProjectWidget(
+                                          projectData: globalSearchController
+                                                  .projects[index] ??
+                                              ProjectModel(),
+                                          onTap: globalSearchController
+                                              .handleProjectOnTap,
+                                        );
+                                      },
+                                      separatorBuilder: (context, index) {
+                                        return const SizedBox(
+                                          height: 16,
+                                        );
+                                      },
+                                      itemCount: globalSearchController
+                                          .projects.length),
+                                )
                               ],
                             )),
                         Visibility(
@@ -198,41 +346,75 @@ class GlobalSearchPage extends StatelessWidget {
                                 const SizedBox(
                                   height: 24,
                                 ),
-                                Container(
-                                  width: double.infinity,
-                                  padding: EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                      color: AppColors.kPrimaryColor),
-                                  child: Text(
-                                    "drives".tr,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineMedium
-                                        ?.copyWith(color: Colors.white),
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    globalSearchController
+                                            .areDrivesShowing.value =
+                                        !globalSearchController
+                                            .areDrivesShowing.value;
+                                  },
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                        color: AppColors.kPrimaryColor),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "${"drives".tr} (${globalSearchController.drives.length})",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontSize: AppConsts
+                                                          .commonFontSizeFactor *
+                                                      18),
+                                        ),
+                                        Icon(
+                                          globalSearchController
+                                                  .areDrivesShowing.value
+                                              ? Icons.arrow_drop_up
+                                              : Icons.arrow_drop_down,
+                                          color: Colors.white,
+                                          size: 24,
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                ListView.separated(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemBuilder: (context, index) {
-                                      return DriveHeaderWidget(
-                                        textAlignment: TextAlign.start,
-                                        driveData: globalSearchController
-                                                .drives[index] ??
-                                            DriveModel(),
-                                      );
-                                    },
-                                    separatorBuilder: (context, index) {
-                                      return const SizedBox(
-                                        height: 16,
-                                      );
-                                    },
-                                    itemCount:
-                                        globalSearchController.drives.length)
+                                Visibility(
+                                  visible: globalSearchController
+                                      .areDrivesShowing.value,
+                                  child: ListView.separated(
+                                      padding: const EdgeInsets.only(top: 20),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) {
+                                        return DriveHeaderWidget(
+                                          onTap: globalSearchController
+                                              .handleDriveOnTap,
+                                          textAlignment: TextAlign.start,
+                                          driveData: globalSearchController
+                                                  .drives[index] ??
+                                              DriveModel(),
+                                        );
+                                      },
+                                      separatorBuilder: (context, index) {
+                                        return const SizedBox(
+                                          height: 16,
+                                        );
+                                      },
+                                      itemCount:
+                                          globalSearchController.drives.length),
+                                )
                               ],
                             )),
                         Visibility(
@@ -246,42 +428,74 @@ class GlobalSearchPage extends StatelessWidget {
                                 const SizedBox(
                                   height: 24,
                                 ),
-                                Container(
-                                  width: double.infinity,
-                                  padding: EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                      color: AppColors.kPrimaryColor),
-                                  child: Text(
-                                    "employees".tr,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineMedium
-                                        ?.copyWith(color: Colors.white),
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    globalSearchController
+                                            .areEmployeesShowing.value =
+                                        !globalSearchController
+                                            .areEmployeesShowing.value;
+                                  },
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                        color: AppColors.kPrimaryColor),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "${"employees".tr} (${globalSearchController.employees.length})",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge
+                                              ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontSize: AppConsts
+                                                          .commonFontSizeFactor *
+                                                      18),
+                                        ),
+                                        Icon(
+                                          globalSearchController
+                                                  .areEmployeesShowing.value
+                                              ? Icons.arrow_drop_up
+                                              : Icons.arrow_drop_down,
+                                          color: Colors.white,
+                                          size: 24,
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                ListView.separated(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemBuilder: (context, index) {
-                                      return EmployeeWidget(
-                                        employeeData: globalSearchController
-                                                .employees[index] ??
-                                            EmployeeModel(),
-                                        onTap: globalSearchController
-                                            .handleEmployeeOnTap,
-                                      );
-                                    },
-                                    separatorBuilder: (context, index) {
-                                      return const SizedBox(
-                                        height: 16,
-                                      );
-                                    },
-                                    itemCount:
-                                        globalSearchController.employees.length)
+                                Visibility(
+                                  visible: globalSearchController
+                                      .areEmployeesShowing.value,
+                                  child: ListView.separated(
+                                      padding: EdgeInsets.only(top: 20),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) {
+                                        return EmployeeWidget(
+                                          employeeData: globalSearchController
+                                                  .employees[index] ??
+                                              EmployeeModel(),
+                                          onTap: globalSearchController
+                                              .handleEmployeeOnTap,
+                                        );
+                                      },
+                                      separatorBuilder: (context, index) {
+                                        return const SizedBox(
+                                          height: 16,
+                                        );
+                                      },
+                                      itemCount: globalSearchController
+                                          .employees.length),
+                                )
                               ],
                             )),
                         const SizedBox(

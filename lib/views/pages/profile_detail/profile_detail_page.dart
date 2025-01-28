@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:teqtop_team/controllers/profile_detail/profile_controller.dart';
+import 'package:teqtop_team/controllers/profile_detail/profile_detail_controller.dart';
 
 import '../../../config/app_colors.dart';
 import '../../../config/app_routes.dart';
@@ -61,7 +61,7 @@ class ProfileDetailPage extends StatelessWidget {
           elevation: 0,
           actions: [
             Padding(
-              padding: const EdgeInsets.only(right: 14),
+              padding: const EdgeInsets.only(right: 10),
               child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
@@ -74,42 +74,55 @@ class ProfileDetailPage extends StatelessWidget {
                         const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                   )),
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  Get.toNamed(AppRoutes.routeNotifications);
-                },
-                child: Stack(
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                Get.toNamed(AppRoutes.routeNotifications);
+              },
+              child: Obx(
+                () => Stack(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 4),
+                      padding: const EdgeInsets.only(top: 4, right: 18),
                       child: Image.asset(
                         AppIcons.icBell,
                         width: 24,
                       ),
                     ),
                     Positioned(
-                        right: 0,
+                        left: 12,
                         top: 0,
                         child: Container(
-                          width: 12,
                           height: 12,
+                          width: profileDetailController
+                                      .notificationsCount.value
+                                      .toString()
+                                      .length >
+                                  1
+                              ? (12 +
+                                      ((profileDetailController
+                                                  .notificationsCount.value
+                                                  .toString()
+                                                  .length -
+                                              1) *
+                                          4))
+                                  .toDouble()
+                              : 12,
                           decoration: BoxDecoration(
                               color: AppColors.colorFFB400,
-                              shape: BoxShape.circle),
+                              borderRadius: BorderRadius.circular(50)),
                           child: Center(
-                              child: Text(
-                            "2",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                    fontSize:
-                                        AppConsts.commonFontSizeFactor * 8,
-                                    fontWeight: FontWeight.w600),
-                          )),
+                            child: Text(
+                              profileDetailController.notificationsCount.value
+                                  .toString(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 8),
+                            ),
+                          ),
                         ))
                   ],
                 ),
@@ -126,69 +139,72 @@ class ProfileDetailPage extends StatelessWidget {
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Center(
-                      child: CircleAvatar(
-                        radius: 90,
-                        backgroundImage:
-                            AssetImage(AppImages.imgPersonPlaceholder),
-                        foregroundImage: profileDetailController.profilePhoto != null
-                            ? NetworkImage(AppConsts.imgInitialUrl +
-                                profileDetailController.profilePhoto!)
-                            : AssetImage(AppImages.imgPersonPlaceholder),
+                child: Obx(
+                  () => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        height: 20,
                       ),
-                    ),
-                    const SizedBox(
-                      height: 14,
-                    ),
-                    Text(
-                      profileDetailController.personName ?? "",
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium
-                          ?.copyWith(
-                              fontSize: AppConsts.commonFontSizeFactor * 20),
-                    ),
-                    Text(
-                      profileDetailController.personEmail ?? "",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(fontWeight: FontWeight.w400),
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    ProfileInfoWidget(
-                        title: "contact_number",
-                        data: profileDetailController.personContactNo != null
-                            ? "+91 ${profileDetailController.personContactNo}"
-                            : ""),
-                    ProfileInfoWidget(
-                        title: "alternate_number",
-                        data: profileDetailController.personAlternatedNo != null
-                            ? "+91 ${profileDetailController.personContactNo}"
-                            : ""),
-                    ProfileInfoWidget(
-                        title: "date_of_birth",
-                        data: profileDetailController.personDOB ?? ""),
-                    ProfileInfoWidget(
-                        title: "current_address",
-                        data: profileDetailController.personCurrentAddress ?? ""),
-                    ProfileInfoWidget(
-                        title: "additional_info",
-                        data: profileDetailController.personAdditionalInfo ?? ""),
-                    const SizedBox(
-                      height: 28,
-                    ),
-                  ],
+                      Center(
+                        child: CircleAvatar(
+                          radius: 90,
+                          backgroundImage:
+                              AssetImage(AppImages.imgPersonPlaceholder),
+                          foregroundImage: profileDetailController
+                                  .profilePhoto.value.isNotEmpty
+                              ? NetworkImage(AppConsts.imgInitialUrl +
+                                  profileDetailController.profilePhoto.value)
+                              : AssetImage(AppImages.imgPersonPlaceholder),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 14,
+                      ),
+                      Text(
+                        profileDetailController.personName.value,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontSize: AppConsts.commonFontSizeFactor * 20),
+                      ),
+                      Text(
+                        profileDetailController.personEmail.value,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      ProfileInfoWidget(
+                          title: "contact_number",
+                          data: profileDetailController
+                                  .personContactNo.value.isNotEmpty
+                              ? "+91 ${profileDetailController.personContactNo.value}"
+                              : ""),
+                      ProfileInfoWidget(
+                          title: "alternate_number",
+                          data: profileDetailController
+                                  .personAlternatedNo.isNotEmpty
+                              ? "+91 ${profileDetailController.personAlternatedNo.value}"
+                              : ""),
+                      ProfileInfoWidget(
+                          title: "date_of_birth",
+                          data: profileDetailController.personDOB.value),
+                      ProfileInfoWidget(
+                          title: "current_address",
+                          data: profileDetailController
+                              .personCurrentAddress.value),
+                      ProfileInfoWidget(
+                          title: "additional_info",
+                          data: profileDetailController
+                              .personAdditionalInfo.value),
+                      const SizedBox(
+                        height: 28,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             )),

@@ -46,46 +46,25 @@ InputDecorationTheme inputDecorationTheme(BuildContext context) {
 
 TextTheme textTheme() {
   return TextTheme(
-      headlineLarge: GoogleFonts.montserrat(
-        textStyle: TextStyle(
-          color: Colors.black,
-          fontSize: AppConsts.commonFontSizeFactor * 24,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      headlineMedium: GoogleFonts.montserrat(
-        textStyle: TextStyle(
-          color: Colors.black,
-          fontSize: AppConsts.commonFontSizeFactor * 18,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      headlineSmall: GoogleFonts.montserrat(
-        textStyle: TextStyle(
-          color: Colors.black,
-          fontSize: AppConsts.commonFontSizeFactor * 14,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
       bodyLarge: GoogleFonts.montserrat(
-        textStyle: TextStyle(
-          color: Colors.black,
-          fontSize: AppConsts.commonFontSizeFactor * 18,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      bodyMedium: GoogleFonts.montserrat(
         textStyle: TextStyle(
           color: Colors.black,
           fontSize: AppConsts.commonFontSizeFactor * 16,
           fontWeight: FontWeight.w600,
         ),
       ),
+      bodyMedium: GoogleFonts.montserrat(
+        textStyle: TextStyle(
+          color: Colors.black,
+          fontSize: AppConsts.commonFontSizeFactor * 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
       bodySmall: GoogleFonts.montserrat(
         textStyle: TextStyle(
           color: Colors.black,
-          fontSize: AppConsts.commonFontSizeFactor * 14,
-          fontWeight: FontWeight.w500,
+          fontSize: AppConsts.commonFontSizeFactor * 16,
+          fontWeight: FontWeight.w400,
         ),
       ));
 }

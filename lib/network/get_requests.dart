@@ -1,10 +1,17 @@
 import 'package:teqtop_team/model/daily_reports_listing/daily_reports_res_model.dart';
 import 'package:teqtop_team/model/dashboard/feed_res_model.dart';
+import 'package:teqtop_team/model/dashboard/notifications_res_model.dart';
 import 'package:teqtop_team/model/dashboard/user_res_model.dart';
+import 'package:teqtop_team/model/drive_detail/drive_detail_res_model.dart';
 import 'package:teqtop_team/model/employee_detail/leaves_res_model.dart';
 import 'package:teqtop_team/model/employees_listing/employee_model.dart';
 import 'package:teqtop_team/model/employees_listing/employees_res_model.dart';
+import 'package:teqtop_team/model/logs_listing/logs_res_model.dart';
+import 'package:teqtop_team/model/project_create_edit/project_categories_and_proposals_res_model.dart';
+import 'package:teqtop_team/model/project_detail/project_detail_res_model.dart';
 import 'package:teqtop_team/model/projects_listing/projects_res_model.dart';
+import 'package:teqtop_team/model/task_detail/task_detail_res_model.dart';
+import 'package:teqtop_team/model/tasks_listing/tasks_res_model.dart';
 import 'package:teqtop_team/network/remote_services.dart';
 
 import '../utils/helpers.dart';
@@ -59,13 +66,13 @@ class GetRequests {
     }
   }
 
-  static Future<EmployeeModel?> getEmployeeDetails(int employeeId) async {
+  static Future<EmployeeModel?> getEmployeeDetails(int id) async {
     Helpers.printLog(description: "GET_REQUESTS_GET_EMPLOYEE_DETAILS_REACHED");
-    var apiResponse =
-        await RemoteService.simpleGet("${ApiUrls.users}/$employeeId", headers: {
-      "Accept": "application/json",
-      "Content-Type": "application/json;charset=utf-8"
-    });
+    var apiResponse = await RemoteService.simpleGet("${ApiUrls.users}/$id/edit",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json;charset=utf-8"
+        });
 
     if (apiResponse != null) {
       return employeeFromJson(apiResponse.response!);
@@ -74,7 +81,7 @@ class GetRequests {
     }
   }
 
-  static Future<LeavesResModel?> getEmployeeLeaves(
+  static Future<LeavesResModel?> getLeaves(
       Map<String, String> requestBody) async {
     Helpers.printLog(description: "GET_REQUESTS_GET_EMPLOYEE_LEAVES_REACHED");
     var apiResponse = await RemoteService.getWithQueries(ApiUrls.leaves,
@@ -119,6 +126,123 @@ class GetRequests {
 
     if (apiResponse != null) {
       return projectsResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<TasksResModel?> getTasks(
+      Map<String, String> requestBody) async {
+    Helpers.printLog(description: "GET_REQUESTS_GET_TASKS_REACHED");
+    var apiResponse = await RemoteService.getWithQueries(ApiUrls.tasks,
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json;charset=utf-8"
+        },
+        requestBody: requestBody);
+
+    if (apiResponse != null) {
+      return tasksResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<NotificationsResModel?> getNotifications() async {
+    Helpers.printLog(description: "GET_REQUESTS_GET_NOTIFICATIONS_REACHED");
+    var apiResponse = await RemoteService.getWithQueries(
+      ApiUrls.notifications,
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=utf-8"
+      },
+    );
+
+    if (apiResponse != null) {
+      return notificationsResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<ProjectDetailResModel?> getProjectDetail(int projectId) async {
+    Helpers.printLog(description: "GET_REQUESTS_GET_PROJECT_DETAIL_REACHED");
+    var apiResponse = await RemoteService.getWithQueries(
+      "${ApiUrls.projects}/$projectId",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=utf-8"
+      },
+    );
+
+    if (apiResponse != null) {
+      return projectDetailResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<TaskDetailResModel?> getTaskDetail(int taskId) async {
+    Helpers.printLog(description: "GET_REQUESTS_GET_TASK_DETAIL_REACHED");
+    var apiResponse = await RemoteService.getWithQueries(
+      "${ApiUrls.tasksView}/$taskId",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=utf-8"
+      },
+    );
+
+    if (apiResponse != null) {
+      return taskDetailResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<ProjectCategoriesAndProposalsResModel?>
+      getProjectCategoriesAndProposals() async {
+    Helpers.printLog(
+        description:
+            "GET_REQUESTS_GET_PROJECT_CATEGORIES_AND_PROPOSALS_REACHED");
+    var apiResponse =
+        await RemoteService.simpleGet(ApiUrls.projectsSalesProposals, headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json;charset=utf-8"
+    });
+
+    if (apiResponse != null) {
+      return projectCategoriesAndProposalsResModelFromJson(
+          apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<LogsResModel?> getLogs(Map<String, String> requestBody) async {
+    Helpers.printLog(description: "GET_REQUESTS_GET_LOGS_REACHED");
+    var apiResponse = await RemoteService.getWithQueries(ApiUrls.logs,
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json;charset=utf-8"
+        },
+        requestBody: requestBody);
+
+    if (apiResponse != null) {
+      return logsResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<DriveDetailResModel?> getDriveDetail(String driveURL) async {
+    Helpers.printLog(description: "GET_REQUESTS_GET_DRIVE_DETAIL_REACHED");
+    var apiResponse = await RemoteService.simpleGet(driveURL, headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json;charset=utf-8"
+    });
+
+    if (apiResponse != null) {
+      return driveDetailResModelFromJson(apiResponse.response!);
     } else {
       return null;
     }

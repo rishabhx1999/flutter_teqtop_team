@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 
@@ -11,7 +9,7 @@ class CommonPasswordInputField extends StatelessWidget {
   final String label;
   final Function(String)? onChanged;
   final String? Function(String?)? validator;
-  final TextEditingController controller;
+  TextEditingController controller;
   final TextInputType? inputType;
   final List<TextInputFormatter>? inputFormatter;
   final RxBool isObscure = true.obs;
@@ -51,14 +49,17 @@ class CommonPasswordInputField extends StatelessWidget {
       children: [
         Text(
           label.tr.toUpperCase(),
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(fontSize: AppConsts.commonFontSizeFactor * 14),
         ),
         const SizedBox(
           height: 8,
         ),
         Obx(() => TextFormField(
               controller: controller,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.bodyLarge,
               keyboardType: TextInputType.visiblePassword,
               cursorColor: Colors.black,
               obscureText: isObscure.value,
@@ -67,7 +68,7 @@ class CommonPasswordInputField extends StatelessWidget {
                   hintText: hint.tr,
                   hintStyle: Theme.of(context)
                       .textTheme
-                      .bodyMedium
+                      .bodyLarge
                       ?.copyWith(color: AppColors.colorA9A9A9),
                   suffixIcon: isShowSuffix
                       ? IconButton(
@@ -87,9 +88,9 @@ class CommonPasswordInputField extends StatelessWidget {
                   fillColor: Colors.white,
                   errorMaxLines: 3,
                   errorStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.red,
-                      fontSize: AppConsts.commonFontSizeFactor * 12,
-                      fontWeight: FontWeight.w400),
+                        color: Colors.red,
+                        fontSize: AppConsts.commonFontSizeFactor * 12,
+                      ),
                   contentPadding: EdgeInsets.symmetric(
                       horizontal: inputHorizontalPadding ?? 14,
                       vertical: inputVerticalPadding ?? 16),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teqtop_team/views/widgets/common/common_button.dart';
 
+import '../../../consts/app_consts.dart';
+
 class CommonDialog {
   static show(
       {required BuildContext context,
@@ -17,7 +19,10 @@ class CommonDialog {
       contentPadding: const EdgeInsets.fromLTRB(44.0, 8, 44.0, 28),
       barrierDismissible: true,
       middleText: middleText.tr,
-      middleTextStyle: Theme.of(context).textTheme.bodyLarge,
+      middleTextStyle: Theme.of(context)
+          .textTheme
+          .bodyMedium
+          ?.copyWith(fontSize: AppConsts.commonFontSizeFactor * 18),
       confirm: CommonButton(
           text: confirmText ?? 'ok'.tr, onClick: () => onConfirmPress()),
       cancel: CommonButton(

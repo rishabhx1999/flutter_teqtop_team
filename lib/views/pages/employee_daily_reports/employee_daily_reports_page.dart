@@ -55,7 +55,7 @@ class EmployeeDailyReportsPage extends StatelessWidget {
         elevation: 0,
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 14),
+            padding: const EdgeInsets.only(right: 10),
             child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
@@ -68,41 +68,56 @@ class EmployeeDailyReportsPage extends StatelessWidget {
                       const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                 )),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                Get.toNamed(AppRoutes.routeNotifications);
-              },
-              child: Stack(
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              Get.toNamed(AppRoutes.routeNotifications);
+            },
+            child: Obx(
+              () => Stack(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 4),
+                    padding: const EdgeInsets.only(top: 4, right: 18),
                     child: Image.asset(
                       AppIcons.icBell,
                       width: 24,
                     ),
                   ),
                   Positioned(
-                      right: 0,
+                      left: 12,
                       top: 0,
                       child: Container(
-                        width: 12,
                         height: 12,
+                        width: employeeDailyReportsController
+                                    .notificationsCount.value
+                                    .toString()
+                                    .length >
+                                1
+                            ? (12 +
+                                    ((employeeDailyReportsController
+                                                .notificationsCount.value
+                                                .toString()
+                                                .length -
+                                            1) *
+                                        4))
+                                .toDouble()
+                            : 12,
                         decoration: BoxDecoration(
                             color: AppColors.colorFFB400,
-                            shape: BoxShape.circle),
+                            borderRadius: BorderRadius.circular(50)),
                         child: Center(
-                            child: Text(
-                          "2",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                  fontSize: AppConsts.commonFontSizeFactor * 8,
-                                  fontWeight: FontWeight.w600),
-                        )),
+                          child: Text(
+                            employeeDailyReportsController
+                                .notificationsCount.value
+                                .toString(),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 8),
+                          ),
+                        ),
                       ))
                 ],
               ),
@@ -126,64 +141,76 @@ class EmployeeDailyReportsPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 78,
-                      height: 78,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                              width: 1, color: AppColors.colorFFB400)),
-                      child: Center(
-                        child: CircleAvatar(
-                          radius: 36,
-                          backgroundImage:
-                              AssetImage(AppImages.imgPersonPlaceholder),
-                          foregroundImage: employeeDailyReportsController
-                                      .employeeProfilePhoto !=
-                                  null
-                              ? NetworkImage(AppConsts.imgInitialUrl +
-                                  employeeDailyReportsController
-                                      .employeeProfilePhoto!)
-                              : AssetImage(AppImages.imgPersonPlaceholder),
+                Expanded(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 78,
+                        height: 78,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                width: 1, color: AppColors.colorFFB400)),
+                        child: Center(
+                          child: CircleAvatar(
+                            radius: 36,
+                            backgroundImage:
+                                AssetImage(AppImages.imgPersonPlaceholder),
+                            foregroundImage: employeeDailyReportsController
+                                        .employeeProfilePhoto !=
+                                    null
+                                ? NetworkImage(AppConsts.imgInitialUrl +
+                                    employeeDailyReportsController
+                                        .employeeProfilePhoto!)
+                                : AssetImage(AppImages.imgPersonPlaceholder),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          employeeDailyReportsController.employeeName ?? "",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge
-                              ?.copyWith(fontWeight: FontWeight.w700),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              employeeDailyReportsController.employeeName ?? "",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 18),
+                            ),
+                            Obx(
+                              () => Text(
+                                DateFormat('MMM dd, yyyy').format(
+                                    employeeDailyReportsController
+                                        .selectedDay.value),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                        color:
+                                            Colors.black.withValues(alpha: 0.7),
+                                        fontSize:
+                                            AppConsts.commonFontSizeFactor *
+                                                14),
+                              ),
+                            )
+                          ],
                         ),
-                        Obx(
-                          () => Text(
-                            DateFormat('MMM dd, yyyy').format(
-                                employeeDailyReportsController
-                                    .selectedDay.value),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                    color: Colors.black.withValues(alpha: 0.7),
-                                    fontWeight: FontWeight.w400),
-                          ),
-                        )
-                      ],
-                    )
-                  ],
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  width: 16,
                 ),
                 Column(
                   mainAxisSize: MainAxisSize.min,
@@ -212,14 +239,16 @@ class EmployeeDailyReportsPage extends StatelessWidget {
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyLarge
-                                  ?.copyWith(fontWeight: FontWeight.w700),
+                                  ?.copyWith(
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 18),
                             ),
                     ),
                     Text(
                       "total_hours".tr,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.black.withValues(alpha: 0.7),
-                          fontWeight: FontWeight.w400),
+                          fontSize: AppConsts.commonFontSizeFactor * 14),
                     )
                   ],
                 )
@@ -395,7 +424,10 @@ class EmployeeDailyReportsPage extends StatelessWidget {
                                                   ?.copyWith(
                                                       color: Colors.black
                                                           .withValues(
-                                                              alpha: 0.7))),
+                                                              alpha: 0.7),
+                                                      fontSize: AppConsts
+                                                              .commonFontSizeFactor *
+                                                          14)),
                                           TextSpan(
                                               text:
                                                   "\n${DateFormat('HH:mm').format(appointment.startTime)} - ${DateFormat('HH:mm').format(appointment.endTime)}",

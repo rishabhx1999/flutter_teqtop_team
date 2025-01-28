@@ -7,10 +7,11 @@ import 'package:teqtop_team/config/app_routes.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
 import 'package:teqtop_team/controllers/dashboard/dashboard_controller.dart';
-import 'package:teqtop_team/views/bottom_sheets/comment_bottom_sheet.dart';
+import 'package:teqtop_team/model/dashboard/comment_list.dart';
+import 'package:teqtop_team/views/bottom_sheets/post_comments_bottom_sheet.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/create_comment_widget.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/create_post_widget.dart';
-import 'package:teqtop_team/views/pages/dashboard/components/drawer_widget.dart';
+import 'package:teqtop_team/views/pages/dashboard/components/menu_drawer_widget.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/post_widget.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/post_widget_shimmer.dart';
 
@@ -66,7 +67,7 @@ class DashboardPage extends StatelessWidget {
             elevation: 0,
             actions: [
               Padding(
-                padding: const EdgeInsets.only(right: 14),
+                padding: const EdgeInsets.only(right: 10),
                 child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () {
@@ -79,41 +80,54 @@ class DashboardPage extends StatelessWidget {
                           const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                     )),
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 14),
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    Get.toNamed(AppRoutes.routeNotifications);
-                  },
-                  child: Stack(
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  Get.toNamed(AppRoutes.routeNotifications);
+                },
+                child: Obx(
+                  () => Stack(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.only(top: 4, right: 18),
                         child: Image.asset(
                           AppIcons.icBell,
                           width: 24,
                         ),
                       ),
                       Positioned(
-                          right: 0,
+                          left: 12,
                           top: 0,
                           child: Container(
-                            width: 12,
                             height: 12,
+                            width: dashboardController.notificationsCount.value
+                                        .toString()
+                                        .length >
+                                    1
+                                ? (12 +
+                                        ((dashboardController
+                                                    .notificationsCount.value
+                                                    .toString()
+                                                    .length -
+                                                1) *
+                                            4))
+                                    .toDouble()
+                                : 12,
                             decoration: BoxDecoration(
                                 color: AppColors.colorFFB400,
-                                shape: BoxShape.circle),
+                                borderRadius: BorderRadius.circular(50)),
                             child: Center(
-                                child: Text(
-                              "2",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                      fontSize:
-                                          AppConsts.commonFontSizeFactor * 8),
-                            )),
+                              child: Text(
+                                dashboardController.notificationsCount.value
+                                    .toString(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(
+                                        fontSize:
+                                            AppConsts.commonFontSizeFactor * 8),
+                              ),
+                            ),
                           ))
                     ],
                   ),
@@ -145,7 +159,7 @@ class DashboardPage extends StatelessWidget {
             ],
           ),
           backgroundColor: Colors.white,
-          drawer: DrawerWidget(),
+          drawer: MenuDrawerWidget(),
           body: RefreshIndicator(
             color: AppColors.kPrimaryColor,
             backgroundColor: Colors.white,
@@ -180,6 +194,19 @@ class DashboardPage extends StatelessWidget {
                       onDocumentTap: dashboardController.pickDocuments,
                       removeSelectedDocument:
                           dashboardController.removeSelectedDocument,
+                      createPost: dashboardController.createPost,
+                      isPostCreating: dashboardController.isPostCreating,
+                      editPostPreviousDocuments:
+                          dashboardController.editPostPreviousDocuments,
+                      editPostPreviousImages:
+                          dashboardController.editPostPreviousImages,
+                      isEditPost: dashboardController.isEditPost,
+                      removeEditPostPreviousImage:
+                          dashboardController.removeEditPostPreviousImage,
+                      removeEditPostPreviousDocument:
+                          dashboardController.removeEditPostPreviousDocument,
+                      editPost: dashboardController.editPost,
+                      isPostEditing: dashboardController.isPostEditing,
                     ),
                     Obx(
                       () => ListView.separated(
@@ -191,48 +218,73 @@ class DashboardPage extends StatelessWidget {
                                 ? PostWidgetShimmer()
                                 : PostWidget(
                                     commentOnTap: () {
-                                      CommentBottomSheet.show(
-                                          context: context,
-                                          createCommentWidget:
-                                              CreateCommentWidget(
-                                            controller: dashboardController
-                                                .commentFieldController,
-                                            hint: 'add_comment'.tr,
-                                          ),
-                                          commentCount: dashboardController
-                                                          .posts[index] !=
-                                                      null &&
-                                                  dashboardController
-                                                          .posts[index]!
-                                                          .commentCount !=
-                                                      null
-                                              ? dashboardController
-                                                  .posts[index]!
-                                                  .commentCount!
-                                                  .length
-                                              : 0,
-                                          componentId: dashboardController
-                                                          .posts[index] !=
-                                                      null &&
-                                                  dashboardController
-                                                          .posts[index]!
-                                                          .commentCount !=
-                                                      null
-                                              ? dashboardController
-                                                      .posts[index]!
-                                                      .commentCount![0]
-                                                      ?.componentId ??
-                                                  0
-                                              : 0,
-                                          getComments:
-                                              dashboardController.getComments,
-                                          areCommentsLoading:
-                                              dashboardController
-                                                  .areCommentsLoading);
+                                      dashboardController
+                                          .currentCommentsPostID = null;
+                                      dashboardController
+                                          .currentCommentsLength.value = 0;
+                                      dashboardController.singlePostComments
+                                          .value = <CommentList>[];
+                                      if (dashboardController.posts[index] !=
+                                          null) {
+                                        dashboardController
+                                                .currentCommentsPostID =
+                                            dashboardController
+                                                .posts[index]!.id;
+                                        dashboardController
+                                            .currentCommentsLength
+                                            .value = dashboardController
+                                                    .posts[index]!
+                                                    .commentCount !=
+                                                null
+                                            ? dashboardController.posts[index]!
+                                                .commentCount!.length
+                                            : 0;
+                                      }
+                                      dashboardController
+                                          .singlePostCommentsPage = 1;
+                                      PostCommentsBottomSheet.show(
+                                        context: context,
+                                        createCommentWidget:
+                                            CreateCommentWidget(
+                                          controller: dashboardController
+                                              .commentFieldController,
+                                          hint: 'add_comment'.tr,
+                                          createComment:
+                                              dashboardController.createComment,
+                                        ),
+                                        commentCount: dashboardController
+                                            .currentCommentsLength,
+                                        getComments:
+                                            dashboardController.getComments,
+                                        areCommentsLoading: dashboardController
+                                            .areCommentsLoading,
+                                        comments: dashboardController
+                                            .singlePostComments,
+                                        scrollController: dashboardController
+                                            .commentsSheetScrollController,
+                                      );
                                     },
                                     postData:
                                         dashboardController.posts[index] ??
                                             FeedModel(),
+                                    toggleLike: dashboardController.toggleLike,
+                                    images:
+                                        dashboardController.posts[index] != null
+                                            ? dashboardController.getPostImages(
+                                                dashboardController
+                                                    .posts[index]!.id)
+                                            : null,
+                                    documents:
+                                        dashboardController.posts[index] != null
+                                            ? dashboardController
+                                                .getPostDocuments(
+                                                    dashboardController
+                                                        .posts[index]!.id)
+                                            : null,
+                                    handleOnTapDelete:
+                                        dashboardController.onTapPostDelete,
+                                    handleOnTapEdit:
+                                        dashboardController.onTapPostEdit,
                                   );
                           },
                           separatorBuilder: (context, index) {

@@ -9,8 +9,9 @@ import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
 import 'package:teqtop_team/controllers/tasks_listing/tasks_listing_controller.dart';
 import 'package:teqtop_team/model/global_search/task_model.dart';
-import 'package:teqtop_team/views/pages/dashboard/components/drawer_widget.dart';
+import 'package:teqtop_team/views/pages/dashboard/components/menu_drawer_widget.dart';
 import 'package:teqtop_team/views/pages/tasks_listing/components/task_widget.dart';
+import 'package:teqtop_team/views/pages/tasks_listing/components/task_widget_shimmer.dart';
 
 import '../../../consts/app_images.dart';
 import '../../widgets/common/common_search_field.dart';
@@ -64,12 +65,10 @@ class TasksListingPage extends StatelessWidget {
           elevation: 0,
           actions: [
             Padding(
-              padding: const EdgeInsets.only(right: 14),
+              padding: const EdgeInsets.only(right: 10),
               child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    Get.toNamed(AppRoutes.routeGlobalSearch);
-                  },
+                  onTap: tasksListingController.handleOnGlobalSearchTap,
                   child: SvgPicture.asset(
                     AppIcons.icSearch,
                     width: 24,
@@ -77,41 +76,54 @@ class TasksListingPage extends StatelessWidget {
                         const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                   )),
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 14),
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  Get.toNamed(AppRoutes.routeNotifications);
-                },
-                child: Stack(
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                Get.toNamed(AppRoutes.routeNotifications);
+              },
+              child: Obx(
+                () => Stack(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 4),
+                      padding: const EdgeInsets.only(top: 4, right: 18),
                       child: Image.asset(
                         AppIcons.icBell,
                         width: 24,
                       ),
                     ),
                     Positioned(
-                        right: 0,
+                        left: 12,
                         top: 0,
                         child: Container(
-                          width: 12,
                           height: 12,
+                          width: tasksListingController.notificationsCount.value
+                                      .toString()
+                                      .length >
+                                  1
+                              ? (12 +
+                                      ((tasksListingController
+                                                  .notificationsCount.value
+                                                  .toString()
+                                                  .length -
+                                              1) *
+                                          4))
+                                  .toDouble()
+                              : 12,
                           decoration: BoxDecoration(
                               color: AppColors.colorFFB400,
-                              shape: BoxShape.circle),
+                              borderRadius: BorderRadius.circular(50)),
                           child: Center(
-                              child: Text(
-                            "2",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                    fontSize:
-                                        AppConsts.commonFontSizeFactor * 8),
-                          )),
+                            child: Text(
+                              tasksListingController.notificationsCount.value
+                                  .toString(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 8),
+                            ),
+                          ),
                         ))
                   ],
                 ),
@@ -137,7 +149,7 @@ class TasksListingPage extends StatelessWidget {
           ],
         ),
         backgroundColor: Colors.white,
-        drawer: DrawerWidget(),
+        drawer: MenuDrawerWidget(),
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -165,6 +177,9 @@ class TasksListingPage extends StatelessWidget {
                 ),
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    Get.toNamed(AppRoutes.routeTaskCreateEdit);
+                  },
                   child: DottedBorder(
                     color: Colors.black.withValues(alpha: 0.2),
                     padding: EdgeInsets.zero,
@@ -197,26 +212,41 @@ class TasksListingPage extends StatelessWidget {
                           ),
                           Text(
                             "add_new_task".tr,
-                            style: Theme.of(context).textTheme.bodyLarge,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 18),
                           )
                         ],
                       ),
                     ),
                   ),
                 ),
-                ListView.separated(
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.symmetric(vertical: 28),
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return TaskWidget(taskData: TaskModel());
-                    },
-                    separatorBuilder: (context, index) {
-                      return const SizedBox(
-                        height: 20,
-                      );
-                    },
-                    itemCount: 5),
+                Obx(
+                  () => ListView.separated(
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.symmetric(vertical: 28),
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return tasksListingController.isLoading.value
+                            ? TaskWidgetShimmer()
+                            : TaskWidget(
+                                taskData: tasksListingController.tasks[index] ??
+                                    TaskModel(),
+                                onTap: tasksListingController.handleTaskOnTap,
+                              );
+                      },
+                      separatorBuilder: (context, index) {
+                        return const SizedBox(
+                          height: 20,
+                        );
+                      },
+                      itemCount: tasksListingController.isLoading.value
+                          ? 5
+                          : tasksListingController.tasks.length),
+                ),
               ],
             ),
           ),

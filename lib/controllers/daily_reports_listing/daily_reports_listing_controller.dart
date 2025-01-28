@@ -10,6 +10,7 @@ import '../../model/daily_reports_listing/value_time.dart';
 import '../../model/employees_listing/employee_model.dart';
 import '../../network/get_requests.dart';
 import '../../utils/preference_manager.dart';
+import '../dashboard/dashboard_controller.dart';
 
 class DailyReportsListingController extends GetxController {
   late final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -28,6 +29,7 @@ class DailyReportsListingController extends GetxController {
   RxBool areUsersLoading = false.obs;
   RxBool areDailyReportsLoading = false.obs;
   RxList<DailyReport?> dailyReports = <DailyReport>[].obs;
+  RxInt notificationsCount = 0.obs;
 
   @override
   void onInit() {
@@ -35,6 +37,7 @@ class DailyReportsListingController extends GetxController {
     getEmployees();
     initializeSelectedTime();
     getDailyReports();
+    getNotificationsCount();
 
     super.onInit();
   }
@@ -60,6 +63,11 @@ class DailyReportsListingController extends GetxController {
         (PreferenceManager.getPref(PreferenceManager.prefUserProfilePhoto)
                 as String?) ??
             '';
+  }
+
+  void getNotificationsCount() {
+    final dashboardController = Get.find<DashboardController>();
+    notificationsCount = dashboardController.notificationsCount;
   }
 
   Future<void> getEmployees() async {
@@ -131,7 +139,7 @@ class DailyReportsListingController extends GetxController {
     }
   }
 
-  void onChangeService(var newUser) {
+  void onChangeUser(var newUser) {
     selectedUser.value = newUser as EmployeeModel;
   }
 
@@ -162,15 +170,11 @@ class DailyReportsListingController extends GetxController {
 
     if (selectedUser.value != null &&
         selectedUser.value!.name != "select_user".tr) {
-      requestBody.addIf(
-          selectedUser.value != null &&
-              selectedUser.value!.name != "select_user".tr,
-          'user',
-          users
-              .firstWhere(
-                  (user) => user != null && user.id == selectedUser.value!.id)!
-              .id
-              .toString());
+      var user = users.firstWhereOrNull(
+          (user) => user != null && user.id == selectedUser.value!.id);
+      if (user != null) {
+        requestBody.addIf(true, 'user', user.id.toString());
+      }
     }
 
     if (selectedTime.value != null &&

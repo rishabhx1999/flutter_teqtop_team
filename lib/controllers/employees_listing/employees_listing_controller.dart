@@ -8,6 +8,7 @@ import 'package:teqtop_team/network/get_requests.dart';
 import '../../config/app_routes.dart';
 import '../../consts/app_consts.dart';
 import '../../utils/preference_manager.dart';
+import '../dashboard/dashboard_controller.dart';
 
 class EmployeesListingController extends GetxController {
   late final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -20,6 +21,7 @@ class EmployeesListingController extends GetxController {
   RxInt employeeCountLoadingDotIndex = 0.obs;
   final List<String> employeeCountLoadingDots = [".", "..", "..."];
   Timer? employeeCountLoadingDotsTimer;
+  RxInt notificationsCount = 0.obs;
 
   @override
   void onInit() {
@@ -28,6 +30,7 @@ class EmployeesListingController extends GetxController {
     setupSearchTextChangeListener();
     getEmployees('');
     startEmployeeCountLoadingAnimation();
+    getNotificationsCount();
 
     super.onInit();
   }
@@ -98,9 +101,10 @@ class EmployeesListingController extends GetxController {
     showSearchFieldTrailing.value = false;
   }
 
-  void handleEmployeeOnTap(int? employeeId) {
+  void handleEmployeeOnTap(int? employeeId, int? id) {
     Get.toNamed(AppRoutes.routeEmployeeDetail, arguments: {
       AppConsts.keyEmployeeId: employeeId,
+      AppConsts.keyId: id,
     });
   }
 
@@ -169,5 +173,10 @@ class EmployeesListingController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void getNotificationsCount() {
+    final dashboardController = Get.find<DashboardController>();
+    notificationsCount = dashboardController.notificationsCount;
   }
 }

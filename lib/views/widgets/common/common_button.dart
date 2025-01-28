@@ -51,10 +51,13 @@ class CommonButton extends StatelessWidget {
             text.tr,
             textAlign: TextAlign.center,
             style: textStyle ??
-                Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.white,
-                    fontSize: fontSize ?? AppConsts.commonFontSizeFactor * 18,
-                    fontWeight: fontWeight ?? FontWeight.w700),
+                GoogleFonts.montserrat(
+                  textStyle: TextStyle(
+                      color: Colors.white,
+                      fontSize: fontSize ?? AppConsts.commonFontSizeFactor * 18,
+                      fontWeight: fontWeight ?? FontWeight.w700
+                  ),
+                ),
           ))),
     );
   }

@@ -13,7 +13,7 @@ import 'package:teqtop_team/model/daily_reports_listing/value_time.dart';
 import 'package:teqtop_team/model/employees_listing/employee_model.dart';
 import 'package:teqtop_team/views/pages/daily_reports_listing/components/daily_report_widget.dart';
 import 'package:teqtop_team/views/pages/daily_reports_listing/components/daily_report_widget_shimmer.dart';
-import 'package:teqtop_team/views/pages/dashboard/components/drawer_widget.dart';
+import 'package:teqtop_team/views/pages/dashboard/components/menu_drawer_widget.dart';
 import 'package:teqtop_team/views/widgets/common/common_button.dart';
 
 import '../../../consts/app_images.dart';
@@ -70,7 +70,7 @@ class DailyReportsListingPage extends StatelessWidget {
           elevation: 0,
           actions: [
             Padding(
-              padding: const EdgeInsets.only(right: 3),
+              padding: const EdgeInsets.only(right: 4),
               child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
@@ -83,41 +83,56 @@ class DailyReportsListingPage extends StatelessWidget {
                         const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                   )),
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 7),
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  Get.toNamed(AppRoutes.routeNotifications);
-                },
-                child: Stack(
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                Get.toNamed(AppRoutes.routeNotifications);
+              },
+              child: Obx(
+                () => Stack(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 4),
+                      padding: const EdgeInsets.only(top: 4, right: 12),
                       child: Image.asset(
                         AppIcons.icBell,
                         width: 24,
                       ),
                     ),
                     Positioned(
-                        right: 0,
+                        left: 12,
                         top: 0,
                         child: Container(
-                          width: 12,
                           height: 12,
+                          width: dailyReportsListingController
+                                      .notificationsCount.value
+                                      .toString()
+                                      .length >
+                                  1
+                              ? (12 +
+                                      ((dailyReportsListingController
+                                                  .notificationsCount.value
+                                                  .toString()
+                                                  .length -
+                                              1) *
+                                          4))
+                                  .toDouble()
+                              : 12,
                           decoration: BoxDecoration(
                               color: AppColors.colorFFB400,
-                              shape: BoxShape.circle),
+                              borderRadius: BorderRadius.circular(50)),
                           child: Center(
-                              child: Text(
-                            "2",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                    fontSize:
-                                        AppConsts.commonFontSizeFactor * 8),
-                          )),
+                            child: Text(
+                              dailyReportsListingController
+                                  .notificationsCount.value
+                                  .toString(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 8),
+                            ),
+                          ),
                         ))
                   ],
                 ),
@@ -131,7 +146,7 @@ class DailyReportsListingPage extends StatelessWidget {
                   Get.toNamed(AppRoutes.routeProfileDetail);
                 },
                 child: CircleAvatar(
-                  radius: 17,
+                  radius: 14,
                   backgroundImage: AssetImage(AppImages.imgPersonPlaceholder),
                   foregroundImage:
                       dailyReportsListingController.profilePhoto != null
@@ -144,7 +159,7 @@ class DailyReportsListingPage extends StatelessWidget {
           ],
         ),
         backgroundColor: Colors.white,
-        drawer: DrawerWidget(),
+        drawer: MenuDrawerWidget(),
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -181,8 +196,8 @@ class DailyReportsListingPage extends StatelessWidget {
                                 ))
                             : CommonDropdownWidget(
                                 maxDropdownHeight: 200,
-                                onChanged: dailyReportsListingController
-                                    .onChangeService,
+                                onChanged:
+                                    dailyReportsListingController.onChangeUser,
                                 items: dailyReportsListingController.users
                                     .map((user) =>
                                         DropdownMenuItem<EmployeeModel>(
@@ -191,7 +206,11 @@ class DailyReportsListingPage extends StatelessWidget {
                                             user != null ? user.name ?? "" : "",
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .bodySmall,
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                    fontSize: AppConsts
+                                                            .commonFontSizeFactor *
+                                                        14),
                                           ),
                                         ))
                                     .toList(),
@@ -210,11 +229,13 @@ class DailyReportsListingPage extends StatelessWidget {
                                             : "",
                                         style: Theme.of(context)
                                             .textTheme
-                                            .bodySmall
+                                            .bodyMedium
                                             ?.copyWith(
-                                              color: Colors.black
-                                                  .withValues(alpha: 0.5),
-                                            ),
+                                                color: Colors.black
+                                                    .withValues(alpha: 0.5),
+                                                fontSize: AppConsts
+                                                        .commonFontSizeFactor *
+                                                    14),
                                       ),
                                     );
                                   }).toList();
@@ -252,7 +273,11 @@ class DailyReportsListingPage extends StatelessWidget {
                                             time.time,
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .bodySmall,
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                    fontSize: AppConsts
+                                                            .commonFontSizeFactor *
+                                                        14),
                                           ),
                                         ))
                                     .toList(),
@@ -269,11 +294,13 @@ class DailyReportsListingPage extends StatelessWidget {
                                                 time.time),
                                         style: Theme.of(context)
                                             .textTheme
-                                            .bodySmall
+                                            .bodyMedium
                                             ?.copyWith(
-                                              color: Colors.black
-                                                  .withValues(alpha: 0.5),
-                                            ),
+                                                color: Colors.black
+                                                    .withValues(alpha: 0.5),
+                                                fontSize: AppConsts
+                                                        .commonFontSizeFactor *
+                                                    14),
                                       ),
                                     );
                                   }).toList();

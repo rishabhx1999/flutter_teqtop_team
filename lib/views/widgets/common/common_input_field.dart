@@ -73,7 +73,10 @@ class CommonInputField extends StatelessWidget {
       children: [
         Text(
           label.tr.toUpperCase(),
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(fontSize: AppConsts.commonFontSizeFactor * 14),
         ),
         const SizedBox(
           height: 8,
@@ -87,7 +90,7 @@ class CommonInputField extends StatelessWidget {
             enabled: isEnable ?? true,
             controller: controller,
             maxLines: maxLines ?? 1,
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: Theme.of(context).textTheme.bodyLarge,
             keyboardType: inputType ?? TextInputType.name,
             cursorColor: Colors.black,
             textCapitalization: textCapitalization ?? TextCapitalization.none,
@@ -96,7 +99,7 @@ class CommonInputField extends StatelessWidget {
                 enabled: isEnable ?? true,
                 hintStyle: Theme.of(context)
                     .textTheme
-                    .bodyMedium
+                    .bodyLarge
                     ?.copyWith(color: AppColors.colorA9A9A9),
                 suffixIcon: trailing ?? const SizedBox(),
                 fillColor: fillColor ?? Colors.white,
@@ -109,9 +112,9 @@ class CommonInputField extends StatelessWidget {
                 focusedBorder: inputBorder,
                 focusedErrorBorder: errorInputBorder,
                 errorStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.red,
-                    fontSize: AppConsts.commonFontSizeFactor * 12,
-                    fontWeight: FontWeight.w400),
+                      color: Colors.red,
+                      fontSize: AppConsts.commonFontSizeFactor * 12,
+                    ),
                 contentPadding: EdgeInsets.symmetric(
                     horizontal: inputHorizontalPadding ?? 14,
                     vertical: inputVerticalPadding ?? 16)),

@@ -16,7 +16,11 @@ class AppConsts {
 
   //Data Transfer Keys
   static String keyEmployeeId = 'key_employee_id';
+  static String keyDriveURL = 'key_drive_url';
+  static String keyDriveFolderDetail = 'key_drive_folder_detail';
+  static String keyId = 'key_id';
   static String keyProjectId = 'key_project_id';
+  static String keyTaskId = 'key_task_id';
   static String keyEmployeeProfilePhoto = 'key_employee_profile_photo';
   static String keyEmployeeName = 'key_employee_name';
   static String keyDailyReportDate = 'key_daily_report_date';

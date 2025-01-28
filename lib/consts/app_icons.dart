@@ -25,8 +25,11 @@ class AppIcons {
   static const String icNavigateNext = "assets/icons/ic_navigate_next.svg";
   static const String icDownload = "assets/icons/ic_download.svg";
   static const String icDropdown = "assets/icons/ic_dropdown.svg";
+  static const String icDropdown2 = "assets/icons/ic_dropdown_2.svg";
   static const String icEdit = "assets/icons/ic_edit.svg";
   static const String icTask = "assets/icons/ic_task.svg";
   static const String icDrive = "assets/icons/ic_drive.svg";
   static const String icFolder = "assets/icons/ic_folder.svg";
+  static const String icCalendar = "assets/icons/ic_calendar.svg";
+  static const String icPerson = "assets/icons/ic_person.svg";
 }

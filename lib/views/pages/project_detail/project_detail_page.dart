@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/consts/app_images.dart';
 import 'package:teqtop_team/controllers/project_detail/project_detail_controller.dart';
+import 'package:teqtop_team/utils/helpers.dart';
 
 import '../../../config/app_colors.dart';
 import '../../../config/app_routes.dart';
@@ -12,7 +14,7 @@ import '../../../consts/app_consts.dart';
 import '../../../consts/app_icons.dart';
 
 class ProjectDetailPage extends StatelessWidget {
-  final employeeDailyReportsController = Get.put(ProjectDetailController());
+  final projectDetailController = Get.put(ProjectDetailController());
 
   ProjectDetailPage({super.key});
 
@@ -53,7 +55,9 @@ class ProjectDetailPage extends StatelessWidget {
             padding: const EdgeInsets.only(right: 8),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () {},
+              onTap: () {
+                Get.toNamed(AppRoutes.routeProjectCreateEdit);
+              },
               child: Container(
                 width: 68,
                 height: 28,
@@ -76,7 +80,8 @@ class ProjectDetailPage extends StatelessWidget {
                     ),
                     Text(
                       "edit".tr,
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: AppConsts.commonFontSizeFactor * 14),
                     )
                   ],
                 ),
@@ -87,9 +92,7 @@ class ProjectDetailPage extends StatelessWidget {
             padding: const EdgeInsets.only(right: 8),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () {
-                Get.toNamed(AppRoutes.routeDriveDetail);
-              },
+              onTap: projectDetailController.handleDriveOnTap,
               child: Container(
                 width: 68,
                 height: 28,
@@ -112,7 +115,8 @@ class ProjectDetailPage extends StatelessWidget {
                     ),
                     Text(
                       "drive".tr,
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: AppConsts.commonFontSizeFactor * 14),
                     )
                   ],
                 ),
@@ -123,7 +127,9 @@ class ProjectDetailPage extends StatelessWidget {
             padding: const EdgeInsets.only(right: 16),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () {},
+              onTap: () {
+                projectDetailController.handleTaskOnTap();
+              },
               child: Container(
                 width: 68,
                 height: 28,
@@ -146,7 +152,8 @@ class ProjectDetailPage extends StatelessWidget {
                     ),
                     Text(
                       "task".tr,
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: AppConsts.commonFontSizeFactor * 14),
                     )
                   ],
                 ),
@@ -177,27 +184,118 @@ class ProjectDetailPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    "Jared Frost-Redesign some pages layouts for Joomla site-Upwork",
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: AppConsts.commonFontSizeFactor * 22,
-                        fontWeight: FontWeight.w600),
+                  Obx(
+                    () => projectDetailController.isLoading.value
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Shimmer.fromColors(
+                                  baseColor: AppColors.shimmerBaseColor,
+                                  highlightColor:
+                                      AppColors.shimmerHighlightColor,
+                                  child: Container(
+                                    height: 32.0,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(3.0),
+                                      color: AppColors.shimmerBaseColor,
+                                    ),
+                                  )),
+                              const SizedBox(
+                                height: 2,
+                              ),
+                              Shimmer.fromColors(
+                                  baseColor: AppColors.shimmerBaseColor,
+                                  highlightColor:
+                                      AppColors.shimmerHighlightColor,
+                                  child: Container(
+                                    height: 32.0,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(3.0),
+                                      color: AppColors.shimmerBaseColor,
+                                    ),
+                                  ))
+                            ],
+                          )
+                        : Text(
+                            projectDetailController.projectDetail.value != null
+                                ? projectDetailController
+                                        .projectDetail.value!.name ??
+                                    ""
+                                : "",
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(
+                                  fontSize: AppConsts.commonFontSizeFactor * 22,
+                                ),
+                          ),
                   ),
-                  Text(
-                    "www.example.com",
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge,
+                  Obx(
+                    () => projectDetailController.isLoading.value
+                        ? Padding(
+                            padding: EdgeInsets.only(top: 2),
+                            child: Shimmer.fromColors(
+                                baseColor: AppColors.shimmerBaseColor,
+                                highlightColor: AppColors.shimmerHighlightColor,
+                                child: Container(
+                                  height: 24,
+                                  width: 180,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(3.0),
+                                    color: AppColors.shimmerBaseColor,
+                                  ),
+                                )),
+                          )
+                        : Text(
+                            projectDetailController.projectDetail.value != null
+                                ? projectDetailController
+                                        .projectDetail.value!.url ??
+                                    ""
+                                : "",
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 18),
+                          ),
                   ),
                   const SizedBox(
                     height: 8,
                   ),
-                  Text(
-                    DateFormat('MMM dd, yyyy').format(DateTime.now()),
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.black.withValues(alpha: 0.5),
-                        fontWeight: FontWeight.w400),
+                  Obx(
+                    () => projectDetailController.isLoading.value
+                        ? Padding(
+                            padding: EdgeInsets.only(top: 2),
+                            child: Shimmer.fromColors(
+                                baseColor: AppColors.shimmerBaseColor,
+                                highlightColor: AppColors.shimmerHighlightColor,
+                                child: Container(
+                                  height: 20,
+                                  width: 88,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(3.0),
+                                    color: AppColors.shimmerBaseColor,
+                                  ),
+                                )),
+                          )
+                        : Text(
+                            DateFormat('MMM dd, yyyy').format(DateTime.now()),
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                    color: Colors.black.withValues(alpha: 0.5),
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 14),
+                          ),
                   ),
                 ],
               ),
@@ -209,9 +307,41 @@ class ProjectDetailPage extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 "access_detail".tr.toUpperCase(),
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
             ),
+            const SizedBox(
+              height: 12,
+            ),
+            Obx(() => projectDetailController.isLoading.value
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Shimmer.fromColors(
+                        baseColor: AppColors.shimmerBaseColor,
+                        highlightColor: AppColors.shimmerHighlightColor,
+                        child: Container(
+                          height: 100.0,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: AppColors.shimmerBaseColor,
+                          ),
+                        )),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      projectDetailController.projectDetail.value != null &&
+                              projectDetailController
+                                  .projectDetail.value!.accessDetail is String
+                          ? Helpers.formatHtmlParagraphs(projectDetailController
+                              .projectDetail.value!.accessDetail)
+                          : "",
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  )),
+            const SizedBox(
+              height: 16,
+            )
           ],
         ),
       ),

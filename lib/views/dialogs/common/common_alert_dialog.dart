@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/views/widgets/common/common_button.dart';
 import 'package:teqtop_team/views/widgets/common/common_button_outline.dart';
@@ -74,11 +73,10 @@ class CommonDialogContent extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 6),
                 child: Text(
                   title ?? "".tr,
-                  style: GoogleFonts.montserrat(
-                      textStyle: TextStyle(
-                          color: Colors.black,
-                          fontSize: AppConsts.commonFontSizeFactor * 20,
-                          fontWeight: FontWeight.w600)),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyLarge
+                      ?.copyWith(fontSize: AppConsts.commonFontSizeFactor * 20),
                 ),
               )),
           const SizedBox(
@@ -86,11 +84,10 @@ class CommonDialogContent extends StatelessWidget {
           ),
           Text(message.tr,
               textAlign: TextAlign.center,
-              style: GoogleFonts.montserrat(
-                  textStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: AppConsts.commonFontSizeFactor * 18,
-                      fontWeight: FontWeight.w500))),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(fontSize: AppConsts.commonFontSizeFactor * 18)),
           const SizedBox(
             height: 28,
           ),
@@ -109,7 +106,6 @@ class CommonDialogContent extends StatelessWidget {
                           Get.back();
                         },
                     fontWeight: FontWeight.w600,
-                    fontSize: AppConsts.commonFontSizeFactor * 16,
                   ))),
               Visibility(
                   visible: isShowNegativeBtn ?? false,

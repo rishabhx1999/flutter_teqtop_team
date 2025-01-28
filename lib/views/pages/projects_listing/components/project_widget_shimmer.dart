@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:teqtop_team/consts/app_consts.dart';
 
 import '../../../../config/app_colors.dart';
-import '../../../../model/global_search/project_model.dart';
 
 class ProjectWidgetShimmer extends StatelessWidget {
   const ProjectWidgetShimmer({

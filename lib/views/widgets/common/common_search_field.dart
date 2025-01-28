@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:teqtop_team/consts/app_consts.dart';
 
 import '../../../config/app_colors.dart';
 import '../../../consts/app_icons.dart';
 
 class CommonSearchField extends StatelessWidget {
-  final TextEditingController controller;
+  TextEditingController controller;
   final Function(String) onChanged;
   final String hint;
   final RxBool? isShowTrailing;
@@ -38,10 +39,9 @@ class CommonSearchField extends StatelessWidget {
             isDense: true,
             alignLabelWithHint: true,
             hintText: hint.tr,
-            hintStyle: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: AppColors.colorAEAEAE),
+            hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.colorAEAEAE,
+                fontSize: AppConsts.commonFontSizeFactor * 14),
             prefixIcon: isShowLeading ?? true
                 ? Padding(
                     padding: const EdgeInsets.fromLTRB(10, 4, 8, 4),
@@ -85,7 +85,10 @@ class CommonSearchField extends StatelessWidget {
             contentPadding: EdgeInsets.all(8)),
         cursorColor: AppColors.kPrimaryColor,
         keyboardType: TextInputType.text,
-        style: Theme.of(context).textTheme.bodyMedium,
+        style: Theme.of(context)
+            .textTheme
+            .bodyMedium
+            ?.copyWith(fontSize: AppConsts.commonFontSizeFactor * 14),
         onChanged: onChanged,
       ),
     );

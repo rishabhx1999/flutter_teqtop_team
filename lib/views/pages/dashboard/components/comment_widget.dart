@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/utils/helpers.dart';
 
@@ -36,33 +35,25 @@ class CommentWidget extends StatelessWidget {
               const SizedBox(
                 width: 8,
               ),
-              Text(
-                commentData.userName ?? "",
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(
-                width: 4,
-              ),
-              Container(
-                width: 4,
-                height: 4,
-                decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    shape: BoxShape.circle),
-              ),
-              const SizedBox(
-                width: 4,
-              ),
-              Text(
-                commentData.createdAt != null
-                    ? Helpers.formatTimeAgo(commentData.createdAt!)
-                    : "",
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    fontWeight: FontWeight.w400),
+              Expanded(
+                child: RichText(
+                    text: TextSpan(children: [
+                  TextSpan(
+                    text: commentData.userName ?? "",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  WidgetSpan(
+                      child: const SizedBox(
+                    width: 4,
+                  )),
+                  TextSpan(
+                      text: commentData.createdAt != null
+                          ? Helpers.formatTimeAgo(commentData.createdAt!)
+                          : "",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          fontSize: AppConsts.commonFontSizeFactor * 14))
+                ])),
               ),
             ],
           ),
@@ -81,7 +72,7 @@ class CommentWidget extends StatelessWidget {
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall
-                      ?.copyWith(fontWeight: FontWeight.w400),
+                      ?.copyWith(fontSize: AppConsts.commonFontSizeFactor * 14),
                 ),
               )
             ],

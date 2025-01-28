@@ -6,7 +6,7 @@ class FeedModel {
   int? id;
   int? userId;
   String? description;
-  String? files;
+  dynamic files;
   dynamic pins;
   String? status;
   dynamic deletedAt;

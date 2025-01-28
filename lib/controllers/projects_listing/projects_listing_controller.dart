@@ -5,6 +5,7 @@ import '../../config/app_routes.dart';
 import '../../consts/app_consts.dart';
 import '../../network/get_requests.dart';
 import '../../utils/preference_manager.dart';
+import '../dashboard/dashboard_controller.dart';
 
 class ProjectsListingController extends GetxController {
   late final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -14,6 +15,7 @@ class ProjectsListingController extends GetxController {
   late Worker searchTextChangeListenerWorker;
   RxBool isLoading = false.obs;
   RxList<ProjectModel?> projects = <ProjectModel>[].obs;
+  RxInt notificationsCount = 0.obs;
 
   @override
   void onInit() {
@@ -21,6 +23,7 @@ class ProjectsListingController extends GetxController {
     initializeSearchTextController();
     setupSearchTextChangeListener();
     getProjects('');
+    getNotificationsCount();
 
     super.onInit();
   }
@@ -142,6 +145,11 @@ class ProjectsListingController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void getNotificationsCount() {
+    final dashboardController = Get.find<DashboardController>();
+    notificationsCount = dashboardController.notificationsCount;
   }
 
   void handleProjectOnTap(int? projectId) {

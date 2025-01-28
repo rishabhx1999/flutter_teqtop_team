@@ -1,7 +1,12 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:html/dom.dart' as html_dom;
 import 'package:html/parser.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 
 class Helpers {
@@ -131,7 +136,8 @@ class Helpers {
     return lastDayOfLastMonth;
   }
 
-  static DateTime convert12HourTimeStringToDateTime(String time, DateTime date) {
+  static DateTime convert12HourTimeStringToDateTime(
+      String time, DateTime date) {
     final parts = time.split(' ');
     final hourMinute = parts[0].split(':');
     int hour = int.parse(hourMinute[0]);
@@ -144,5 +150,78 @@ class Helpers {
     }
 
     return DateTime(date.year, date.month, date.day, hour, minute);
+  }
+
+  static String convertToHTMLParagraphs(String input) {
+    List<String> lines = input.split('\n');
+
+    List<String> wrappedLines = lines.map((line) => '<p>$line</p>').toList();
+
+    return wrappedLines.join();
+  }
+
+  static String formatHtmlParagraphs(String htmlString) {
+    html_dom.Document document = parse(htmlString);
+
+    final paragraphs = document.getElementsByTagName('p');
+
+    final lines = paragraphs.map((p) {
+      String text = p.text.trim();
+      return text.isNotEmpty ? text : '';
+    }).toList();
+
+    return lines.join('\n');
+  }
+
+  static List<String> extractFilesURLs(String input) {
+    if (input.startsWith('[') && input.endsWith(']')) {
+      return input
+          .substring(1, input.length - 1)
+          .split(RegExp(r',(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)'))
+          .map((e) => e.trim())
+          .map((e) =>
+              e.replaceAll(RegExp(r'\\'), '').replaceAll(RegExp(r'^"|"$'), ''))
+          .toList();
+    } else {
+      return [input];
+    }
+  }
+
+  // static Future<Image> convertFileToImage(File picture) async {
+  //   List<int> imageBase64 = picture.readAsBytesSync();
+  //   String imageAsString = base64Encode(imageBase64);
+  //
+  //   typed_data.Uint8List uint8list =
+  //       typed_data.Uint8List.fromList(base64.decode(imageAsString));
+  //
+  //   return Image.memory(uint8list);
+  // }
+
+  static Future<void> openFile({required String path, String? fileName}) async {
+    final file =
+    await downloadFile(AppConsts.imgInitialUrl + path, fileName!);
+    if (file == null) return;
+    Helpers.printLog(
+        description: "DASHBOARD_CONTROLLER_OPEN_POST_FILE",
+        message: "DOWNLOADED_FILE_PATH = ${file.path}");
+    OpenFile.open(file.path);
+  }
+
+  static Future<File?> downloadFile(String url, String name) async {
+    final appStorage = await getApplicationDocumentsDirectory();
+    final file = File('${appStorage.path}/$name');
+    try {
+      final response = await Dio().get(url,
+          options: Options(
+              responseType: ResponseType.bytes,
+              followRedirects: false,
+              receiveTimeout: Duration(microseconds: 0)));
+      final raf = file.openSync(mode: FileMode.write);
+      raf.writeFromSync(response.data);
+      await raf.close();
+      return file;
+    } catch (e) {
+      return null;
+    }
   }
 }

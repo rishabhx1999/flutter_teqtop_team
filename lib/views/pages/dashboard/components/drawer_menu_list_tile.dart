@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
-
-import '../../../../consts/app_icons.dart';
 
 class DrawerMenuListTile extends StatelessWidget {
   final Function() onTap;
@@ -47,7 +44,10 @@ class DrawerMenuListTile extends StatelessWidget {
               ),
               Text(
                 title.tr,
-                style: Theme.of(context).textTheme.bodyLarge,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(fontSize: AppConsts.commonFontSizeFactor * 18),
               )
             ],
           ),

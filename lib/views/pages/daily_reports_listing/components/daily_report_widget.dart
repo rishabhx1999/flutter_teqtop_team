@@ -12,7 +12,10 @@ class DailyReportWidget extends StatelessWidget {
   final int index;
 
   const DailyReportWidget(
-      {super.key, required this.dailyReportData, required this.onTap, required this.index});
+      {super.key,
+      required this.dailyReportData,
+      required this.onTap,
+      required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +25,7 @@ class DailyReportWidget extends StatelessWidget {
         onTap(index);
       },
       child: Container(
+        padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
             border: Border.all(
                 width: 0.5, color: Colors.black.withValues(alpha: 0.1))),
@@ -52,7 +56,11 @@ class DailyReportWidget extends StatelessWidget {
             ),
             Text(
               dailyReportData.name ?? "",
-              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge,
             ),
             Text(
               dailyReportData.createdAt != null
@@ -60,11 +68,11 @@ class DailyReportWidget extends StatelessWidget {
                       .format(dailyReportData.createdAt!)
                   : "",
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.black.withValues(
-                    alpha: 0.7,
+                    color: Colors.black.withValues(
+                      alpha: 0.7,
+                    ),
+                    fontSize: AppConsts.commonFontSizeFactor * 12,
                   ),
-                  fontSize: AppConsts.commonFontSizeFactor * 12,
-                  fontWeight: FontWeight.w400),
             )
           ],
         ),

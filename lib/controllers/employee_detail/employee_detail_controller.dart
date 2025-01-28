@@ -3,27 +3,34 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:teqtop_team/model/employee_detail/leave_model.dart';
 import 'package:teqtop_team/model/employees_listing/employee_model.dart';
+import 'package:teqtop_team/utils/helpers.dart';
 
 import '../../consts/app_consts.dart';
 import '../../network/get_requests.dart';
+import '../../utils/employee_doc_type.dart';
 
 class EmployeeDetailController extends GetxController
     with GetSingleTickerProviderStateMixin {
   late final TabController tabController;
   late final ScrollController scrollController;
   late final int? employeeId;
+  late final int? id;
   RxBool isEmployeeDetailLoading = false.obs;
   Rx<EmployeeModel?> employeeDetail = Rx<EmployeeModel?>(null);
   List<LeaveModel?> leaves = <LeaveModel?>[];
   RxBool areEmployeeLeavesLoading = false.obs;
   Rx<Map<String, List<LeaveModel>>?> filteredLeaves =
       Rx<Map<String, List<LeaveModel>>?>(null);
+  List<String> aadharCardDocs = [];
+  List<String> panCardDocs = [];
+  List<String> officialDocs = [];
+  List<String> qualificationAndExperienceDocs = [];
 
   @override
   void onInit() {
     initializeTabController();
     initializeScrollController();
-    getEmployeeId();
+    getIds();
 
     super.onInit();
   }
@@ -41,11 +48,14 @@ class EmployeeDetailController extends GetxController
     super.onClose();
   }
 
-  void getEmployeeId() {
+  void getIds() {
     Map? data = Get.arguments;
     if (data != null && data.isNotEmpty) {
       if (data.containsKey(AppConsts.keyEmployeeId)) {
         employeeId = data[AppConsts.keyEmployeeId];
+      }
+      if (data.containsKey(AppConsts.keyId)) {
+        id = data[AppConsts.keyId];
       }
     }
     getEmployeeDetails();
@@ -53,12 +63,13 @@ class EmployeeDetailController extends GetxController
   }
 
   Future<void> getEmployeeDetails() async {
-    if (employeeId != null) {
+    if (id != null) {
       isEmployeeDetailLoading.value = true;
       try {
-        var response = await GetRequests.getEmployeeDetails(employeeId!);
+        var response = await GetRequests.getEmployeeDetails(id!);
         if (response != null) {
           employeeDetail.value = response;
+          await extractEmployeeDocuments();
         } else {
           Get.snackbar("error".tr, "message_server_error".tr);
         }
@@ -66,6 +77,43 @@ class EmployeeDetailController extends GetxController
         isEmployeeDetailLoading.value = false;
       }
     }
+  }
+
+  void openFile(EmployeeDocType docType, int index) {
+    if (docType == EmployeeDocType.aadhaarCard) {
+      Helpers.openFile(
+          path: aadharCardDocs[index],
+          fileName: aadharCardDocs[index].split("/").last);
+    }
+    if (docType == EmployeeDocType.panCard) {
+      Helpers.openFile(
+          path: panCardDocs[index],
+          fileName: panCardDocs[index].split("/").last);
+    }
+    if (docType == EmployeeDocType.officialDoc) {
+      Helpers.openFile(
+          path: officialDocs[index],
+          fileName: officialDocs[index].split("/").last);
+    }
+    if (docType == EmployeeDocType.qualificationOrExperienceDoc) {
+      Helpers.openFile(
+          path: qualificationAndExperienceDocs[index],
+          fileName: qualificationAndExperienceDocs[index].split("/").last);
+    }
+  }
+
+  Future<void> extractEmployeeDocuments() async {
+    Helpers.printLog(
+        description: "EMPLOYEE_DETAIL_CONTROLLER_EXTRACT_EMPLOYEE_DOCUMENTS",
+        message:
+            "OTHER_DOCS = ${Helpers.extractFilesURLs(employeeDetail.value!.otherDocs ?? "")}");
+    aadharCardDocs =
+        Helpers.extractFilesURLs(employeeDetail.value!.adharCard ?? "");
+    panCardDocs = Helpers.extractFilesURLs(employeeDetail.value!.panCard ?? "");
+    officialDocs =
+        Helpers.extractFilesURLs(employeeDetail.value!.officialDocs ?? "");
+    qualificationAndExperienceDocs =
+        Helpers.extractFilesURLs(employeeDetail.value!.otherDocs ?? "");
   }
 
   void initializeTabController() {
@@ -98,10 +146,10 @@ class EmployeeDetailController extends GetxController
 
       areEmployeeLeavesLoading.value = true;
       try {
-        var response = await GetRequests.getEmployeeLeaves(requestBody);
+        var response = await GetRequests.getLeaves(requestBody);
         if (response != null) {
           if (response.data != null) {
-            leaves.assignAll(response.data as Iterable<LeaveModel>);
+            leaves.assignAll(response.data as Iterable<LeaveModel?>);
             groupLeavesByMonth();
           }
         } else {

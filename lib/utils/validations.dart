@@ -105,6 +105,24 @@ class Validations {
     }
   }
 
+  static String? checkStartDateValidations(String? value) {
+    var enteredValue = value?.trim() ?? '';
+    if (enteredValue.isEmpty) {
+      return "message_enter_start_date".tr;
+    } else {
+      return null;
+    }
+  }
+
+  static String? checkEndDateValidations(String? value) {
+    var enteredValue = value?.trim() ?? '';
+    if (enteredValue.isEmpty) {
+      return "message_enter_end_date".tr;
+    } else {
+      return null;
+    }
+  }
+
   static String? checkCurrentAddressValidations(String? value) {
     var enteredValue = value?.trim() ?? '';
     if (enteredValue.isEmpty) {
@@ -118,6 +136,15 @@ class Validations {
     var enteredValue = value?.trim() ?? '';
     if (enteredValue.isEmpty) {
       return "message_enter_project_description".tr;
+    } else {
+      return null;
+    }
+  }
+
+  static String? checkTaskDescriptionValidations(String? value) {
+    var enteredValue = value?.trim() ?? '';
+    if (enteredValue.isEmpty) {
+      return "message_enter_task_description".tr;
     } else {
       return null;
     }
@@ -139,5 +166,46 @@ class Validations {
     } else {
       return null;
     }
+  }
+
+  static String? checkTaskNameValidations(String? value) {
+    var enteredValue = value?.trim() ?? '';
+    if (enteredValue.isEmpty) {
+      return "message_enter_task_name".tr;
+    } else {
+      return null;
+    }
+  }
+
+  static String? checkFolderNameValidations(String? value) {
+    var enteredValue = value?.trim() ?? '';
+    if (enteredValue.isEmpty) {
+      return "message_enter_folder_name".tr;
+    }
+    return null;
+  }
+
+  static String? checkRoleValidations(String? value) {
+    var enteredValue = value?.trim() ?? '';
+    if (enteredValue.isEmpty) {
+      return "message_enter_role".tr;
+    }
+    return null;
+  }
+
+  static String? checkPositionValidations(String? value) {
+    var enteredValue = value?.trim() ?? '';
+    if (enteredValue.isEmpty) {
+      return "message_enter_position".tr;
+    }
+    return null;
+  }
+
+  static String? checkEmployeeIDValidations(String? value) {
+    var enteredValue = value?.trim() ?? '';
+    if (enteredValue.isEmpty) {
+      return "message_enter_employee_id".tr;
+    }
+    return null;
   }
 }

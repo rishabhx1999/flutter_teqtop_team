@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teqtop_team/model/global_search/task_model.dart';
+import '../../config/app_routes.dart';
+import '../../consts/app_consts.dart';
+import '../../network/get_requests.dart';
 import '../../utils/preference_manager.dart';
+import '../dashboard/dashboard_controller.dart';
 
 class TasksListingController extends GetxController {
   late final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -11,12 +15,17 @@ class TasksListingController extends GetxController {
   late Worker searchTextChangeListenerWorker;
   RxBool isLoading = false.obs;
   RxList<TaskModel?> tasks = <TaskModel>[].obs;
+  RxInt notificationsCount = 0.obs;
+  int? projectId;
+  bool singleProjectTasks = false;
 
   @override
   void onInit() {
     getProfilePhoto();
     initializeSearchTextController();
     setupSearchTextChangeListener();
+    getNotificationsCount();
+    checkIfSingleProjectTasks();
 
     super.onInit();
   }
@@ -35,17 +44,41 @@ class TasksListingController extends GetxController {
     super.onClose();
   }
 
+  void checkIfSingleProjectTasks() {
+    var previousRoute = Get.previousRoute;
+    if (previousRoute == AppRoutes.routeGlobalSearch ||
+        previousRoute == AppRoutes.routeProjectDetail) {
+      singleProjectTasks = true;
+    }
+    getProjectId();
+  }
+
+  void getNotificationsCount() {
+    final dashboardController = Get.find<DashboardController>();
+    notificationsCount = dashboardController.notificationsCount;
+  }
+
   void getProfilePhoto() {
     profilePhoto =
         (PreferenceManager.getPref(PreferenceManager.prefUserProfilePhoto)
-        as String?) ??
+                as String?) ??
             '';
+  }
+
+  void getProjectId() {
+    Map? data = Get.arguments;
+    if (data != null && data.isNotEmpty) {
+      if (data.containsKey(AppConsts.keyProjectId)) {
+        projectId = data[AppConsts.keyProjectId];
+      }
+    }
+    getTasks("");
   }
 
   void setupSearchTextChangeListener() {
     RxString searchText = ''.obs;
-    // searchTextChangeListenerWorker =
-    //     debounce(searchText, (callback) => getProjects(searchText.value));
+    searchTextChangeListenerWorker =
+        debounce(searchText, (callback) => getTasks(searchText.value));
 
     searchTextController.addListener(() {
       searchText.value = searchTextController.text.toString().trim();
@@ -74,8 +107,90 @@ class TasksListingController extends GetxController {
   }
 
   void handleTaskOnTap(int? taskId) {
-    // Get.toNamed(AppRoutes.routeProjectDetail, arguments: {
-    //   AppConsts.keyProjectId: projectId,
-    // });
+    Get.toNamed(AppRoutes.routeTaskDetail, arguments: {
+      AppConsts.keyTaskId: taskId,
+    });
+  }
+
+  Future<void> getTasks(String searchText) async {
+    if ((singleProjectTasks == true && projectId != null) ||
+        (singleProjectTasks == false)) {
+      Map<String, String> requestBody = {
+        // 'draw': '20',
+        // 'columns%5B0%5D%5Bdata%5D': 'DT_RowIndex',
+        // 'columns%5B0%5D%5Bname%5D': '',
+        // 'columns%5B0%5D%5Bsearchable%5D': 'true',
+        // 'columns%5B0%5D%5Borderable%5D': 'true',
+        // 'columns%5B0%5D%5Bsearch%5D%5Bvalue%5D': '',
+        // 'columns%5B0%5D%5Bsearch%5D%5Bregex%5D': 'false',
+        // 'columns%5B1%5D%5Bdata%5D': 'employee_id',
+        // 'columns%5B1%5D%5Bname%5D': '',
+        // 'columns%5B1%5D%5Bsearchable%5D': 'true',
+        // 'columns%5B1%5D%5Borderable%5D': 'true',
+        // 'columns%5B1%5D%5Bsearch%5D%5Bvalue%5D': '',
+        // 'columns%5B1%5D%5Bsearch%5D%5Bregex%5D': 'false',
+        // 'columns%5B2%5D%5Bdata%5D': 'name',
+        // 'columns%5B2%5D%5Bname%5D': 'name',
+        // 'columns%5B2%5D%5Bsearchable%5D': 'true',
+        // 'columns%5B2%5D%5Borderable%5D': 'true',
+        // 'columns%5B2%5D%5Bsearch%5D%5Bvalue%5D': '',
+        // 'columns%5B2%5D%5Bsearch%5D%5Bregex%5D': 'false',
+        // 'columns%5B3%5D%5Bdata%5D': 'registered',
+        // 'columns%5B3%5D%5Bname%5D': 'registered',
+        // 'columns%5B3%5D%5Borderable%5D': 'true',
+        // 'columns%5B3%5D%5Bsearch%5D%5Bvalue%5D': '',
+        // 'columns%5B3%5D%5Bsearch%5D%5Bregex%5D': 'false',
+        // 'columns%5B4%5D%5Bdata%5D': 'roles',
+        // 'columns%5B4%5D%5Bname%5D': '',
+        // 'columns%5B4%5D%5Bsearchable%5D': 'true',
+        // 'columns%5B4%5D%5Borderable%5D': 'true',
+        // 'columns%5B4%5D%5Bsearch%5D%5Bvalue%5D': '',
+        // 'columns%5B4%5D%5Bsearch%5D%5Bregex%5D': 'false',
+        // 'columns%5B5%5D%5Bdata%5D': 'status',
+        // 'columns%5B5%5D%5Bname%5D': '',
+        // 'columns%5B5%5D%5Bsearchable%5D': 'true',
+        // 'columns%5B5%5D%5Borderable%5D': 'true',
+        // 'columns%5B5%5D%5Bsearch%5D%5Bvalue%5D': '',
+        // 'columns%5B5%5D%5Bsearch%5D%5Bregex%5D': 'false',
+        // 'columns%5B6%5D%5Bdata%5D': 'action',
+        // 'columns%5B6%5D%5Bname%5D': '',
+        // 'columns%5B6%5D%5Bsearchable%5D': 'false',
+        // 'columns%5B6%5D%5Borderable%5D': 'false',
+        // 'columns%5B6%5D%5Bsearch%5D%5Bvalue%5D': '',
+        // 'columns%5B6%5D%5Bsearch%5D%5Bregex%5D': 'false',
+        'order%5B0%5D%5Bcolumn%5D': '0',
+        'order%5B0%5D%5Bdir%5D': 'DESC',
+        'start': '0',
+        'length': '-1',
+        'search%5Bvalue%5D': searchText,
+        'search%5Bregex%5D': 'false'
+      };
+      if (projectId != null) {
+        requestBody.addIf(projectId != null, 'project', projectId.toString());
+      }
+
+      isLoading.value = true;
+      try {
+        var response = await GetRequests.getTasks(requestBody);
+        if (response != null) {
+          if (response.data != null) {
+            tasks.assignAll(response.data!.toList());
+          }
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
+        }
+      } finally {
+        isLoading.value = false;
+      }
+    }
+  }
+
+  void handleOnGlobalSearchTap() {
+    if (singleProjectTasks == true) {
+      Get.offNamedUntil(AppRoutes.routeGlobalSearch,
+          (route) => route.settings.name == AppRoutes.routeDashboard);
+    } else {
+      Get.toNamed(AppRoutes.routeGlobalSearch);
+    }
   }
 }

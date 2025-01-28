@@ -12,6 +12,10 @@ class CommonDropdownWidget extends StatelessWidget {
   var items;
   final List<Widget> Function(BuildContext)? selectedItemBuilder;
   final double? maxDropdownHeight;
+  final double? height;
+  final Color? backgroundColor;
+  final String? trailingIcon;
+  final Color? trailingIconColor;
 
   CommonDropdownWidget(
       {super.key,
@@ -19,14 +23,18 @@ class CommonDropdownWidget extends StatelessWidget {
       required this.onChanged,
       required this.items,
       this.selectedItemBuilder,
-      this.maxDropdownHeight});
+      this.maxDropdownHeight,
+      this.height,
+      this.backgroundColor,
+      this.trailingIcon,
+      this.trailingIconColor});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 40,
-      color: AppColors.colorD9D9D9.withValues(alpha: 0.2),
+      height: height ?? 40,
+      color: backgroundColor ?? AppColors.colorD9D9D9.withValues(alpha: 0.2),
       child: DropdownButtonHideUnderline(
         child: Obx(
           () => DropdownButton2(
@@ -34,10 +42,12 @@ class CommonDropdownWidget extends StatelessWidget {
                 icon: Padding(
                   padding: EdgeInsets.fromLTRB(8, 8, 16, 8),
                   child: SvgPicture.asset(
-                    AppIcons.icDropdown,
+                    trailingIcon ?? AppIcons.icDropdown,
                     width: 16,
                     colorFilter: ColorFilter.mode(
-                        Colors.black.withValues(alpha: 0.5), BlendMode.srcIn),
+                        trailingIconColor ??
+                            Colors.black.withValues(alpha: 0.5),
+                        BlendMode.srcIn),
                   ),
                 ),
                 iconSize: 40),

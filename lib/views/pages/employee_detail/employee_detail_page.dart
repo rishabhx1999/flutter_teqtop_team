@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/config/app_colors.dart';
+import 'package:teqtop_team/config/app_routes.dart';
 import 'package:teqtop_team/controllers/employee_detail/employee_detail_controller.dart';
+import 'package:teqtop_team/utils/employee_doc_type.dart';
 import 'package:teqtop_team/utils/helpers.dart';
 import 'package:teqtop_team/views/pages/employee_detail/components/leave_widget.dart';
 import 'package:teqtop_team/views/pages/employee_detail/components/leave_widget_shimmer.dart';
@@ -124,10 +126,13 @@ class EmployeeDetailPage extends StatelessWidget {
                                           .employeeDetail.value!.name ??
                                       ""
                                   : "",
+                              textAlign: TextAlign.center,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyLarge
-                                  ?.copyWith(fontWeight: FontWeight.w700),
+                                  ?.copyWith(
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 18),
                             ),
                     ),
                     Obx(() => Visibility(
@@ -161,10 +166,8 @@ class EmployeeDetailPage extends StatelessWidget {
                                           .employeeDetail.value!.email ??
                                       ""
                                   : "",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.normal),
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodySmall,
                             ),
                     ),
                     const SizedBox(
@@ -209,12 +212,15 @@ class EmployeeDetailPage extends StatelessWidget {
                                     ? employeeDetailController
                                         .employeeDetail.value!.status
                                     : "active",
+                                textAlign: TextAlign.center,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .bodySmall
+                                    .bodyLarge
                                     ?.copyWith(
                                         color: Colors.white,
-                                        fontWeight: FontWeight.w600),
+                                        fontSize:
+                                            AppConsts.commonFontSizeFactor *
+                                                14),
                               ),
                             ),
                     ),
@@ -241,10 +247,8 @@ class EmployeeDetailPage extends StatelessWidget {
                     ],
                     labelColor: AppColors.kPrimaryColor,
                     unselectedLabelColor: Colors.black,
-                    labelStyle: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                    labelStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontSize: AppConsts.commonFontSizeFactor * 14),
                     labelPadding: EdgeInsets.zero,
                   ),
                 ),
@@ -270,9 +274,19 @@ class EmployeeDetailPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          "${Helpers.capitalizeFirstLetter("contact_number".tr)}:",
-                          style: Theme.of(context).textTheme.bodySmall,
+                        Expanded(
+                          child: Text(
+                            "${Helpers.capitalizeFirstLetter("contact_number".tr)}:",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 14),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 16,
                         ),
                         Obx(
                           () => employeeDetailController
@@ -291,17 +305,21 @@ class EmployeeDetailPage extends StatelessWidget {
                                       color: AppColors.shimmerBaseColor,
                                     ),
                                   ))
-                              : Text(
-                                  employeeDetailController
-                                                  .employeeDetail.value !=
-                                              null &&
-                                          employeeDetailController
-                                              .employeeDetail
-                                              .value!
-                                              .contactNo is String
-                                      ? "+91 ${employeeDetailController.employeeDetail.value!.contactNo}"
-                                      : "",
-                                  style: Theme.of(context).textTheme.bodyMedium,
+                              : Expanded(
+                                  child: Text(
+                                    employeeDetailController
+                                                    .employeeDetail.value !=
+                                                null &&
+                                            employeeDetailController
+                                                .employeeDetail
+                                                .value!
+                                                .contactNo is String
+                                        ? "+91 ${employeeDetailController.employeeDetail.value!.contactNo}"
+                                        : "",
+                                    textAlign: TextAlign.end,
+                                    style:
+                                        Theme.of(context).textTheme.bodyLarge,
+                                  ),
                                 ),
                         ),
                       ],
@@ -322,9 +340,19 @@ class EmployeeDetailPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          "${"date_of_birth".tr}:",
-                          style: Theme.of(context).textTheme.bodySmall,
+                        Expanded(
+                          child: Text(
+                            "${"date_of_birth".tr}:",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 14),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 16,
                         ),
                         Obx(
                           () => employeeDetailController
@@ -343,19 +371,26 @@ class EmployeeDetailPage extends StatelessWidget {
                                       color: AppColors.shimmerBaseColor,
                                     ),
                                   ))
-                              : Text(
-                                  employeeDetailController
-                                                  .employeeDetail.value !=
-                                              null &&
-                                          employeeDetailController
-                                              .employeeDetail
-                                              .value!
-                                              .birthDate is DateTime
-                                      ? DateFormat("dd/MM/yyyy").format(
-                                          employeeDetailController
-                                              .employeeDetail.value!.birthDate)
-                                      : "",
-                                  style: Theme.of(context).textTheme.bodyMedium,
+                              : Expanded(
+                                  child: Text(
+                                    employeeDetailController
+                                                    .employeeDetail.value !=
+                                                null &&
+                                            employeeDetailController
+                                                .employeeDetail
+                                                .value!
+                                                .birthDate is String
+                                        ? DateFormat("dd/MM/yyyy").format(
+                                            DateTime.parse(
+                                                employeeDetailController
+                                                    .employeeDetail
+                                                    .value!
+                                                    .birthDate))
+                                        : "",
+                                    textAlign: TextAlign.end,
+                                    style:
+                                        Theme.of(context).textTheme.bodyLarge,
+                                  ),
                                 ),
                         ),
                       ],
@@ -376,9 +411,19 @@ class EmployeeDetailPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          "${"role".tr}:",
-                          style: Theme.of(context).textTheme.bodySmall,
+                        Expanded(
+                          child: Text(
+                            "${"role".tr}:",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 14),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 16,
                         ),
                         Obx(
                           () => employeeDetailController
@@ -397,20 +442,24 @@ class EmployeeDetailPage extends StatelessWidget {
                                       color: AppColors.shimmerBaseColor,
                                     ),
                                   ))
-                              : Text(
-                                  employeeDetailController
-                                                  .employeeDetail.value !=
-                                              null &&
-                                          employeeDetailController
-                                                  .employeeDetail
-                                                  .value!
-                                                  .roles !=
-                                              null
-                                      ? employeeDetailController
-                                              .employeeDetail.value!.roles ??
-                                          ""
-                                      : "",
-                                  style: Theme.of(context).textTheme.bodyMedium,
+                              : Expanded(
+                                  child: Text(
+                                    employeeDetailController
+                                                    .employeeDetail.value !=
+                                                null &&
+                                            employeeDetailController
+                                                    .employeeDetail
+                                                    .value!
+                                                    .roles !=
+                                                null
+                                        ? employeeDetailController
+                                                .employeeDetail.value!.roles ??
+                                            ""
+                                        : "",
+                                    textAlign: TextAlign.end,
+                                    style:
+                                        Theme.of(context).textTheme.bodyLarge,
+                                  ),
                                 ),
                         ),
                       ],
@@ -431,9 +480,19 @@ class EmployeeDetailPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          "${"position".tr}:",
-                          style: Theme.of(context).textTheme.bodySmall,
+                        Expanded(
+                          child: Text(
+                            "${"position".tr}:",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 14),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 16,
                         ),
                         Obx(
                           () => employeeDetailController
@@ -452,18 +511,22 @@ class EmployeeDetailPage extends StatelessWidget {
                                       color: AppColors.shimmerBaseColor,
                                     ),
                                   ))
-                              : Text(
-                                  employeeDetailController
-                                                  .employeeDetail.value !=
-                                              null &&
-                                          employeeDetailController
-                                              .employeeDetail
-                                              .value!
-                                              .userPosition is String
-                                      ? employeeDetailController
-                                          .employeeDetail.value!.userPosition
-                                      : "",
-                                  style: Theme.of(context).textTheme.bodyMedium,
+                              : Expanded(
+                                  child: Text(
+                                    employeeDetailController
+                                                    .employeeDetail.value !=
+                                                null &&
+                                            employeeDetailController
+                                                .employeeDetail
+                                                .value!
+                                                .userPosition is String
+                                        ? employeeDetailController
+                                            .employeeDetail.value!.userPosition
+                                        : "",
+                                    textAlign: TextAlign.end,
+                                    style:
+                                        Theme.of(context).textTheme.bodyLarge,
+                                  ),
                                 ),
                         ),
                       ],
@@ -484,9 +547,19 @@ class EmployeeDetailPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          "${"employee_id".tr}:",
-                          style: Theme.of(context).textTheme.bodySmall,
+                        Expanded(
+                          child: Text(
+                            "${"employee_id".tr}:",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 14),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 16,
                         ),
                         Obx(
                           () => employeeDetailController
@@ -505,20 +578,26 @@ class EmployeeDetailPage extends StatelessWidget {
                                       color: AppColors.shimmerBaseColor,
                                     ),
                                   ))
-                              : Text(
-                                  employeeDetailController
-                                                  .employeeDetail.value !=
-                                              null &&
-                                          employeeDetailController
-                                                  .employeeDetail
-                                                  .value!
-                                                  .employeeId !=
-                                              null
-                                      ? employeeDetailController.employeeDetail
-                                              .value!.employeeId ??
-                                          ""
-                                      : "",
-                                  style: Theme.of(context).textTheme.bodyMedium,
+                              : Expanded(
+                                  child: Text(
+                                    employeeDetailController
+                                                    .employeeDetail.value !=
+                                                null &&
+                                            employeeDetailController
+                                                    .employeeDetail
+                                                    .value!
+                                                    .employeeId !=
+                                                null
+                                        ? employeeDetailController
+                                                .employeeDetail
+                                                .value!
+                                                .employeeId ??
+                                            ""
+                                        : "",
+                                    style:
+                                        Theme.of(context).textTheme.bodyLarge,
+                                    textAlign: TextAlign.end,
+                                  ),
                                 ),
                         ),
                       ],
@@ -539,9 +618,19 @@ class EmployeeDetailPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          "${"registered_on".tr}:",
-                          style: Theme.of(context).textTheme.bodySmall,
+                        Expanded(
+                          child: Text(
+                            "${"registered_on".tr}:",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 14),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 16,
                         ),
                         Obx(
                           () => employeeDetailController
@@ -560,20 +649,26 @@ class EmployeeDetailPage extends StatelessWidget {
                                       color: AppColors.shimmerBaseColor,
                                     ),
                                   ))
-                              : Text(
-                                  employeeDetailController
-                                                  .employeeDetail.value !=
-                                              null &&
-                                          employeeDetailController
-                                                  .employeeDetail
-                                                  .value!
-                                                  .createdAt !=
-                                              null
-                                      ? DateFormat("MMM dd, yyyy HH:mm").format(
-                                          employeeDetailController
-                                              .employeeDetail.value!.createdAt!)
-                                      : "",
-                                  style: Theme.of(context).textTheme.bodyMedium,
+                              : Expanded(
+                                  child: Text(
+                                    employeeDetailController
+                                                    .employeeDetail.value !=
+                                                null &&
+                                            employeeDetailController
+                                                    .employeeDetail
+                                                    .value!
+                                                    .createdAt !=
+                                                null
+                                        ? DateFormat("MMM dd, yyyy HH:mm")
+                                            .format(employeeDetailController
+                                                .employeeDetail
+                                                .value!
+                                                .createdAt!)
+                                        : "",
+                                    textAlign: TextAlign.end,
+                                    style:
+                                        Theme.of(context).textTheme.bodyLarge,
+                                  ),
                                 ),
                         ),
                       ],
@@ -594,9 +689,19 @@ class EmployeeDetailPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          "${"joining_date".tr}:",
-                          style: Theme.of(context).textTheme.bodySmall,
+                        Expanded(
+                          child: Text(
+                            "${"joining_date".tr}:",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 14),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 16,
                         ),
                         Obx(
                           () => employeeDetailController
@@ -615,21 +720,25 @@ class EmployeeDetailPage extends StatelessWidget {
                                       color: AppColors.shimmerBaseColor,
                                     ),
                                   ))
-                              : Text(
-                                  employeeDetailController
-                                                  .employeeDetail.value !=
-                                              null &&
-                                          employeeDetailController
-                                              .employeeDetail
-                                              .value!
-                                              .joiningDate is DateTime
-                                      ? DateFormat("MMM dd, yyyy HH:mm").format(
-                                          employeeDetailController
-                                              .employeeDetail
-                                              .value!
-                                              .joiningDate)
-                                      : "",
-                                  style: Theme.of(context).textTheme.bodyMedium,
+                              : Expanded(
+                                  child: Text(
+                                    employeeDetailController
+                                                    .employeeDetail.value !=
+                                                null &&
+                                            employeeDetailController
+                                                .employeeDetail
+                                                .value!
+                                                .joiningDate is DateTime
+                                        ? DateFormat("MMM dd, yyyy HH:mm")
+                                            .format(employeeDetailController
+                                                .employeeDetail
+                                                .value!
+                                                .joiningDate)
+                                        : "",
+                                    textAlign: TextAlign.end,
+                                    style:
+                                        Theme.of(context).textTheme.bodyLarge,
+                                  ),
                                 ),
                         ),
                       ],
@@ -637,7 +746,11 @@ class EmployeeDetailPage extends StatelessWidget {
                     const SizedBox(
                       height: 88,
                     ),
-                    CommonButton(text: "edit_information", onClick: () {})
+                    CommonButton(
+                        text: "edit_information",
+                        onClick: () {
+                          Get.toNamed(AppRoutes.routeEditEmployeeInformation);
+                        })
                   ],
                 ),
               ),
@@ -654,27 +767,23 @@ class EmployeeDetailPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         "aadhar_card".tr.toUpperCase(),
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: AppConsts.commonFontSizeFactor * 14),
                       ),
                     ),
                     const SizedBox(
                       height: 10,
                     ),
-                    SizedBox(
-                      height: 98,
-                      child: SingleChildScrollView(
-                        physics: BouncingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const SizedBox(
-                              width: 16,
-                            ),
-                            Obx(
-                              () => employeeDetailController
+                    Obx(
+                      () => SizedBox(
+                        height: 98,
+                        child: ListView.separated(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            scrollDirection: Axis.horizontal,
+                            physics: BouncingScrollPhysics(),
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              return employeeDetailController
                                           .isEmployeeDetailLoading.value ||
                                       employeeDetailController
                                           .areEmployeeLeavesLoading.value
@@ -691,63 +800,80 @@ class EmployeeDetailPage extends StatelessWidget {
                                           color: AppColors.shimmerBaseColor,
                                         ),
                                       ))
-                                  : Image.asset(
-                                      AppImages.imgPlaceholder,
-                                      width: 152,
-                                      height: 98,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Obx(
-                              () => employeeDetailController
-                                          .isEmployeeDetailLoading.value ||
-                                      employeeDetailController
-                                          .areEmployeeLeavesLoading.value
-                                  ? Shimmer.fromColors(
-                                      baseColor: AppColors.shimmerBaseColor,
-                                      highlightColor:
-                                          AppColors.shimmerHighlightColor,
-                                      child: Container(
-                                        height: 98,
-                                        width: 152,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(3.0),
-                                          color: AppColors.shimmerBaseColor,
-                                        ),
-                                      ))
-                                  : Image.asset(
-                                      AppImages.imgPlaceholder,
-                                      width: 152,
-                                      height: 98,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Container(
-                              width: 52,
-                              height: 98,
-                              decoration:
-                                  BoxDecoration(color: AppColors.kPrimaryColor),
-                              child: Center(
-                                child: SvgPicture.asset(
-                                  AppIcons.icDownload,
-                                  width: 24,
-                                  colorFilter: const ColorFilter.mode(
-                                      Colors.white, BlendMode.srcIn),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 16,
-                            ),
-                          ],
-                        ),
+                                  : GestureDetector(
+                                      onTap: () {
+                                        employeeDetailController.openFile(
+                                            EmployeeDocType.aadhaarCard, index);
+                                      },
+                                      behavior: HitTestBehavior.opaque,
+                                      child: Helpers.isImage(
+                                              employeeDetailController
+                                                  .aadharCardDocs[index])
+                                          ? FadeInImage.assetNetwork(
+                                              width: 152,
+                                              height: 98,
+                                              placeholder:
+                                                  AppImages.imgPlaceholder,
+                                              // Placeholder image
+                                              image: AppConsts.imgInitialUrl +
+                                                  employeeDetailController
+                                                      .aadharCardDocs[index],
+                                              imageErrorBuilder:
+                                                  (BuildContext context,
+                                                      Object error,
+                                                      StackTrace? stackTrace) {
+                                                return Image.asset(
+                                                  AppImages.imgPlaceholder,
+                                                  width: 152,
+                                                  height: 98,
+                                                  fit: BoxFit.cover,
+                                                );
+                                              },
+                                              fit: BoxFit.cover,
+                                            )
+                                          : employeeDetailController
+                                                  .aadharCardDocs[index]
+                                                  .isNotEmpty
+                                              ? Container(
+                                                  width: 152,
+                                                  height: 98,
+                                                  padding:
+                                                      const EdgeInsets.all(8),
+                                                  color:
+                                                      AppColors.kPrimaryColor,
+                                                  child: Center(
+                                                    child: Text(
+                                                      employeeDetailController
+                                                          .aadharCardDocs[index]
+                                                          .split("/")
+                                                          .last,
+                                                      maxLines: 3,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyMedium
+                                                          ?.copyWith(
+                                                              color:
+                                                                  Colors.white),
+                                                    ),
+                                                  ),
+                                                )
+                                              : const SizedBox(),
+                                    );
+                            },
+                            separatorBuilder: (context, index) {
+                              return const SizedBox(
+                                width: 10,
+                              );
+                            },
+                            itemCount: employeeDetailController
+                                        .isEmployeeDetailLoading.value ||
+                                    employeeDetailController
+                                        .areEmployeeLeavesLoading.value
+                                ? 2
+                                : employeeDetailController
+                                    .aadharCardDocs.length),
                       ),
                     ),
                     const SizedBox(
@@ -757,27 +883,23 @@ class EmployeeDetailPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         "pan_card".tr.toUpperCase(),
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: AppConsts.commonFontSizeFactor * 14),
                       ),
                     ),
                     const SizedBox(
                       height: 10,
                     ),
-                    SizedBox(
-                      height: 98,
-                      child: SingleChildScrollView(
-                        physics: BouncingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const SizedBox(
-                              width: 16,
-                            ),
-                            Obx(
-                              () => employeeDetailController
+                    Obx(
+                      () => SizedBox(
+                        height: 98,
+                        child: ListView.separated(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            scrollDirection: Axis.horizontal,
+                            physics: BouncingScrollPhysics(),
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              return employeeDetailController
                                           .isEmployeeDetailLoading.value ||
                                       employeeDetailController
                                           .areEmployeeLeavesLoading.value
@@ -794,63 +916,78 @@ class EmployeeDetailPage extends StatelessWidget {
                                           color: AppColors.shimmerBaseColor,
                                         ),
                                       ))
-                                  : Image.asset(
-                                      AppImages.imgPlaceholder,
-                                      width: 152,
-                                      height: 98,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Obx(
-                              () => employeeDetailController
-                                          .isEmployeeDetailLoading.value ||
-                                      employeeDetailController
-                                          .areEmployeeLeavesLoading.value
-                                  ? Shimmer.fromColors(
-                                      baseColor: AppColors.shimmerBaseColor,
-                                      highlightColor:
-                                          AppColors.shimmerHighlightColor,
-                                      child: Container(
-                                        height: 98,
-                                        width: 152,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(3.0),
-                                          color: AppColors.shimmerBaseColor,
-                                        ),
-                                      ))
-                                  : Image.asset(
-                                      AppImages.imgPlaceholder,
-                                      width: 152,
-                                      height: 98,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Container(
-                              width: 52,
-                              height: 98,
-                              decoration:
-                                  BoxDecoration(color: AppColors.kPrimaryColor),
-                              child: Center(
-                                child: SvgPicture.asset(
-                                  AppIcons.icDownload,
-                                  width: 24,
-                                  colorFilter: const ColorFilter.mode(
-                                      Colors.white, BlendMode.srcIn),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 16,
-                            ),
-                          ],
-                        ),
+                                  : GestureDetector(
+                                      onTap: () {
+                                        employeeDetailController.openFile(
+                                            EmployeeDocType.panCard, index);
+                                      },
+                                      behavior: HitTestBehavior.opaque,
+                                      child: Helpers.isImage(
+                                              employeeDetailController
+                                                  .panCardDocs[index])
+                                          ? FadeInImage.assetNetwork(
+                                              width: 152,
+                                              height: 98,
+                                              placeholder:
+                                                  AppImages.imgPlaceholder,
+                                              // Placeholder image
+                                              image: AppConsts.imgInitialUrl +
+                                                  employeeDetailController
+                                                      .panCardDocs[index],
+                                              imageErrorBuilder:
+                                                  (BuildContext context,
+                                                      Object error,
+                                                      StackTrace? stackTrace) {
+                                                return Image.asset(
+                                                  AppImages.imgPlaceholder,
+                                                  width: 152,
+                                                  height: 98,
+                                                  fit: BoxFit.cover,
+                                                );
+                                              },
+                                              fit: BoxFit.cover,
+                                            )
+                                          : employeeDetailController
+                                                  .panCardDocs[index].isNotEmpty
+                                              ? Container(
+                                                  padding:
+                                                      const EdgeInsets.all(8),
+                                                  width: 152,
+                                                  height: 98,
+                                                  color:
+                                                      AppColors.kPrimaryColor,
+                                                  child: Center(
+                                                    child: Text(
+                                                      employeeDetailController
+                                                          .panCardDocs[index]
+                                                          .split("/")
+                                                          .last,
+                                                      maxLines: 3,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyMedium
+                                                          ?.copyWith(
+                                                              color:
+                                                                  Colors.white),
+                                                    ),
+                                                  ),
+                                                )
+                                              : const SizedBox(),
+                                    );
+                            },
+                            separatorBuilder: (context, index) {
+                              return const SizedBox(
+                                width: 10,
+                              );
+                            },
+                            itemCount: employeeDetailController
+                                        .isEmployeeDetailLoading.value ||
+                                    employeeDetailController
+                                        .areEmployeeLeavesLoading.value
+                                ? 2
+                                : employeeDetailController.panCardDocs.length),
                       ),
                     ),
                     const SizedBox(
@@ -860,27 +997,23 @@ class EmployeeDetailPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         "official_document".tr.toUpperCase(),
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: AppConsts.commonFontSizeFactor * 14),
                       ),
                     ),
                     const SizedBox(
                       height: 10,
                     ),
-                    SizedBox(
-                      height: 98,
-                      child: SingleChildScrollView(
-                        physics: BouncingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const SizedBox(
-                              width: 16,
-                            ),
-                            Obx(
-                              () => employeeDetailController
+                    Obx(
+                      () => SizedBox(
+                        height: 98,
+                        child: ListView.separated(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            scrollDirection: Axis.horizontal,
+                            physics: BouncingScrollPhysics(),
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              return employeeDetailController
                                           .isEmployeeDetailLoading.value ||
                                       employeeDetailController
                                           .areEmployeeLeavesLoading.value
@@ -897,63 +1030,79 @@ class EmployeeDetailPage extends StatelessWidget {
                                           color: AppColors.shimmerBaseColor,
                                         ),
                                       ))
-                                  : Image.asset(
-                                      AppImages.imgPlaceholder,
-                                      width: 152,
-                                      height: 98,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Obx(
-                              () => employeeDetailController
-                                          .isEmployeeDetailLoading.value ||
-                                      employeeDetailController
-                                          .areEmployeeLeavesLoading.value
-                                  ? Shimmer.fromColors(
-                                      baseColor: AppColors.shimmerBaseColor,
-                                      highlightColor:
-                                          AppColors.shimmerHighlightColor,
-                                      child: Container(
-                                        height: 98,
-                                        width: 152,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(3.0),
-                                          color: AppColors.shimmerBaseColor,
-                                        ),
-                                      ))
-                                  : Image.asset(
-                                      AppImages.imgPlaceholder,
-                                      width: 152,
-                                      height: 98,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Container(
-                              width: 52,
-                              height: 98,
-                              decoration:
-                                  BoxDecoration(color: AppColors.kPrimaryColor),
-                              child: Center(
-                                child: SvgPicture.asset(
-                                  AppIcons.icDownload,
-                                  width: 24,
-                                  colorFilter: const ColorFilter.mode(
-                                      Colors.white, BlendMode.srcIn),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 16,
-                            ),
-                          ],
-                        ),
+                                  : GestureDetector(
+                                      onTap: () {
+                                        employeeDetailController.openFile(
+                                            EmployeeDocType.officialDoc, index);
+                                      },
+                                      behavior: HitTestBehavior.opaque,
+                                      child: Helpers.isImage(
+                                              employeeDetailController
+                                                  .officialDocs[index])
+                                          ? FadeInImage.assetNetwork(
+                                              width: 152,
+                                              height: 98,
+                                              placeholder:
+                                                  AppImages.imgPlaceholder,
+                                              // Placeholder image
+                                              image: AppConsts.imgInitialUrl +
+                                                  employeeDetailController
+                                                      .officialDocs[index],
+                                              imageErrorBuilder:
+                                                  (BuildContext context,
+                                                      Object error,
+                                                      StackTrace? stackTrace) {
+                                                return Image.asset(
+                                                  AppImages.imgPlaceholder,
+                                                  width: 152,
+                                                  height: 98,
+                                                  fit: BoxFit.cover,
+                                                );
+                                              },
+                                              fit: BoxFit.cover,
+                                            )
+                                          : employeeDetailController
+                                                  .officialDocs[index]
+                                                  .isNotEmpty
+                                              ? Container(
+                                                  padding:
+                                                      const EdgeInsets.all(8),
+                                                  width: 152,
+                                                  height: 98,
+                                                  color:
+                                                      AppColors.kPrimaryColor,
+                                                  child: Center(
+                                                    child: Text(
+                                                      employeeDetailController
+                                                          .officialDocs[index]
+                                                          .split("/")
+                                                          .last,
+                                                      maxLines: 3,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyMedium
+                                                          ?.copyWith(
+                                                              color:
+                                                                  Colors.white),
+                                                    ),
+                                                  ),
+                                                )
+                                              : const SizedBox(),
+                                    );
+                            },
+                            separatorBuilder: (context, index) {
+                              return const SizedBox(
+                                width: 10,
+                              );
+                            },
+                            itemCount: employeeDetailController
+                                        .isEmployeeDetailLoading.value ||
+                                    employeeDetailController
+                                        .areEmployeeLeavesLoading.value
+                                ? 2
+                                : employeeDetailController.officialDocs.length),
                       ),
                     ),
                     const SizedBox(
@@ -963,27 +1112,23 @@ class EmployeeDetailPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         "qualification_experience_document".tr.toUpperCase(),
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: AppConsts.commonFontSizeFactor * 14),
                       ),
                     ),
                     const SizedBox(
                       height: 10,
                     ),
-                    SizedBox(
-                      height: 98,
-                      child: SingleChildScrollView(
-                        physics: BouncingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const SizedBox(
-                              width: 16,
-                            ),
-                            Obx(
-                              () => employeeDetailController
+                    Obx(
+                      () => SizedBox(
+                        height: 98,
+                        child: ListView.separated(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            scrollDirection: Axis.horizontal,
+                            physics: BouncingScrollPhysics(),
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              return employeeDetailController
                                           .isEmployeeDetailLoading.value ||
                                       employeeDetailController
                                           .areEmployeeLeavesLoading.value
@@ -1000,63 +1145,84 @@ class EmployeeDetailPage extends StatelessWidget {
                                           color: AppColors.shimmerBaseColor,
                                         ),
                                       ))
-                                  : Image.asset(
-                                      AppImages.imgPlaceholder,
-                                      width: 152,
-                                      height: 98,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Obx(
-                              () => employeeDetailController
-                                          .isEmployeeDetailLoading.value ||
-                                      employeeDetailController
-                                          .areEmployeeLeavesLoading.value
-                                  ? Shimmer.fromColors(
-                                      baseColor: AppColors.shimmerBaseColor,
-                                      highlightColor:
-                                          AppColors.shimmerHighlightColor,
-                                      child: Container(
-                                        height: 98,
-                                        width: 152,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(3.0),
-                                          color: AppColors.shimmerBaseColor,
-                                        ),
-                                      ))
-                                  : Image.asset(
-                                      AppImages.imgPlaceholder,
-                                      width: 152,
-                                      height: 98,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Container(
-                              width: 52,
-                              height: 98,
-                              decoration:
-                                  BoxDecoration(color: AppColors.kPrimaryColor),
-                              child: Center(
-                                child: SvgPicture.asset(
-                                  AppIcons.icDownload,
-                                  width: 24,
-                                  colorFilter: const ColorFilter.mode(
-                                      Colors.white, BlendMode.srcIn),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 16,
-                            ),
-                          ],
-                        ),
+                                  : GestureDetector(
+                                      onTap: () {
+                                        employeeDetailController.openFile(
+                                            EmployeeDocType
+                                                .qualificationOrExperienceDoc,
+                                            index);
+                                      },
+                                      behavior: HitTestBehavior.opaque,
+                                      child: Helpers.isImage(
+                                              employeeDetailController
+                                                      .qualificationAndExperienceDocs[
+                                                  index])
+                                          ? FadeInImage.assetNetwork(
+                                              width: 152,
+                                              height: 98,
+                                              placeholder:
+                                                  AppImages.imgPlaceholder,
+                                              image: AppConsts.imgInitialUrl +
+                                                  employeeDetailController
+                                                          .qualificationAndExperienceDocs[
+                                                      index],
+                                              imageErrorBuilder:
+                                                  (BuildContext context,
+                                                      Object error,
+                                                      StackTrace? stackTrace) {
+                                                return Image.asset(
+                                                  AppImages.imgPlaceholder,
+                                                  width: 152,
+                                                  height: 98,
+                                                  fit: BoxFit.cover,
+                                                );
+                                              },
+                                              fit: BoxFit.cover,
+                                            )
+                                          : employeeDetailController
+                                                  .qualificationAndExperienceDocs[
+                                                      index]
+                                                  .isNotEmpty
+                                              ? Container(
+                                                  width: 152,
+                                                  height: 98,
+                                                  padding: EdgeInsets.all(8),
+                                                  color:
+                                                      AppColors.kPrimaryColor,
+                                                  child: Center(
+                                                    child: Text(
+                                                      employeeDetailController
+                                                          .qualificationAndExperienceDocs[
+                                                              index]
+                                                          .split("/")
+                                                          .last,
+                                                      maxLines: 3,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyMedium
+                                                          ?.copyWith(
+                                                              color:
+                                                                  Colors.white),
+                                                    ),
+                                                  ),
+                                                )
+                                              : const SizedBox(),
+                                    );
+                            },
+                            separatorBuilder: (context, index) {
+                              return const SizedBox(
+                                width: 10,
+                              );
+                            },
+                            itemCount: employeeDetailController
+                                        .isEmployeeDetailLoading.value ||
+                                    employeeDetailController
+                                        .areEmployeeLeavesLoading.value
+                                ? 2
+                                : employeeDetailController
+                                    .qualificationAndExperienceDocs.length),
                       ),
                     ),
                     const SizedBox(
@@ -1097,7 +1263,9 @@ class EmployeeDetailPage extends StatelessWidget {
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemBuilder: (context, index) {
-                                  return LeaveWidgetShimmer();
+                                  return LeaveWidgetShimmer(
+                                    showUserShimmer: false,
+                                  );
                                 },
                                 separatorBuilder: (context, index) {
                                   return const SizedBox(
@@ -1125,8 +1293,13 @@ class EmployeeDetailPage extends StatelessWidget {
                                     ),
                                     Text(
                                       entry.key,
-                                      style:
-                                          Theme.of(context).textTheme.bodySmall,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                              fontSize: AppConsts
+                                                      .commonFontSizeFactor *
+                                                  14),
                                     ),
                                     ListView.separated(
                                         padding: const EdgeInsets.only(
@@ -1136,6 +1309,7 @@ class EmployeeDetailPage extends StatelessWidget {
                                             const NeverScrollableScrollPhysics(),
                                         itemBuilder: (context, index) {
                                           return LeaveWidget(
+                                            showEmployeeDetail: false,
                                             leaveData: entry.value[index],
                                           );
                                         },

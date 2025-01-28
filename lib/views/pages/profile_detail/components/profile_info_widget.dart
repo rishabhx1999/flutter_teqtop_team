@@ -39,7 +39,7 @@ class ProfileInfoWidget extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: Theme.of(context)
                     .textTheme
-                    .bodySmall
+                    .bodyMedium
                     ?.copyWith(fontSize: AppConsts.commonFontSizeFactor * 12),
               ),
             ),
@@ -57,7 +57,8 @@ class ProfileInfoWidget extends StatelessWidget {
         ),
         Text(
           data,
-          style: Theme.of(context).textTheme.bodyMedium,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyLarge,
         )
       ],
     );

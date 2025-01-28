@@ -1,5 +1,7 @@
 class UserModel {
   int? id;
+  String? text;
+  bool? isEdit;
   String? name;
   String? email;
   String? roles;
@@ -12,7 +14,7 @@ class UserModel {
   int? position;
   dynamic department;
   dynamic departmentId;
-  DateTime? birthDate;
+  dynamic birthDate;
   dynamic joiningDate;
   dynamic appraiselDate;
   String? additionalInfo;
@@ -29,6 +31,8 @@ class UserModel {
 
   UserModel({
     this.id,
+    this.text,
+    this.isEdit,
     this.name,
     this.email,
     this.roles,
@@ -59,6 +63,8 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
         id: json["id"],
+        text: json["text"],
+        isEdit: json["is_edit"],
         name: json["name"],
         email: json["email"],
         roles: json["roles"],
@@ -71,7 +77,7 @@ class UserModel {
         position: json["position"],
         department: json["department"],
         departmentId: json["department_id"],
-        birthDate: DateTime.parse(json["birth_date"]),
+        birthDate: json["birth_date"],
         joiningDate: json["joining_date"],
         appraiselDate: json["appraisel_date"],
         additionalInfo: json["additional_info"],
@@ -83,12 +89,18 @@ class UserModel {
         permanentAddress: json["permanent_address"],
         remarks: json["remarks"],
         shift: json["shift"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
+        createdAt: json["created_at"] == null
+            ? null
+            : DateTime.parse(json["created_at"]),
+        updatedAt: json["updated_at"] == null
+            ? null
+            : DateTime.parse(json["updated_at"]),
       );
 
   Map<String, dynamic> toJson() => {
         "id": id,
+        "text": text,
+        "is_edit": isEdit,
         "name": name,
         "email": email,
         "roles": roles,
@@ -101,7 +113,7 @@ class UserModel {
         "position": position,
         "department": department,
         "department_id": departmentId,
-        "birth_date": birthDate == null ? null : birthDate!.toIso8601String(),
+        "birth_date": birthDate,
         "joining_date": joiningDate,
         "appraisel_date": appraiselDate,
         "additional_info": additionalInfo,

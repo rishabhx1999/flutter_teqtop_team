@@ -16,6 +16,7 @@ class CreateCommentWidget extends StatelessWidget {
   final bool? isEnable;
   final bool? showFloatingLabel;
   final TextCapitalization? textCapitalization;
+  final Future<void> Function() createComment;
 
   final inputBorder = OutlineInputBorder(
       borderRadius: const BorderRadius.only(
@@ -34,7 +35,8 @@ class CreateCommentWidget extends StatelessWidget {
       this.maxLines,
       this.isEnable,
       this.showFloatingLabel,
-      this.textCapitalization});
+      this.textCapitalization,
+      required this.createComment});
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +54,7 @@ class CreateCommentWidget extends StatelessWidget {
           TextField(
             controller: controller,
             maxLines: maxLines ?? 1,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(fontWeight: FontWeight.w500),
+            style: Theme.of(context).textTheme.bodyMedium,
             keyboardType: inputType ?? TextInputType.name,
             cursorColor: Colors.black,
             textCapitalization: textCapitalization ?? TextCapitalization.none,
@@ -63,8 +62,8 @@ class CreateCommentWidget extends StatelessWidget {
                 hintText: (showFloatingLabel ?? false) ? '' : hint.tr,
                 enabled: isEnable ?? true,
                 hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    fontWeight: FontWeight.w500),
+                      color: Colors.black.withValues(alpha: 0.3),
+                    ),
                 fillColor: Colors.white,
                 filled: true,
                 border: inputBorder,
@@ -82,6 +81,9 @@ class CreateCommentWidget extends StatelessWidget {
               top: 0,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  createComment();
+                },
                 child: Container(
                   width: 54,
                   height: 52,

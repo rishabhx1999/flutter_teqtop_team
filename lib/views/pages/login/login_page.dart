@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/controllers/login/login_controller.dart';
@@ -42,19 +43,21 @@ class LoginPage extends StatelessWidget {
                           height: 168,
                         ),
                         Text('welcome_back'.tr,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineLarge
-                                ?.copyWith(
-                                  color: AppColors.kPrimaryColor,
-                                  fontSize: AppConsts.commonFontSizeFactor * 36,
-                                  fontWeight: FontWeight.w700,
-                                )),
+                            style: GoogleFonts.montserrat(
+                              textStyle: TextStyle(
+                                color: AppColors.kPrimaryColor,
+                                fontSize: AppConsts.commonFontSizeFactor * 36,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            )),
                         Text('sign_in_to_continue'.tr,
                             style: Theme.of(context)
                                 .textTheme
-                                .headlineLarge
-                                ?.copyWith(color: AppColors.kPrimaryColor)),
+                                .bodyMedium
+                                ?.copyWith(
+                                    color: AppColors.kPrimaryColor,
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 24)),
                         const SizedBox(
                           height: 64,
                         ),

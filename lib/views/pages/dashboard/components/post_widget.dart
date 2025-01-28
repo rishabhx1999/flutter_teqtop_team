@@ -1,16 +1,13 @@
-import 'dart:convert';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:get/get.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
 import 'package:teqtop_team/model/dashboard/feed_model.dart';
+import 'package:teqtop_team/model/dashboard/post_image_model.dart';
 import 'package:teqtop_team/utils/helpers.dart';
 
 import '../../../../consts/app_images.dart';
@@ -18,41 +15,58 @@ import '../../../../consts/app_images.dart';
 class PostWidget extends StatelessWidget {
   final Function()? commentOnTap;
   final FeedModel postData;
-  final List<String> images = [];
-  final List<String> documents = [];
+
+  // final List<String> images = [];
+  // final List<String> documents = [];
   final RxInt activeIndex = 0.obs;
+  final Function(int) toggleLike;
+  final List<PostImageModel>? images;
+  final List<String>? documents;
+  final Function(int) handleOnTapDelete;
+  final Function(int) handleOnTapEdit;
 
-  PostWidget({super.key, this.commentOnTap, required this.postData});
+  PostWidget({
+    super.key,
+    this.commentOnTap,
+    required this.postData,
+    required this.toggleLike,
+    this.images,
+    this.documents,
+    required this.handleOnTapDelete,
+    required this.handleOnTapEdit,
+  });
 
-  void getImages() {
-    var extractedImages = Helpers.extractImages(postData.description ?? "");
-    for (var image in extractedImages) {
-      if (!images.contains(image)) {
-        images.add(image);
-      }
-    }
-
-    if (postData.files != null && postData.files!.isNotEmpty) {
-      try {
-        List<String> extractedFiles =
-            List<String>.from(jsonDecode(postData.files!) as List<dynamic>);
-
-        for (var file in extractedFiles) {
-          if (Helpers.isImage(file) && !images.contains(file)) {
-            images.add(file);
-          } else {
-            documents.add(file);
-          }
-        }
-      } catch (e) {
-        debugPrint('Error parsing files: $e');
-      }
-    }
-  }
+  // void getImages() {
+  //   var extractedImages = Helpers.extractImages(postData.description ?? "");
+  //   for (var image in extractedImages) {
+  //     if (!images.contains(image)) {
+  //       images.add(image);
+  //     }
+  //   }
+  //
+  //   if (postData.files != null && postData.files!.isNotEmpty) {
+  //     try {
+  //       List<String> extractedFiles = postData.files!
+  //           .where((file) => file != null)
+  //           .cast<String>()
+  //           .toList();
+  //
+  //       for (var file in extractedFiles) {
+  //         if (Helpers.isImage(file) && !images.contains(file)) {
+  //           images.add(file);
+  //         } else {
+  //           documents.add(file);
+  //         }
+  //       }
+  //     } catch (e) {
+  //       debugPrint('Error parsing files: $e');
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    getImages();
+    // getImages();
 
     Helpers.printLog(
         description: "POST_WIDGET_BUILD_FUNCTION",
@@ -85,57 +99,106 @@ class PostWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircleAvatar(
-                    radius: 14,
-                    backgroundImage: AssetImage(AppImages.imgPersonPlaceholder),
-                    foregroundImage: postData.userProfile != null &&
-                            postData.userProfile!.isNotEmpty
-                        ? NetworkImage(
-                            AppConsts.imgInitialUrl + postData.userProfile!)
-                        : AssetImage(AppImages.imgPersonPlaceholder),
-                  ),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  Text(
-                    postData.userName ?? "",
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(
-                    width: 4,
-                  ),
-                  Container(
-                    width: 4,
-                    height: 4,
-                    decoration: BoxDecoration(
-                        color: AppColors.colorD9D9D9, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(
-                    width: 4,
-                  ),
-                  Text(
-                    postData.createdAt != null
-                        ? Helpers.formatTimeAgo(postData.createdAt!)
-                        : "",
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.black.withValues(alpha: 0.5),
-                        fontWeight: FontWeight.w500),
-                  )
-                ],
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      radius: 14,
+                      backgroundImage:
+                          AssetImage(AppImages.imgPersonPlaceholder),
+                      foregroundImage: postData.userProfile != null &&
+                              postData.userProfile!.isNotEmpty
+                          ? NetworkImage(
+                              AppConsts.imgInitialUrl + postData.userProfile!)
+                          : AssetImage(AppImages.imgPersonPlaceholder),
+                    ),
+                    const SizedBox(
+                      width: 8,
+                    ),
+                    Expanded(
+                      child: RichText(
+                          text: TextSpan(children: [
+                        TextSpan(
+                            text: postData.userName ?? "",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 18)),
+                        WidgetSpan(
+                            child: const SizedBox(
+                          width: 4,
+                        )),
+                        TextSpan(
+                            text: postData.createdAt != null
+                                ? Helpers.formatTimeAgo(postData.createdAt!)
+                                : "",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: Colors.black.withValues(alpha: 0.5),
+                                ))
+                      ])),
+                    ),
+                  ],
+                ),
               ),
-              SvgPicture.asset(
-                AppIcons.icMoreHorizontal,
-                width: 18,
-              )
+              PopupMenuButton(
+                  padding: EdgeInsets.zero,
+                  menuPadding: EdgeInsets.zero,
+                  shape:
+                      RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  style: IconButton.styleFrom(
+                      splashFactory: NoSplash.splashFactory),
+                  icon: SvgPicture.asset(
+                    AppIcons.icMoreHorizontal,
+                    width: 18,
+                  ),
+                  onSelected: (value) {
+                    if (postData.id != null) {
+                      if (value == "delete".tr) {
+                        handleOnTapDelete(postData.id!);
+                      }
+                      if (value == "edit".tr) {
+                        handleOnTapEdit(postData.id!);
+                      }
+                    }
+                  },
+                  itemBuilder: (context) => [
+                        PopupMenuItem(
+                            value: "edit".tr,
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text(
+                              "edit".tr,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 14),
+                            )),
+                        PopupMenuItem(
+                            value: "delete".tr,
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text(
+                              "delete".tr,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 14),
+                            ))
+                      ])
             ],
           ),
           const SizedBox(
-            height: 6,
+            height: 2,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -151,15 +214,16 @@ class PostWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      Helpers.cleanHtml(postData.description ?? ""),
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(fontWeight: FontWeight.w400),
+                    Visibility(
+                      visible: Helpers.cleanHtml(postData.description ?? "")
+                          .isNotEmpty,
+                      child: Text(
+                        Helpers.cleanHtml(postData.description ?? ""),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ),
                     Visibility(
-                      visible: images.isNotEmpty,
+                      visible: images != null && images!.isNotEmpty,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -168,61 +232,154 @@ class PostWidget extends StatelessWidget {
                           const SizedBox(
                             height: 8,
                           ),
-                          images.length == 1
+                          images != null && images!.length == 1
                               ? AspectRatio(
                                   aspectRatio: 1 / 1,
                                   child: FadeInImage.assetNetwork(
                                     placeholder: AppImages.imgPlaceholder,
-                                    image: AppConsts.imgInitialUrl + images[0],
+                                    image: AppConsts.imgInitialUrl +
+                                        images![0].image,
+                                    imageErrorBuilder: (BuildContext context,
+                                        Object error, StackTrace? stackTrace) {
+                                      return Image.asset(
+                                          AppImages.imgPlaceholder);
+                                    },
                                     fit: BoxFit.contain,
                                   ),
                                 )
-                              : CarouselSlider(
-                                  items: images.map((image) {
-                                    return SizedBox(
-                                      width: double.infinity,
-                                      child: FadeInImage.assetNetwork(
-                                        placeholder: AppImages.imgPlaceholder,
-                                        image: AppConsts.imgInitialUrl + image,
-                                        fit: BoxFit.contain,
+                              : images != null && images!.isNotEmpty
+                                  ? CarouselSlider(
+                                      items: images!.map((image) {
+                                        return GestureDetector(
+                                          child: AspectRatio(
+                                            aspectRatio: 1 / 1,
+                                            child: FadeInImage.assetNetwork(
+                                              placeholder:
+                                                  AppImages.imgPlaceholder,
+                                              image: AppConsts.imgInitialUrl +
+                                                  image.image,
+                                              imageErrorBuilder:
+                                                  (BuildContext context,
+                                                      Object error,
+                                                      StackTrace? stackTrace) {
+                                                return Image.asset(
+                                                    AppImages.imgPlaceholder);
+                                              },
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                      options: CarouselOptions(
+                                        aspectRatio: 1 / 1,
+                                        viewportFraction: 1,
+                                        initialPage: 0,
+                                        enableInfiniteScroll: true,
+                                        reverse: false,
+                                        autoPlay: false,
+                                        autoPlayInterval:
+                                            const Duration(seconds: 3),
+                                        autoPlayAnimationDuration:
+                                            const Duration(milliseconds: 800),
+                                        autoPlayCurve: Curves.fastOutSlowIn,
+                                        enlargeCenterPage: true,
+                                        onPageChanged: (index, reason) {
+                                          activeIndex.value = index;
+                                        },
+                                        scrollDirection: Axis.horizontal,
                                       ),
-                                    );
-                                  }).toList(),
-                                  options: CarouselOptions(
-                                    aspectRatio: 1 / 1,
-                                    viewportFraction: 1,
-                                    initialPage: 0,
-                                    enableInfiniteScroll: true,
-                                    reverse: false,
-                                    autoPlay: false,
-                                    autoPlayInterval:
-                                        const Duration(seconds: 3),
-                                    autoPlayAnimationDuration:
-                                        const Duration(milliseconds: 800),
-                                    autoPlayCurve: Curves.fastOutSlowIn,
-                                    enlargeCenterPage: true,
-                                    onPageChanged: (index, reason) {
-                                      activeIndex.value = index;
-                                    },
-                                    scrollDirection: Axis.horizontal,
-                                  ),
-                                ),
+                                    )
+                                  : const SizedBox(),
                           SizedBox(
-                            height: images.length == 1 ? 0 : 8,
+                            height: images != null &&
+                                    images!.isNotEmpty &&
+                                    images!.length != 1
+                                ? 8
+                                : 0,
                           ),
-                          images.length == 1
-                              ? const SizedBox()
-                              : Obx(() => AnimatedSmoothIndicator(
+                          images != null && images!.length > 1
+                              ? Obx(() => AnimatedSmoothIndicator(
                                     activeIndex: activeIndex.value,
-                                    count: images.length,
+                                    count: images!.length,
                                     effect: WormEffect(
                                         activeDotColor: AppColors.kPrimaryColor,
                                         dotHeight: 8,
                                         dotWidth: 8),
                                   ))
+                              : const SizedBox()
                         ],
                       ),
                     ),
+                    Visibility(
+                        visible: documents != null && documents!.isNotEmpty,
+                        child: ListView.separated(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () {
+                                  if (documents != null &&
+                                      documents![index].isNotEmpty) {
+                                    Helpers.openFile(
+                                        path: documents![index],
+                                        fileName:
+                                            documents![index].split("/").last);
+                                  }
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.fromLTRB(14, 10, 10, 10),
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                      color: AppColors.kPrimaryColor
+                                          .withValues(alpha: 0.1)),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          documents != null
+                                              ? documents![index]
+                                                  .split("/")
+                                                  .last
+                                              : "",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                color: AppColors.kPrimaryColor,
+                                              ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 12,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: SvgPicture.asset(
+                                          AppIcons.icDownload,
+                                          width: 24,
+                                          colorFilter: ColorFilter.mode(
+                                              AppColors.kPrimaryColor,
+                                              BlendMode.srcIn),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                            separatorBuilder: (context, index) {
+                              return const SizedBox(
+                                height: 10,
+                              );
+                            },
+                            itemCount:
+                                documents != null ? documents!.length : 0)),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 12),
                       height: 1,
@@ -234,56 +391,81 @@ class PostWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset(
-                              postData.likedBy == 1
-                                  ? AppIcons.icLikeFilled
-                                  : AppIcons.icLike,
-                              width: 24,
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            if (postData.id != null) {
+                              toggleLike(postData.id!);
+                            }
+                          },
+                          child: SizedBox(
+                            width: 68,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SvgPicture.asset(
+                                  postData.likedBy == 1
+                                      ? AppIcons.icLikeFilled
+                                      : AppIcons.icLike,
+                                  width: 24,
+                                ),
+                                const SizedBox(
+                                  width: 4,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    postData.likeUsers != null &&
+                                            postData.likeUsers!.isNotEmpty
+                                        ? postData.likeUsers!.length.toString()
+                                        : postData.likedBy == 1
+                                            ? "1"
+                                            : "0",
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style:
+                                        Theme.of(context).textTheme.bodyLarge,
+                                  ),
+                                )
+                              ],
                             ),
-                            const SizedBox(
-                              width: 4,
-                            ),
-                            Text(
-                              postData.likeUsers != null &&
-                                      postData.likeUsers!.isNotEmpty
-                                  ? postData.likeUsers!.length.toString()
-                                  : postData.likedBy == 1
-                                      ? "1"
-                                      : "0",
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            )
-                          ],
+                          ),
                         ),
                         const SizedBox(
-                          width: 44,
+                          width: 16,
                         ),
                         GestureDetector(
                           onTap: commentOnTap,
                           behavior: HitTestBehavior.opaque,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SvgPicture.asset(
-                                AppIcons.icComment,
-                                width: 24,
-                              ),
-                              const SizedBox(
-                                width: 4,
-                              ),
-                              Text(
-                                postData.commentCount != null
-                                    ? postData.commentCount!.length.toString()
-                                    : "0",
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              )
-                            ],
+                          child: SizedBox(
+                            width: 68,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SvgPicture.asset(
+                                  AppIcons.icComment,
+                                  width: 24,
+                                ),
+                                const SizedBox(
+                                  width: 4,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    postData.commentCount != null
+                                        ? postData.commentCount!.length
+                                            .toString()
+                                        : "0",
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style:
+                                        Theme.of(context).textTheme.bodyLarge,
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       ],

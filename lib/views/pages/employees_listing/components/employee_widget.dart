@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
@@ -9,7 +10,7 @@ import '../../../../model/employees_listing/employee_model.dart';
 
 class EmployeeWidget extends StatelessWidget {
   final EmployeeModel employeeData;
-  final Function(int?) onTap;
+  final Function(int?, int?) onTap;
 
   const EmployeeWidget(
       {super.key, required this.employeeData, required this.onTap});
@@ -19,7 +20,7 @@ class EmployeeWidget extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        onTap(employeeData.id);
+        onTap(employeeData.id, employeeData.id);
       },
       child: Stack(
         children: [
@@ -36,48 +37,63 @@ class EmployeeWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 26,
-                      backgroundImage:
-                          AssetImage(AppImages.imgPersonPlaceholder),
-                      foregroundImage: employeeData.profile != null
-                          ? NetworkImage(
-                              AppConsts.imgInitialUrl + employeeData.profile!)
-                          : AssetImage(AppImages.imgPersonPlaceholder),
-                    ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          employeeData.name ?? "",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w700),
+                Expanded(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: 26,
+                        backgroundImage:
+                            AssetImage(AppImages.imgPersonPlaceholder),
+                        foregroundImage: employeeData.profile != null
+                            ? NetworkImage(
+                                AppConsts.imgInitialUrl + employeeData.profile!)
+                            : AssetImage(AppImages.imgPersonPlaceholder),
+                      ),
+                      const SizedBox(
+                        width: 8,
+                      ),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 32),
+                              child: Text(
+                                employeeData.name ?? "",
+                                style: GoogleFonts.montserrat(
+                                  textStyle: TextStyle(
+                                    color: Colors.black,
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 2,
+                            ),
+                            Text(
+                              employeeData.roles ??
+                                  employeeData.positionName ??
+                                  "",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 14),
+                            )
+                          ],
                         ),
-                        const SizedBox(
-                          height: 2,
-                        ),
-                        Text(
-                          employeeData.roles ?? "",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(fontWeight: FontWeight.w400),
-                        )
-                      ],
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 ),
                 SvgPicture.asset(
                   AppIcons.icNavigateNext,
@@ -98,10 +114,10 @@ class EmployeeWidget extends StatelessWidget {
                     borderRadius: BorderRadius.zero),
                 child: Text(
                   employeeData.employeeId ?? "",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.colorFFB300,
-                      fontSize: AppConsts.commonFontSizeFactor * 10,
-                      fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: AppColors.colorFFB300,
+                        fontSize: AppConsts.commonFontSizeFactor * 10,
+                      ),
                 ),
               ))
         ],

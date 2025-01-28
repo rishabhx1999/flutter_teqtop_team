@@ -36,25 +36,26 @@ class ProjectWidget extends StatelessWidget {
               children: [
                 Text(
                   projectData.name ?? "",
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontSize: AppConsts.commonFontSizeFactor * 22,
-                      fontWeight: FontWeight.w500),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: AppConsts.commonFontSizeFactor * 22,
+                      ),
                 ),
                 const SizedBox(
                   height: 26,
                 ),
-                RichText(
-                    text: TextSpan(children: [
-                  TextSpan(
-                      text: "${"created".tr}: ",
-                      style: Theme.of(context).textTheme.bodySmall),
-                  TextSpan(
-                      text: "Sushil Kumar",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(fontWeight: FontWeight.w500))
-                ]))
+                Padding(
+                  padding: EdgeInsets.only(right: 96),
+                  child: RichText(
+                      text: TextSpan(children: [
+                    TextSpan(
+                        text: "${"created".tr}: ",
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: AppConsts.commonFontSizeFactor * 14)),
+                    TextSpan(
+                        text: projectData.createdBy,
+                        style: Theme.of(context).textTheme.bodyMedium)
+                  ])),
+                )
               ],
             ),
           ),
@@ -64,11 +65,13 @@ class ProjectWidget extends StatelessWidget {
             child: Text(
               projectData.createdAt != null
                   ? DateFormat('MMM dd, yyyy').format(projectData.createdAt!)
-                  : "",
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: Colors.black.withValues(alpha: 0.5)),
+                  : projectData.projectCreatedAt != null
+                      ? DateFormat('MMM dd, yyyy')
+                          .format(projectData.projectCreatedAt!)
+                      : "",
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  fontSize: AppConsts.commonFontSizeFactor * 14),
             ),
           )
         ],

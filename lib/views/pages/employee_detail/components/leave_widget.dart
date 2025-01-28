@@ -6,10 +6,14 @@ import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/model/employee_detail/leave_model.dart';
 
+import '../../../../consts/app_images.dart';
+
 class LeaveWidget extends StatelessWidget {
   final LeaveModel leaveData;
+  final bool? showEmployeeDetail;
 
-  const LeaveWidget({super.key, required this.leaveData});
+  const LeaveWidget(
+      {super.key, required this.leaveData, this.showEmployeeDetail});
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +30,41 @@ class LeaveWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Visibility(
+                visible: showEmployeeDetail ?? true,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 10, right: 100),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: 12,
+                        backgroundImage:
+                            AssetImage(AppImages.imgPersonPlaceholder),
+                        foregroundImage:
+                            AssetImage(AppImages.imgPersonPlaceholder),
+                      ),
+                      const SizedBox(
+                        width: 12,
+                      ),
+                      Expanded(
+                        child: Text(
+                          leaveData.name ?? "",
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
               Text(
                 leaveData.subject ?? "",
-                style: Theme.of(context).textTheme.bodySmall,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(fontSize: AppConsts.commonFontSizeFactor * 14),
               ),
               const SizedBox(
                 height: 4,
@@ -41,15 +77,16 @@ class LeaveWidget extends StatelessWidget {
                             leaveData.from!.day == leaveData.to!.day
                         ? DateFormat("MMM dd, yyyy").format(leaveData.from!)
                         : "${DateFormat("MMM dd, yyyy").format(leaveData.from!)} - ${DateFormat("MMM dd, yyyy").format(leaveData.to!)}",
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.colorFFB400, fontWeight: FontWeight.w700),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: AppColors.colorFFB400,
+                    fontSize: AppConsts.commonFontSizeFactor * 14),
               ),
               const SizedBox(
                 height: 14,
               ),
               ReadMoreText(
                 "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English.",
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyLarge,
                 trimMode: TrimMode.Line,
                 trimLines: 1,
                 colorClickableText: AppColors.colorFFB400,
@@ -57,7 +94,7 @@ class LeaveWidget extends StatelessWidget {
                 trimExpandedText: " ${"see_less".tr}",
                 moreStyle: Theme.of(context)
                     .textTheme
-                    .bodyMedium
+                    .bodyLarge
                     ?.copyWith(color: AppColors.colorFFB400),
               )
             ],
@@ -79,7 +116,7 @@ class LeaveWidget extends StatelessWidget {
                     : leaveData.status == "2"
                         ? "rejected".tr
                         : "pending".tr,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: leaveData.status == "1"
                         ? AppColors.color54B435
                         : leaveData.status == "2"

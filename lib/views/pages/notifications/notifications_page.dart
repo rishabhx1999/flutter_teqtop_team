@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:teqtop_team/controllers/notifications/notifications_controller.dart';
+import 'package:teqtop_team/model/dashboard/notification_model.dart';
 import 'package:teqtop_team/views/pages/notifications/components/notification_widget.dart';
 
 import '../../../config/app_routes.dart';
@@ -78,14 +79,20 @@ class NotificationsPage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             shrinkWrap: true,
             itemBuilder: (context, index) {
-              return NotificationWidget();
+              return NotificationWidget(
+                notificationData:
+                    notificationsController.notifications[index] ??
+                        NotificationModel(),
+                onTap: notificationsController.handleNotificationOnTap,
+                index: index,
+              );
             },
             separatorBuilder: (context, index) {
               return const SizedBox(
                 height: 16,
               );
             },
-            itemCount: 10),
+            itemCount: notificationsController.notifications.length),
       ),
     );
   }

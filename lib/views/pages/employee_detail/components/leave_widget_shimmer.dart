@@ -3,7 +3,9 @@ import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 
 class LeaveWidgetShimmer extends StatelessWidget {
-  const LeaveWidgetShimmer({super.key});
+  final bool? showUserShimmer;
+
+  const LeaveWidgetShimmer({super.key, this.showUserShimmer});
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +22,43 @@ class LeaveWidgetShimmer extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Visibility(
+                visible: showUserShimmer ?? true,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 10, right: 100),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Shimmer.fromColors(
+                          baseColor: AppColors.shimmerBaseColor,
+                          highlightColor: AppColors.shimmerHighlightColor,
+                          child: Container(
+                            height: 24,
+                            width: 24.0,
+                            decoration: BoxDecoration(
+                                color: AppColors.shimmerBaseColor,
+                                shape: BoxShape.circle),
+                          )),
+                      const SizedBox(
+                        width: 12,
+                      ),
+                      Shimmer.fromColors(
+                          baseColor: AppColors.shimmerBaseColor,
+                          highlightColor: AppColors.shimmerHighlightColor,
+                          child: Container(
+                            height: 24.0,
+                            width: 120.0,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(3.0),
+                              color: AppColors.shimmerBaseColor,
+                            ),
+                          )),
+                    ],
+                  ),
+                ),
+              ),
               Shimmer.fromColors(
                   baseColor: AppColors.shimmerBaseColor,
                   highlightColor: AppColors.shimmerHighlightColor,

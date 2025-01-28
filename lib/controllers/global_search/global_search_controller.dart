@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:teqtop_team/config/app_routes.dart';
 import 'package:teqtop_team/model/employees_listing/employee_model.dart';
 
+import '../../consts/app_consts.dart';
 import '../../model/global_search/drive_model.dart';
 import '../../model/global_search/project_model.dart';
 import '../../model/global_search/task_model.dart';
@@ -18,6 +19,11 @@ class GlobalSearchController extends GetxController {
   RxList<TaskModel?> tasks = <TaskModel>[].obs;
   RxList<DriveModel?> drives = <DriveModel>[].obs;
   RxList<ProjectModel?> projects = <ProjectModel>[].obs;
+  RxBool areTasksShowing = true.obs;
+  RxBool areDrivesShowing = true.obs;
+  RxBool areProjectsShowing = true.obs;
+  RxBool areEmployeesShowing = true.obs;
+  RxBool areGroupsShowing = true.obs;
 
   @override
   void onInit() {
@@ -102,9 +108,34 @@ class GlobalSearchController extends GetxController {
     }
   }
 
-  void handleEmployeeOnTap(int? employeeId) {}
+  void handleEmployeeOnTap(int? employeeId, int? id) {
+    Get.toNamed(AppRoutes.routeEmployeeDetail, arguments: {
+      AppConsts.keyEmployeeId: employeeId,
+      AppConsts.keyId: id,
+    });
+  }
 
   void handleProjectOnTap(int? projectId) {
-    Get.toNamed(AppRoutes.routeProjectDetail, arguments: {});
+    Get.toNamed(AppRoutes.routeProjectDetail, arguments: {
+      AppConsts.keyProjectId: projectId,
+    });
+  }
+
+  void handleGroupOnTap(int? projectId) {
+    Get.toNamed(AppRoutes.routeTasksListing, arguments: {
+      AppConsts.keyProjectId: projectId,
+    });
+  }
+
+  void handleTaskOnTap(int? taskId) {
+    Get.toNamed(AppRoutes.routeTaskDetail, arguments: {
+      AppConsts.keyTaskId: taskId,
+    });
+  }
+
+  void handleDriveOnTap(String? driveURL) {
+    Get.toNamed(AppRoutes.routeDriveDetail, arguments: {
+      AppConsts.keyDriveURL: driveURL,
+    });
   }
 }

@@ -65,7 +65,7 @@ class EditProfilePage extends StatelessWidget {
             elevation: 0,
             actions: [
               Padding(
-                padding: const EdgeInsets.only(right: 14),
+                padding: const EdgeInsets.only(right: 10),
                 child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () {
@@ -78,42 +78,55 @@ class EditProfilePage extends StatelessWidget {
                           const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                     )),
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    Get.toNamed(AppRoutes.routeNotifications);
-                  },
-                  child: Stack(
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  Get.toNamed(AppRoutes.routeNotifications);
+                },
+                child: Obx(
+                  () => Stack(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.only(top: 4, right: 18),
                         child: Image.asset(
                           AppIcons.icBell,
                           width: 24,
                         ),
                       ),
                       Positioned(
-                          right: 0,
+                          left: 12,
                           top: 0,
                           child: Container(
-                            width: 12,
                             height: 12,
+                            width: editProfileController
+                                        .notificationsCount.value
+                                        .toString()
+                                        .length >
+                                    1
+                                ? (12 +
+                                        ((editProfileController
+                                                    .notificationsCount.value
+                                                    .toString()
+                                                    .length -
+                                                1) *
+                                            4))
+                                    .toDouble()
+                                : 12,
                             decoration: BoxDecoration(
                                 color: AppColors.colorFFB400,
-                                shape: BoxShape.circle),
+                                borderRadius: BorderRadius.circular(50)),
                             child: Center(
-                                child: Text(
-                              "2",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                      fontSize:
-                                          AppConsts.commonFontSizeFactor * 8,
-                                      fontWeight: FontWeight.w600),
-                            )),
+                              child: Text(
+                                editProfileController.notificationsCount.value
+                                    .toString(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(
+                                        fontSize:
+                                            AppConsts.commonFontSizeFactor * 8),
+                              ),
+                            ),
                           ))
                     ],
                   ),
@@ -255,9 +268,11 @@ class EditProfilePage extends StatelessWidget {
                           fillColor: AppColors.colorF9F9F9,
                           borderColor: Colors.transparent,
                           isEnable: false,
-                          trailing: Icon(
-                            Icons.calendar_month_rounded,
-                            color: Colors.black,
+                          trailing: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SvgPicture.asset(
+                              AppIcons.icCalendar,
+                            ),
                           ),
                           onTap: editProfileController.handleDOBFieldOnTap,
                           onTapFirstArg: context,
@@ -300,15 +315,26 @@ class EditProfilePage extends StatelessWidget {
                     ),
                   ),
                 )),
-                Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 20),
-                    child: CommonButton(
-                        text: "save",
-                        onClick: () {
-                          editProfileController.saveInfo();
-                        }))
+                Obx(
+                  () => Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 20),
+                      child: editProfileController.isLoading.value
+                          ? Container(
+                              height: 51,
+                              width: 51,
+                              padding: EdgeInsets.all(8),
+                              child: CircularProgressIndicator(
+                                color: AppColors.kPrimaryColor,
+                              ),
+                            )
+                          : CommonButton(
+                              text: "save",
+                              onClick: () {
+                                editProfileController.saveInfo();
+                              })),
+                )
               ],
             ),
           )),

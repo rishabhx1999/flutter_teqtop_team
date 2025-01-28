@@ -11,10 +11,18 @@ class AppRoutes {
   static const String routeEmployeesListing = "/route_employees_listing";
   static const String routeDailyReportsListing = "/route_daily_reports_listing";
   static const String routeEmployeeDetail = "/route_employee_detail";
-  static const String routeEmployeeDailyReports = "/route_employee_daily_reports";
+  static const String routeEmployeeDailyReports =
+      "/route_employee_daily_reports";
   static const String routeProjectsListing = "/route_projects_listing";
   static const String routeProjectDetail = "/route_projects_detail";
   static const String routeDriveDetail = "/route_drive_detail";
   static const String routeTasksListing = "/route_tasks_listing";
   static const String routeProjectCreateEdit = "/route_project_create_edit";
+  static const String routeTaskCreateEdit = "/route_task_create_edit";
+  static const String routeTaskDetail = "/route_task_detail";
+  static const String routeLeavesListing = "/route_leaves_listing";
+  static const String routeLogsListing = "/route_logs_listing";
+  static const String routeFolderDetail = "/route_folder_detail";
+  static const String routeEditEmployeeInformation =
+      "/route_edit_employee_information";
 }

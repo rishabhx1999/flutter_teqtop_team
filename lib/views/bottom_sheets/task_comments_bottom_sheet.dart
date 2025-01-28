@@ -1,29 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/model/dashboard/comment_list.dart';
+import 'package:teqtop_team/utils/helpers.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/comment_widget.dart';
-import 'package:teqtop_team/views/pages/dashboard/components/comment_widget_shimmer.dart';
 
-class CommentBottomSheet {
+import '../pages/dashboard/components/comment_widget_shimmer.dart';
+
+class TaskCommentsBottomSheet {
   static show(
       {required BuildContext context,
       required Widget createCommentWidget,
-      required int commentCount,
-      required int componentId,
-      required Future<List<CommentList?>?> Function(int, int) getComments,
-      required RxBool areCommentsLoading}) {
+      required RxInt commentCount,
+      required RxBool areCommentsLoading,
+      required final RxList<CommentList?> comments,
+      required ScrollController scrollController}) {
+    Helpers.printLog(description: "COMMENT_BOTTOM_SHEET_SHOW_REACHED");
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.85),
         builder: (context) {
-          return CommentBottomSheetContent(
+          return TaskCommentsBottomSheetContent(
             createCommentWidget: createCommentWidget,
+            comments: comments,
             commentCount: commentCount,
-            componentId: componentId,
-            getComments: getComments,
             areCommentsLoading: areCommentsLoading,
+            scrollController: scrollController,
           );
         },
         shape: const RoundedRectangleBorder(
@@ -32,31 +36,24 @@ class CommentBottomSheet {
   }
 }
 
-class CommentBottomSheetContent extends StatelessWidget {
+class TaskCommentsBottomSheetContent extends StatelessWidget {
   final Widget createCommentWidget;
-  final int commentCount;
-  final int componentId;
-  final Future<List<CommentList?>?> Function(int, int) getComments;
+  final RxInt commentCount;
   final RxBool areCommentsLoading;
-  late final RxList<CommentList?> comments = <CommentList?>[].obs;
+  final RxList<CommentList?> comments;
+  final ScrollController scrollController;
 
-  CommentBottomSheetContent(
-      {super.key,
-      required this.createCommentWidget,
-      required this.commentCount,
-      required this.componentId,
-      required this.getComments,
-      required this.areCommentsLoading});
-
-  Future<void> fetchComments() async {
-    comments.assignAll((await getComments(componentId, commentCount))
-        as Iterable<CommentList?>);
-  }
+  const TaskCommentsBottomSheetContent({
+    super.key,
+    required this.createCommentWidget,
+    required this.comments,
+    required this.commentCount,
+    required this.areCommentsLoading,
+    required this.scrollController,
+  });
 
   @override
   Widget build(BuildContext context) {
-    fetchComments();
-
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
@@ -83,17 +80,19 @@ class CommentBottomSheetContent extends StatelessWidget {
                 children: [
                   Text(
                     "comments".tr.toUpperCase(),
-                    style: Theme.of(context).textTheme.headlineSmall,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontSize: AppConsts.commonFontSizeFactor * 14),
                   ),
                   const SizedBox(
                     width: 8,
                   ),
-                  Text(
-                    commentCount.toString(),
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineSmall
-                        ?.copyWith(color: Colors.black.withValues(alpha: 0.5)),
+                  Obx(
+                    () => Text(
+                      commentCount.value.toString(),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          fontSize: AppConsts.commonFontSizeFactor * 14),
+                    ),
                   ),
                 ],
               ),
@@ -103,6 +102,7 @@ class CommentBottomSheetContent extends StatelessWidget {
               Expanded(
                 child: Obx(
                   () => ListView.separated(
+                      controller: scrollController,
                       keyboardDismissBehavior:
                           ScrollViewKeyboardDismissBehavior.onDrag,
                       shrinkWrap: true,

@@ -10,6 +10,7 @@ import '../../model/daily_reports_listing/daily_report.dart';
 import '../../network/get_requests.dart';
 import '../../utils/helpers.dart';
 import '../../utils/preference_manager.dart';
+import '../dashboard/dashboard_controller.dart';
 
 class EmployeeDailyReportsController extends GetxController {
   late final String? profilePhoto;
@@ -27,12 +28,14 @@ class EmployeeDailyReportsController extends GetxController {
   RxBool isLoading = false.obs;
   DailyReport? dailyReportData;
   Rx<Duration?> totalWorkTime = Rx<Duration?>(null);
+  RxInt notificationsCount = 0.obs;
 
   @override
   void onInit() {
     getProfilePhoto();
     initializeCalendarController();
     getEmployeeDetails();
+    getNotificationsCount();
 
     super.onInit();
   }
@@ -45,7 +48,7 @@ class EmployeeDailyReportsController extends GetxController {
 
   @override
   void onClose() {
-    // TODO: implement onClose
+    disposeCalendarController();
     super.onClose();
   }
 
@@ -53,11 +56,20 @@ class EmployeeDailyReportsController extends GetxController {
     sfCalendarController = CalendarController();
   }
 
+  void disposeCalendarController() {
+    sfCalendarController.dispose();
+  }
+
   void getProfilePhoto() {
     profilePhoto =
         (PreferenceManager.getPref(PreferenceManager.prefUserProfilePhoto)
                 as String?) ??
             '';
+  }
+
+  void getNotificationsCount() {
+    final dashboardController = Get.find<DashboardController>();
+    notificationsCount = dashboardController.notificationsCount;
   }
 
   DateTime calculateFirstAccessibleDate(DateTime inputDate) {
