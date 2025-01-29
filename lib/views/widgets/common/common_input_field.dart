@@ -27,6 +27,7 @@ class CommonInputField extends StatelessWidget {
   final double? borderWidth;
   final Color? borderColor;
   final Widget? trailing;
+  final bool? blurField;
 
   const CommonInputField({
     super.key,
@@ -52,6 +53,7 @@ class CommonInputField extends StatelessWidget {
     this.onTap,
     this.trailing,
     this.onTapFirstArg,
+    this.blurField,
   });
 
   @override
@@ -81,54 +83,74 @@ class CommonInputField extends StatelessWidget {
         const SizedBox(
           height: 8,
         ),
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () {
-            onTap != null ? onTap!(onTapFirstArg) : () {};
-          },
-          child: TextFormField(
-            enabled: isEnable ?? true,
-            controller: controller,
-            maxLines: maxLines ?? 1,
-            style: Theme.of(context).textTheme.bodyLarge,
-            keyboardType: inputType ?? TextInputType.name,
-            cursorColor: Colors.black,
-            textCapitalization: textCapitalization ?? TextCapitalization.none,
-            decoration: InputDecoration(
-                hintText: (showFloatingLabel ?? false) ? '' : hint.tr,
+        Stack(
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                onTap != null ? onTap!(onTapFirstArg) : () {};
+              },
+              child: TextFormField(
                 enabled: isEnable ?? true,
-                hintStyle: Theme.of(context)
-                    .textTheme
-                    .bodyLarge
-                    ?.copyWith(color: AppColors.colorA9A9A9),
-                suffixIcon: trailing ?? const SizedBox(),
-                fillColor: fillColor ?? Colors.white,
-                filled: true,
-                border: inputBorder,
-                errorMaxLines: errorMaxLines ?? 1,
-                errorBorder: errorInputBorder,
-                enabledBorder: inputBorder,
-                disabledBorder: inputBorder,
-                focusedBorder: inputBorder,
-                focusedErrorBorder: errorInputBorder,
-                errorStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.red,
-                      fontSize: AppConsts.commonFontSizeFactor * 12,
-                    ),
-                contentPadding: EdgeInsets.symmetric(
-                    horizontal: inputHorizontalPadding ?? 14,
-                    vertical: inputVerticalPadding ?? 16)),
-            inputFormatters: inputFormatter,
-            validator: validator,
-            onChanged: onChanged,
-            scrollPadding: EdgeInsets.only(bottom: bottomScrollPadding ?? 40),
-            textInputAction: textInputAction ?? TextInputAction.done,
-            onFieldSubmitted: textInputAction == TextInputAction.next
-                ? (v) {
-                    FocusScope.of(context).nextFocus();
-                  }
-                : null,
-          ),
+                controller: controller,
+                maxLines: maxLines ?? 1,
+                style: Theme.of(context).textTheme.bodyLarge,
+                keyboardType: inputType ?? TextInputType.name,
+                cursorColor: Colors.black,
+                textCapitalization:
+                    textCapitalization ?? TextCapitalization.none,
+                decoration: InputDecoration(
+                    hintText: (showFloatingLabel ?? false) ? '' : hint.tr,
+                    enabled: isEnable ?? true,
+                    hintStyle: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(color: AppColors.colorA9A9A9),
+                    suffixIcon: trailing ?? const SizedBox(),
+                    fillColor: fillColor ?? Colors.white,
+                    filled: true,
+                    border: inputBorder,
+                    errorMaxLines: errorMaxLines ?? 1,
+                    errorBorder: errorInputBorder,
+                    enabledBorder: inputBorder,
+                    disabledBorder: inputBorder,
+                    focusedBorder: inputBorder,
+                    focusedErrorBorder: errorInputBorder,
+                    errorStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.red,
+                          fontSize: AppConsts.commonFontSizeFactor * 12,
+                        ),
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: inputHorizontalPadding ?? 14,
+                        vertical: inputVerticalPadding ?? 16)),
+                inputFormatters: inputFormatter,
+                validator: validator,
+                onChanged: onChanged,
+                scrollPadding:
+                    EdgeInsets.only(bottom: bottomScrollPadding ?? 40),
+                textInputAction: textInputAction ?? TextInputAction.done,
+                onFieldSubmitted: textInputAction == TextInputAction.next
+                    ? (v) {
+                        FocusScope.of(context).nextFocus();
+                      }
+                    : null,
+              ),
+            ),
+            Visibility(
+              visible: blurField ?? false,
+              child: Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.white.withValues(alpha: 0.8),
+                ),
+              ),
+            )
+          ],
         ),
       ],
     );

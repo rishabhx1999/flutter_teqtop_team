@@ -59,10 +59,7 @@ class LocalStrings extends Translations {
           'search_employees': 'Search employees',
           'information': 'Information',
           'document': 'Document',
-          'position': 'Position',
-          'employee_id': 'Employee ID',
           'registered_on': 'Registered On',
-          'role': 'Role',
           'joining_date': 'Joining Date',
           'edit_information': 'Edit Information',
           'aadhar_card': 'Aadhar Card',
@@ -144,6 +141,8 @@ class LocalStrings extends Translations {
           'enter_folder_name': 'Enter folder name',
           'create': 'Create',
           'folder': 'Folder',
+          'active': 'Active',
+          'inactive': 'Inactive',
 
           //
           'error': 'Error',

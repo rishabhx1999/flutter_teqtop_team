@@ -28,6 +28,7 @@ class AppColors {
   static Color colorFFD674 = HexColor("#FFD674");
   static Color color040404 = HexColor("#040404");
   static Color colorF5F5F7 = HexColor("#F5F5F7");
+  static Color colorF18585 = HexColor("#F18585");
 
   //shimmer colors
   static Color shimmerBaseColor = HexColor('#E0E0E0');

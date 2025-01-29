@@ -20,7 +20,12 @@ class EmployeeWidget extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        onTap(employeeData.id, employeeData.id);
+        if (employeeData.action == null ||
+            (employeeData.action != null &&
+                employeeData.action!.toLowerCase().contains("trashed") ==
+                    false)) {
+          onTap(employeeData.id, employeeData.id);
+        }
       },
       child: Stack(
         children: [
@@ -119,7 +124,22 @@ class EmployeeWidget extends StatelessWidget {
                         fontSize: AppConsts.commonFontSizeFactor * 10,
                       ),
                 ),
-              ))
+              )),
+          Visibility(
+            visible: employeeData.action != null &&
+                employeeData.action!.toLowerCase().contains("trashed"),
+            child: Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.white.withValues(alpha: 0.6),
+              ),
+            ),
+          )
         ],
       ),
     );

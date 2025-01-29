@@ -1,8 +1,6 @@
 class ApiUrls {
   ApiUrls._();
 
-  static const String baseUrl = "https://dev.team.teqtop.com/api/";
-
   static const login = 'login';
   static const projectsCreate = 'projects/create';
   static const feeds = 'feeds';

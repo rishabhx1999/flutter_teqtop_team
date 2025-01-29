@@ -10,6 +10,7 @@ class LeaveModel {
   String? description;
   String? subject;
   int? user;
+  List<Profile?>? profile;
 
   LeaveModel({
     this.dtRowAttr,
@@ -21,6 +22,7 @@ class LeaveModel {
     this.description,
     this.subject,
     this.user,
+    this.profile,
   });
 
   factory LeaveModel.fromJson(Map<String, dynamic> json) => LeaveModel(
@@ -35,6 +37,10 @@ class LeaveModel {
         description: json["description"],
         subject: json["subject"],
         user: json["user"],
+        profile: json["profile"] == null
+            ? null
+            : List<Profile>.from(
+                json["profile"].map((x) => Profile.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -47,5 +53,24 @@ class LeaveModel {
         "description": description,
         "subject": subject,
         "user": user,
+        "profile": profile == null
+            ? null
+            : List<dynamic>.from(profile!.map((x) => x!.toJson())),
+      };
+}
+
+class Profile {
+  String? profile;
+
+  Profile({
+    this.profile,
+  });
+
+  factory Profile.fromJson(Map<String, dynamic> json) => Profile(
+        profile: json["profile"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "profile": profile,
       };
 }

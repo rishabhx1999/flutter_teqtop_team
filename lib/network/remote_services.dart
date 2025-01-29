@@ -402,6 +402,62 @@ class RemoteService {
   //
   //
   //
+  static Future<CommonResModel?> simplePostWithQueries(
+    String endUrl, {
+    required Map<String, String> headers,
+    Map<String, dynamic>? requestBody,
+    bool? isLogin,
+  }) async {
+    if (isLoginDay() || isLogin == true) {
+      var isConnected = await InternetConnection.isConnected();
+      if (!isConnected) {
+        Helpers.printLog(
+            description:
+                "REMOTE_SERVICE_SIMPLE_POST_WITH_SINGLE_MEDIA_AND_QUERIES",
+            message: "NO_INTERNET");
+        return null;
+      }
+
+      var url = "$_baseUrl$endUrl?token=${getToken()}";
+      if (requestBody != null) {
+        requestBody.forEach((key, value) {
+          url += "&$key=$value";
+        });
+      }
+
+      final http.Response response;
+
+      response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      Helpers.printLog(
+          description:
+              'REMOTE_SERVICE_SIMPLE_POST_WITH_SINGLE_MEDIA_AND_QUERIES',
+          message:
+              "REQUEST_URL = $url ===== REQUEST_HEADERS = ${json.encode(headers)}");
+
+      Helpers.printLog(
+          description:
+              'REMOTE_SERVICE_SIMPLE_POST_WITH_SINGLE_MEDIA_AND_QUERIES',
+          message:
+              "RESPONSE = ${response.body} ===== REQUEST_URL = $url ===== REQUEST_HEADERS = ${json.encode(headers)}");
+
+      var responseCode = response.statusCode;
+      if (Helpers.isResponseSuccessful(responseCode)) {
+        return CommonResModel(
+            statusCode: responseCode, response: response.body);
+      }
+    } else {
+      showLoginDialog();
+    }
+    return null;
+  }
+
+  //
+  //
+  //
   static Future<CommonResModel?> simplePutWithoutQueries(String endUrl,
       {required Map<String, String> headers,
       Map<String, dynamic>? requestBody}) async {

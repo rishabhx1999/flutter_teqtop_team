@@ -250,7 +250,7 @@ class PostRequests {
   static Future<EditTaskResModel?> editTask(
       Map<String, dynamic> requestBody) async {
     Helpers.printLog(description: "POST_REQUESTS_EDIT_TASK_REACHED");
-    var apiResponse = await RemoteService.simplePost(
+    var apiResponse = await RemoteService.simplePostWithQueries(
       ApiUrls.tasksUpdate,
       headers: {
         "Accept": "application/json",

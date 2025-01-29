@@ -198,20 +198,20 @@ class EmployeeDetailPage extends StatelessWidget {
                                                   .employeeDetail.value !=
                                               null &&
                                           employeeDetailController
-                                                  .employeeDetail.value!.status
-                                                  .toString()
-                                                  .toLowerCase() ==
-                                              "active"
+                                                  .employeeDetail
+                                                  .value!
+                                                  .isActive ==
+                                              "1"
                                       ? AppColors.color54B435
-                                      : Colors.transparent),
+                                      : AppColors.colorF18585),
                               child: Text(
                                 employeeDetailController.employeeDetail.value !=
                                             null &&
                                         employeeDetailController.employeeDetail
-                                            .value!.status is String
-                                    ? employeeDetailController
-                                        .employeeDetail.value!.status
-                                    : "active",
+                                                .value!.isActive ==
+                                            "1"
+                                    ? "active".tr
+                                    : "inactive".tr,
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context)
                                     .textTheme

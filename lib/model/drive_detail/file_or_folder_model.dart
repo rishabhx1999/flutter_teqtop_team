@@ -15,6 +15,7 @@ class FileOrFolderModel {
   dynamic parentLink;
   int? keyVal;
   int? mobKeyVal;
+  String? projectUrl;
 
   FileOrFolderModel({
     this.id,
@@ -33,6 +34,7 @@ class FileOrFolderModel {
     this.parentLink,
     this.keyVal,
     this.mobKeyVal,
+    this.projectUrl,
   });
 
   factory FileOrFolderModel.fromJson(Map<String, dynamic> json) =>
@@ -57,6 +59,7 @@ class FileOrFolderModel {
         parentLink: json["parentLink"],
         keyVal: json["keyVal"],
         mobKeyVal: json["mobKeyVal"],
+        projectUrl: json["project_url"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -76,5 +79,6 @@ class FileOrFolderModel {
         "parentLink": parentLink,
         "keyVal": keyVal,
         "mobKeyVal": mobKeyVal,
+        "project_url": projectUrl,
       };
 }

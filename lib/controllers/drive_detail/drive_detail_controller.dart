@@ -163,7 +163,8 @@ class DriveDetailController extends GetxController {
       if (driveDetail!.parentFolder != null) {
         basicDriveDetails.value = DriveModel(
             name: driveDetail!.parentFolder!.name,
-            createdAt: driveDetail!.parentFolder!.createdAt);
+            createdAt: driveDetail!.parentFolder!.createdAt,
+            siteUrl: driveDetail!.parentFolder!.projectUrl);
       }
     }
   }

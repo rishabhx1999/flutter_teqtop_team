@@ -11,7 +11,6 @@ import 'package:teqtop_team/views/widgets/common/common_button_shimmer.dart';
 import 'package:teqtop_team/views/widgets/common/common_input_field_shimmer.dart';
 
 import '../../../config/app_colors.dart';
-import '../../../config/app_routes.dart';
 import '../../../consts/app_consts.dart';
 import '../../../consts/app_icons.dart';
 import '../../../utils/validations.dart';
@@ -837,29 +836,37 @@ class TaskCreateEditPage extends StatelessWidget {
                               ? CommonInputFieldShimmer(
                                   labelShimmerBorderRadius: 0,
                                 )
-                              : CommonInputField(
-                                  controller: taskCreateEditController
-                                      .startDateController,
-                                  hint: "mm_dd_yy",
-                                  label: "start_date",
-                                  borderWidth: 0,
-                                  inputType: TextInputType.datetime,
-                                  validator:
-                                      Validations.checkStartDateValidations,
-                                  textInputAction: TextInputAction.done,
-                                  fillColor: AppColors.colorF9F9F9,
-                                  borderColor: Colors.transparent,
-                                  isEnable: false,
-                                  trailing: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: SvgPicture.asset(
-                                      AppIcons.icCalendar,
+                              : IgnorePointer(
+                                  ignoring: taskCreateEditController
+                                      .fromTaskDetail.value,
+                                  child: CommonInputField(
+                                    blurField: taskCreateEditController
+                                        .fromTaskDetail.value,
+                                    controller: taskCreateEditController
+                                        .startDateController,
+                                    hint: "mm_dd_yy",
+                                    label: "start_date",
+                                    borderWidth: 0,
+                                    inputType: TextInputType.datetime,
+                                    validator: taskCreateEditController
+                                            .fromTaskDetail.value
+                                        ? null
+                                        : Validations.checkStartDateValidations,
+                                    textInputAction: TextInputAction.done,
+                                    fillColor: AppColors.colorF9F9F9,
+                                    borderColor: Colors.transparent,
+                                    isEnable: false,
+                                    trailing: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: SvgPicture.asset(
+                                        AppIcons.icCalendar,
+                                      ),
                                     ),
+                                    onTap: taskCreateEditController
+                                        .handleStartDateFieldOnTap,
+                                    onTapFirstArg: context,
+                                    errorMaxLines: 2,
                                   ),
-                                  onTap: taskCreateEditController
-                                      .handleStartDateFieldOnTap,
-                                  onTapFirstArg: context,
-                                  errorMaxLines: 2,
                                 ),
                         ),
                       ),
@@ -946,7 +953,7 @@ class TaskCreateEditPage extends StatelessWidget {
                             onClick: () {
                               if (taskCreateEditController
                                   .fromTaskDetail.value) {
-                                taskCreateEditController.editProject();
+                                taskCreateEditController.editTask();
                               } else {
                                 taskCreateEditController.createTask();
                               }

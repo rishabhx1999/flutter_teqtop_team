@@ -144,21 +144,21 @@ class EditEmployeeInformationPage extends StatelessWidget {
                         //   fillColor: AppColors.colorF9F9F9,
                         //   borderColor: Colors.transparent,
                         // ),
-                        const SizedBox(
-                          height: 16,
-                        ),
-                        CommonInputField(
-                          controller: editEmployeeInformationController
-                              .employeeIDController,
-                          hint: "enter_employee_id",
-                          label: "employee_id",
-                          borderWidth: 0,
-                          inputType: TextInputType.text,
-                          validator: Validations.checkEmployeeIDValidations,
-                          textInputAction: TextInputAction.next,
-                          fillColor: AppColors.colorF9F9F9,
-                          borderColor: Colors.transparent,
-                        ),
+                        // const SizedBox(
+                        //   height: 16,
+                        // ),
+                        // CommonInputField(
+                        //   controller: editEmployeeInformationController
+                        //       .employeeIDController,
+                        //   hint: "enter_employee_id",
+                        //   label: "employee_id",
+                        //   borderWidth: 0,
+                        //   inputType: TextInputType.text,
+                        //   validator: Validations.checkEmployeeIDValidations,
+                        //   textInputAction: TextInputAction.next,
+                        //   fillColor: AppColors.colorF9F9F9,
+                        //   borderColor: Colors.transparent,
+                        // ),
                         const SizedBox(
                           height: 16,
                         ),

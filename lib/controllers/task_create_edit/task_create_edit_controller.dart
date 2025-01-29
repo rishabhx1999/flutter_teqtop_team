@@ -119,23 +119,28 @@ class TaskCreateEditController extends GetxController {
     endDateController.dispose();
   }
 
-  Future<void> editProject() async {
+  Future<void> editTask() async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (areRequiredFieldsFilled() && editTaskDetail.value!.id != null) {
       Map<String, dynamic> requestBody = {
         'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
             as String?,
         'id': editTaskDetail.value!.id,
-        'name': nameController.text.toString().trim(),
-        'project': selectedProject.value!.id,
-        'responsible': selectedResponsiblePerson.value!.id,
-        'priority': selectedPriority.value!.priorityNumber,
-        'observer': generateIdsString(selectedObservers),
-        'participants': generateIdsString(selectedParticipants),
         'extras':
             convertToCustomJsonFormat(selectedParticipants, selectedObservers),
         'description':
             Helpers.convertToHTMLParagraphs(descriptionController.text),
+        'deadline': selectedEndDate == null
+            ? ''
+            : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
+        'name': nameController.text.toString().trim(),
+        'project': selectedProject.value!.id,
+        'responsible': selectedResponsiblePerson.value!.id,
+        'priority': selectedPriority.value!.priorityNumber == null
+            ? null
+            : selectedPriority.value!.priorityNumber! - 1,
+        'observer': generateIdsString(selectedObservers),
+        'participants': generateIdsString(selectedParticipants),
       };
 
       isLoading.value = true;
@@ -218,6 +223,20 @@ class TaskCreateEditController extends GetxController {
         }
       }
 
+      selectedStartDate = editTaskDetail.value!.createdAt;
+      if (selectedStartDate != null) {
+        startDateController.text =
+            DateFormat('MM/dd/yy').format(selectedStartDate!);
+      }
+
+      if (editTaskDetail.value!.deadline is String) {
+        selectedEndDate = DateTime.parse(editTaskDetail.value!.deadline);
+      }
+      if (selectedEndDate != null) {
+        endDateController.text =
+            DateFormat('MM/dd/yy').format(selectedEndDate!);
+      }
+
       descriptionController.text =
           Helpers.formatHtmlParagraphs(editTaskDetail.value!.description ?? "");
     }
@@ -239,6 +258,19 @@ class TaskCreateEditController extends GetxController {
             convertToCustomJsonFormat(selectedParticipants, selectedObservers),
         'description':
             Helpers.convertToHTMLParagraphs(descriptionController.text),
+        'deadline': selectedEndDate == null
+            ? ''
+            : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
+        'created_at': selectedStartDate == null
+            ? ''
+            : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
+                selectedStartDate!.year,
+                selectedStartDate!.month,
+                selectedStartDate!.day,
+                DateTime.now().hour,
+                DateTime.now().minute,
+                DateTime.now().second,
+              )),
       };
 
       isLoading.value = true;

@@ -43,8 +43,14 @@ class LeaveWidget extends StatelessWidget {
                         radius: 12,
                         backgroundImage:
                             AssetImage(AppImages.imgPersonPlaceholder),
-                        foregroundImage:
-                            AssetImage(AppImages.imgPersonPlaceholder),
+                        foregroundImage: leaveData.profile != null &&
+                                leaveData.profile!.isNotEmpty &&
+                                leaveData.profile!.first != null &&
+                                leaveData.profile!.first!.profile != null &&
+                                leaveData.profile!.first!.profile!.isNotEmpty
+                            ? NetworkImage(AppConsts.imgInitialUrl +
+                                leaveData.profile!.first!.profile!)
+                            : AssetImage(AppImages.imgPersonPlaceholder),
                       ),
                       const SizedBox(
                         width: 12,
@@ -85,7 +91,7 @@ class LeaveWidget extends StatelessWidget {
                 height: 14,
               ),
               ReadMoreText(
-                "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English.",
+                leaveData.description ?? "",
                 style: Theme.of(context).textTheme.bodyLarge,
                 trimMode: TrimMode.Line,
                 trimLines: 1,
