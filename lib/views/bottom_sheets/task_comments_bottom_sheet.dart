@@ -14,7 +14,11 @@ class TaskCommentsBottomSheet {
       required RxInt commentCount,
       required RxBool areCommentsLoading,
       required final RxList<CommentList?> comments,
-      required ScrollController scrollController}) {
+      required ScrollController scrollController,
+      required Function(int) handleCommentOnEdit,
+      required Function(int) editComment,
+      required Function(int) handleCommentOnDelete,
+      required RxBool isCommentEditing}) {
     Helpers.printLog(description: "COMMENT_BOTTOM_SHEET_SHOW_REACHED");
     showModalBottomSheet(
         context: context,
@@ -28,6 +32,10 @@ class TaskCommentsBottomSheet {
             commentCount: commentCount,
             areCommentsLoading: areCommentsLoading,
             scrollController: scrollController,
+            handleCommentOnEdit: handleCommentOnEdit,
+            isCommentEditing: isCommentEditing,
+            editComment: editComment,
+            handleCommentOnDelete: handleCommentOnDelete,
           );
         },
         shape: const RoundedRectangleBorder(
@@ -42,6 +50,10 @@ class TaskCommentsBottomSheetContent extends StatelessWidget {
   final RxBool areCommentsLoading;
   final RxList<CommentList?> comments;
   final ScrollController scrollController;
+  final Function(int) handleCommentOnEdit;
+  final RxBool isCommentEditing;
+  final Function(int) editComment;
+  final Function(int) handleCommentOnDelete;
 
   const TaskCommentsBottomSheetContent({
     super.key,
@@ -50,6 +62,10 @@ class TaskCommentsBottomSheetContent extends StatelessWidget {
     required this.commentCount,
     required this.areCommentsLoading,
     required this.scrollController,
+    required this.handleCommentOnEdit,
+    required this.isCommentEditing,
+    required this.editComment,
+    required this.handleCommentOnDelete,
   });
 
   @override
@@ -58,6 +74,11 @@ class TaskCommentsBottomSheetContent extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
+        for (var comment in comments) {
+          if (comment != null) {
+            comment.isEditing.value = false;
+          }
+        }
       },
       child: Padding(
         padding:
@@ -110,7 +131,12 @@ class TaskCommentsBottomSheetContent extends StatelessWidget {
                         return areCommentsLoading.value
                             ? CommentWidgetShimmer()
                             : CommentWidget(
-                                commentData: comments[index] ?? CommentList());
+                                commentData: comments[index] ?? CommentList(),
+                                onTapEdit: handleCommentOnEdit,
+                                isEditLoading: isCommentEditing,
+                                editComment: editComment,
+                                onTapDelete: handleCommentOnDelete,
+                              );
                       },
                       separatorBuilder: (context, index) {
                         return Container(

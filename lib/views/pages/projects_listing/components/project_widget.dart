@@ -17,7 +17,11 @@ class ProjectWidget extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        onTap(projectData.id);
+        if (projectData.trash == null ||
+            (projectData.trash != null &&
+                projectData.trash!.toLowerCase().contains("trash") == false)) {
+          onTap(projectData.id);
+        }
       },
       child: Stack(
         children: [
@@ -72,6 +76,21 @@ class ProjectWidget extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.black.withValues(alpha: 0.5),
                   fontSize: AppConsts.commonFontSizeFactor * 14),
+            ),
+          ),
+          Visibility(
+            visible: projectData.trash != null &&
+                projectData.trash!.toLowerCase().contains("trash"),
+            child: Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.white.withValues(alpha: 0.6),
+              ),
             ),
           )
         ],

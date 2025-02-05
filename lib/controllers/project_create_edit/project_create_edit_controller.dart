@@ -74,10 +74,8 @@ class ProjectCreateEditController extends GetxController {
         onChangeProjectCategory(projectCategory);
       }
       clientController.text = editProjectDetail.value!.client ?? "";
-      if (editProjectDetail.value!.url is String?) {
-        urlController.text = editProjectDetail.value!.url ?? "";
-      }
-      portalController.text = editProjectDetail.value!.portal ?? "";
+      urlController.text = editProjectDetail.value!.url ?? "";
+          portalController.text = editProjectDetail.value!.portal ?? "";
       profileController.text = editProjectDetail.value!.profile ?? "";
       descriptionController.text = editProjectDetail.value!.description ?? "";
       var proposal = proposals.firstWhereOrNull((proposal) =>
@@ -147,7 +145,7 @@ class ProjectCreateEditController extends GetxController {
             Get.back();
             final projectsListingController =
                 Get.find<ProjectsListingController>();
-            projectsListingController.getProjects("");
+            projectsListingController.getProjects();
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }

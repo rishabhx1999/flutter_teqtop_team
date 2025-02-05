@@ -9,14 +9,16 @@ import 'package:teqtop_team/views/pages/dashboard/components/comment_widget.dart
 import 'package:teqtop_team/views/pages/dashboard/components/comment_widget_shimmer.dart';
 
 class PostCommentsBottomSheet {
-  static show(
-      {required BuildContext context,
-      required Widget createCommentWidget,
-      required RxInt commentCount,
-      required Future<void> Function() getComments,
-      required RxBool areCommentsLoading,
-      required final RxList<CommentList?> comments,
-      required ScrollController scrollController}) {
+  static show({
+    required BuildContext context,
+    required Widget createCommentWidget,
+    required RxInt commentCount,
+    required Future<void> Function() getComments,
+    required RxBool areCommentsLoading,
+    required final RxList<CommentList?> comments,
+    required ScrollController scrollController,
+    required Function(int) handleCommentOnDelete,
+  }) {
     Helpers.printLog(description: "COMMENT_BOTTOM_SHEET_SHOW_REACHED");
     showModalBottomSheet(
         context: context,
@@ -31,6 +33,7 @@ class PostCommentsBottomSheet {
             areCommentsLoading: areCommentsLoading,
             comments: comments,
             scrollController: scrollController,
+            handleCommentOnDelete: handleCommentOnDelete,
           );
         },
         shape: const RoundedRectangleBorder(
@@ -46,6 +49,7 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
   final RxBool areCommentsLoading;
   final RxList<CommentList?> comments;
   final ScrollController scrollController;
+  final Function(int) handleCommentOnDelete;
 
   const PostCommentsBottomSheetContent({
     super.key,
@@ -55,6 +59,7 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
     required this.areCommentsLoading,
     required this.comments,
     required this.scrollController,
+    required this.handleCommentOnDelete,
   });
 
   Future<void> fetchComments() async {
@@ -69,6 +74,11 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
+        for (var comment in comments) {
+          if (comment != null) {
+            comment.isEditing.value = false;
+          }
+        }
       },
       child: Padding(
         padding:
@@ -121,7 +131,9 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
                         return areCommentsLoading.value
                             ? CommentWidgetShimmer()
                             : CommentWidget(
-                                commentData: comments[index] ?? CommentList());
+                                commentData: comments[index] ?? CommentList(),
+                                onTapDelete: handleCommentOnDelete,
+                              );
                       },
                       separatorBuilder: (context, index) {
                         return Container(

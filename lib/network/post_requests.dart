@@ -1,4 +1,5 @@
 import 'package:teqtop_team/model/dashboard/create_comment_res_model.dart';
+import 'package:teqtop_team/model/dashboard/delete_post_comment_res_model.dart';
 import 'package:teqtop_team/model/dashboard/edit_post_res_model.dart';
 import 'package:teqtop_team/model/dashboard/toggle_like_res_model.dart';
 import 'package:teqtop_team/model/dashboard/comments_res_model.dart';
@@ -10,9 +11,12 @@ import 'package:teqtop_team/model/drive_detail/create_drive_folder_res_model.dar
 import 'package:teqtop_team/model/edit_profile/edit_profile_res_model.dart';
 import 'package:teqtop_team/model/login/login_res_model.dart';
 import 'package:teqtop_team/model/project_create_edit/create_project_res_model.dart';
+import 'package:teqtop_team/model/project_detail/delete_project_res_model.dart';
 import 'package:teqtop_team/model/task_create_edit/create_task_res_model.dart';
 import 'package:teqtop_team/model/task_create_edit/edit_task_res_model.dart';
 import 'package:teqtop_team/model/task_detail/create_task_comment_res_model.dart';
+import 'package:teqtop_team/model/task_detail/delete_task_comment_res_model.dart';
+import 'package:teqtop_team/model/task_detail/edit_task_comment_res_model.dart';
 import 'package:teqtop_team/model/task_detail/task_comments_res_model.dart';
 import 'package:teqtop_team/network/api_urls.dart';
 import 'package:teqtop_team/network/remote_services.dart';
@@ -261,6 +265,79 @@ class PostRequests {
 
     if (apiResponse != null) {
       return editTaskResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<EditTaskCommentResModel?> editTaskComment(
+      Map<String, dynamic> requestBody) async {
+    Helpers.printLog(description: "POST_REQUESTS_EDIT_TASK_COMMENT_REACHED");
+    var apiResponse = await RemoteService.simplePostWithQueries(
+      ApiUrls.commentUpdate,
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=utf-8"
+      },
+      requestBody: requestBody,
+    );
+
+    if (apiResponse != null) {
+      return editTaskCommentResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<DeleteTaskCommentResModel?> deleteTaskComment(
+      Map<String, dynamic> requestBody) async {
+    var apiResponse = await RemoteService.simplePostWithQueries(
+      ApiUrls.commentDelete,
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=utf-8"
+      },
+      requestBody: requestBody,
+    );
+
+    if (apiResponse != null) {
+      return deleteTaskCommentResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<DeletePostCommentResModel?> deletePostComment(
+      Map<String, dynamic> requestBody) async {
+    var apiResponse = await RemoteService.simplePostWithQueries(
+      ApiUrls.commentDelete,
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=utf-8"
+      },
+      requestBody: requestBody,
+    );
+
+    if (apiResponse != null) {
+      return deletePostCommentResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<DeleteProjectResModel?> deleteProject(
+      int id, Map<String, dynamic> requestBody) async {
+    var apiResponse = await RemoteService.simplePostWithQueries(
+      "${ApiUrls.projects}/$id",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=utf-8"
+      },
+      requestBody: requestBody,
+    );
+
+    if (apiResponse != null) {
+      return deleteProjectResModelFromJson(apiResponse.response!);
     } else {
       return null;
     }

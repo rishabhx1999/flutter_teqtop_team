@@ -24,6 +24,7 @@ class GlobalSearchController extends GetxController {
   RxBool areProjectsShowing = true.obs;
   RxBool areEmployeesShowing = true.obs;
   RxBool areGroupsShowing = true.obs;
+  RxString searchText = ''.obs;
 
   @override
   void onInit() {
@@ -48,9 +49,8 @@ class GlobalSearchController extends GetxController {
   }
 
   void setupSearchTextChangeListener() {
-    RxString searchText = ''.obs;
     searchTextChangeListenerWorker =
-        debounce(searchText, (callback) => searchGlobally(searchText.value));
+        debounce(searchText, (callback) => searchGlobally());
 
     searchTextController.addListener(() {
       searchText.value = searchTextController.text.toString().trim();
@@ -79,14 +79,14 @@ class GlobalSearchController extends GetxController {
     employees.clear();
   }
 
-  void searchGlobally(String searchText) async {
+  void searchGlobally() async {
     if (searchText.isNotEmpty) {
       isLoading.value = true;
       try {
         Map<String, dynamic> requestBody = {
           'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
               as String?,
-          'search': searchText,
+          'search': searchText.value,
         };
         var response = await PostRequests.searchGlobal(requestBody);
         if (response != null) {

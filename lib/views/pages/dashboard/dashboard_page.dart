@@ -19,7 +19,7 @@ import '../../../consts/app_images.dart';
 import '../../../model/dashboard/feed_model.dart';
 
 class DashboardPage extends StatelessWidget {
-  final dashboardController = Get.put(DashboardController());
+  final dashboardController = Get.put(DashboardController(), permanent: true);
 
   DashboardPage({super.key});
 
@@ -222,6 +222,12 @@ class DashboardPage extends StatelessWidget {
                                           .currentCommentsPostID = null;
                                       dashboardController
                                           .currentCommentsLength.value = 0;
+                                      for (var comment in dashboardController
+                                          .singlePostComments) {
+                                        if (comment != null) {
+                                          comment.editController?.dispose();
+                                        }
+                                      }
                                       dashboardController.singlePostComments
                                           .value = <CommentList>[];
                                       if (dashboardController.posts[index] !=
@@ -262,6 +268,9 @@ class DashboardPage extends StatelessWidget {
                                             .singlePostComments,
                                         scrollController: dashboardController
                                             .commentsSheetScrollController,
+                                        handleCommentOnDelete:
+                                            dashboardController
+                                                .handleCommentOnDelete,
                                       );
                                     },
                                     postData:

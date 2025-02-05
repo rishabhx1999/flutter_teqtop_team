@@ -16,7 +16,7 @@ String taskDetailResModelToJson(TaskDetailResModel data) =>
 class TaskDetailResModel {
   String? status;
   TaskModel? task;
-  ProjectModel? project;
+  dynamic project;
 
   TaskDetailResModel({
     this.status,
@@ -28,14 +28,12 @@ class TaskDetailResModel {
       TaskDetailResModel(
         status: json["status"],
         task: json["task"] == null ? null : TaskModel.fromJson(json["task"]),
-        project: json["project"] == null
-            ? null
-            : ProjectModel.fromJson(json["project"]),
+        project: json["project"],
       );
 
   Map<String, dynamic> toJson() => {
         "status": status,
         "task": task == null ? null : task!.toJson(),
-        "project": project == null ? null : project!.toJson(),
+        "project": project,
       };
 }

@@ -22,6 +22,8 @@ class ApiUrls {
   static const projects = 'projects';
   static const tasksAdd = 'tasks/add';
   static const tasksUpdate = 'tasks/update';
+  static const commentUpdate = 'comment/update';
+  static const commentDelete = 'comment/delete';
   static const commentList = 'comment/list';
   static const commentMore = 'comment/more';
   static const tasks = 'tasks';

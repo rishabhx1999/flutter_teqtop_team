@@ -61,43 +61,79 @@ class TaskDetailPage extends StatelessWidget {
         titleSpacing: 0,
         elevation: 0,
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                Get.toNamed(AppRoutes.routeTaskCreateEdit);
-              },
-              child: Container(
-                width: 68,
-                height: 28,
-                decoration: BoxDecoration(
-                    color: AppColors.colorF9F9F9,
-                    border: Border.all(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        width: 0.5)),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      AppIcons.icEdit,
-                      width: 24,
-                    ),
-                    const SizedBox(
-                      width: 4,
-                    ),
-                    Text(
-                      "edit".tr,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: AppConsts.commonFontSizeFactor * 14),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.only(right: 8),
+          //   child: GestureDetector(
+          //     behavior: HitTestBehavior.opaque,
+          //     onTap: () {
+          //     },
+          //     child: Container(
+          //       width: 68,
+          //       height: 28,
+          //       decoration: BoxDecoration(
+          //           color: AppColors.colorF9F9F9,
+          //           border: Border.all(
+          //               color: Colors.black.withValues(alpha: 0.1),
+          //               width: 0.5)),
+          //       child: Row(
+          //         mainAxisSize: MainAxisSize.min,
+          //         mainAxisAlignment: MainAxisAlignment.center,
+          //         crossAxisAlignment: CrossAxisAlignment.center,
+          //         children: [
+          //           SvgPicture.asset(
+          //             AppIcons.icEdit,
+          //             width: 24,
+          //           ),
+          //           const SizedBox(
+          //             width: 4,
+          //           ),
+          //           Text(
+          //             "delete".tr,
+          //             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          //                 fontSize: AppConsts.commonFontSizeFactor * 14),
+          //           )
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // Padding(
+          //   padding: const EdgeInsets.only(right: 8),
+          //   child: GestureDetector(
+          //     behavior: HitTestBehavior.opaque,
+          //     onTap: () {
+          //       Get.toNamed(AppRoutes.routeTaskCreateEdit);
+          //     },
+          //     child: Container(
+          //       width: 68,
+          //       height: 28,
+          //       decoration: BoxDecoration(
+          //           color: AppColors.colorF9F9F9,
+          //           border: Border.all(
+          //               color: Colors.black.withValues(alpha: 0.1),
+          //               width: 0.5)),
+          //       child: Row(
+          //         mainAxisSize: MainAxisSize.min,
+          //         mainAxisAlignment: MainAxisAlignment.center,
+          //         crossAxisAlignment: CrossAxisAlignment.center,
+          //         children: [
+          //           SvgPicture.asset(
+          //             AppIcons.icEdit,
+          //             width: 24,
+          //           ),
+          //           const SizedBox(
+          //             width: 4,
+          //           ),
+          //           Text(
+          //             "edit".tr,
+          //             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          //                 fontSize: AppConsts.commonFontSizeFactor * 14),
+          //           )
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          // ),
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: GestureDetector(
@@ -134,7 +170,7 @@ class TaskDetailPage extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.only(right: 8),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
@@ -157,10 +193,57 @@ class TaskDetailPage extends StatelessWidget {
               ),
             ),
           ),
+          PopupMenuButton(
+              padding: EdgeInsets.only(right: 16),
+              menuPadding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+              style:
+                  IconButton.styleFrom(splashFactory: NoSplash.splashFactory),
+              icon: SvgPicture.asset(
+                AppIcons.icMoreHorizontal,
+                width: 24,
+              ),
+              onSelected: (value) {
+                if (value == "delete".tr) {
+                  taskDetailController.handleOnDelete();
+                }
+                if (value == "edit".tr) {
+                  Get.toNamed(AppRoutes.routeTaskCreateEdit);
+                }
+              },
+              itemBuilder: (context) => [
+                    PopupMenuItem(
+                        value: "edit".tr,
+                        padding: EdgeInsets.only(left: 16),
+                        child: Text(
+                          "edit".tr,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge
+                              ?.copyWith(
+                                  fontSize:
+                                      AppConsts.commonFontSizeFactor * 14),
+                        )),
+                    PopupMenuItem(
+                        value: "delete".tr,
+                        padding: EdgeInsets.only(left: 16),
+                        child: Text(
+                          "delete".tr,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge
+                              ?.copyWith(
+                                  fontSize:
+                                      AppConsts.commonFontSizeFactor * 14),
+                        ))
+                  ])
         ],
       ),
       backgroundColor: Colors.white,
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(
             child: SingleChildScrollView(
@@ -325,7 +408,13 @@ class TaskDetailPage extends StatelessWidget {
                         areCommentsLoading:
                             taskDetailController.areCommentsLoading,
                         scrollController:
-                            taskDetailController.commentsSheetScrollController);
+                            taskDetailController.commentsSheetScrollController,
+                        handleCommentOnEdit:
+                            taskDetailController.handleCommentOnEdit,
+                        isCommentEditing: taskDetailController.isCommentEditing,
+                        editComment: taskDetailController.editComment,
+                        handleCommentOnDelete:
+                            taskDetailController.handleCommentOnDelete);
                   }))
         ],
       ),

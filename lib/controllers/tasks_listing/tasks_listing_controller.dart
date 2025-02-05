@@ -18,6 +18,7 @@ class TasksListingController extends GetxController {
   RxInt notificationsCount = 0.obs;
   int? projectId;
   bool singleProjectTasks = false;
+  RxString searchText = ''.obs;
 
   @override
   void onInit() {
@@ -72,13 +73,13 @@ class TasksListingController extends GetxController {
         projectId = data[AppConsts.keyProjectId];
       }
     }
-    getTasks("");
+    getTasks();
   }
 
   void setupSearchTextChangeListener() {
-    RxString searchText = ''.obs;
+
     searchTextChangeListenerWorker =
-        debounce(searchText, (callback) => getTasks(searchText.value));
+        debounce(searchText, (callback) => getTasks());
 
     searchTextController.addListener(() {
       searchText.value = searchTextController.text.toString().trim();
@@ -112,7 +113,7 @@ class TasksListingController extends GetxController {
     });
   }
 
-  Future<void> getTasks(String searchText) async {
+  Future<void> getTasks() async {
     if ((singleProjectTasks == true && projectId != null) ||
         (singleProjectTasks == false)) {
       Map<String, String> requestBody = {
@@ -162,7 +163,7 @@ class TasksListingController extends GetxController {
         'order%5B0%5D%5Bdir%5D': 'DESC',
         'start': '0',
         'length': '-1',
-        'search%5Bvalue%5D': searchText,
+        'search%5Bvalue%5D': searchText.value,
         'search%5Bregex%5D': 'false'
       };
       if (projectId != null) {

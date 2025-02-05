@@ -10,7 +10,6 @@ import 'package:teqtop_team/model/task_create_edit/task_priority.dart';
 import 'package:teqtop_team/utils/helpers.dart';
 
 import '../../config/app_routes.dart';
-import '../../consts/app_consts.dart';
 import '../../model/global_search/project_model.dart';
 import '../../model/global_search/task_model.dart';
 import '../../network/get_requests.dart';
@@ -280,7 +279,7 @@ class TaskCreateEditController extends GetxController {
           if (response.status == "Added a new task") {
             Get.back();
             final tasksListingController = Get.find<TasksListingController>();
-            tasksListingController.getTasks("");
+            tasksListingController.getTasks();
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }

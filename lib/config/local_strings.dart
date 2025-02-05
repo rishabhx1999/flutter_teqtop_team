@@ -143,6 +143,8 @@ class LocalStrings extends Translations {
           'folder': 'Folder',
           'active': 'Active',
           'inactive': 'Inactive',
+          'edit_comment': 'Edit Comment',
+          'yes': 'Yes',
 
           //
           'error': 'Error',
@@ -159,6 +161,12 @@ class LocalStrings extends Translations {
               'Are you sure you want to delete this post',
           'open_settings': 'Open Settings',
           'message_login_again': 'Please login again to continue',
+          'message_comment_delete_confirmation':
+              'Are you sure you want to delete this comment?',
+          'message_task_delete_confirmation':
+              'Are you sure you want to delete this task?',
+          'message_project_delete_confirmation':
+              'Are you sure you want to delete this project?',
           'message_enter_name': 'Please enter your name',
           'message_enter_profile': 'Please enter profile',
           'message_enter_url': 'Please enter URL',

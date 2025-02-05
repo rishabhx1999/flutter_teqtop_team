@@ -1,4 +1,13 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 class CommentList {
+  //Don't delete these variables
+  TextEditingController? editController;
+  RxBool isEditing = false.obs;
+  FocusNode focusNode = FocusNode();
+  RxBool showTextFieldSuffix = true.obs;
+
   int? id;
   int? user;
   int? componentId;
@@ -25,6 +34,7 @@ class CommentList {
     this.updatedAt,
     this.userName,
     this.profile,
+    this.editController,
   });
 
   factory CommentList.fromJson(Map<String, dynamic> json) => CommentList(

@@ -10,6 +10,7 @@ import 'package:teqtop_team/model/logs_listing/logs_res_model.dart';
 import 'package:teqtop_team/model/project_create_edit/project_categories_and_proposals_res_model.dart';
 import 'package:teqtop_team/model/project_detail/project_detail_res_model.dart';
 import 'package:teqtop_team/model/projects_listing/projects_res_model.dart';
+import 'package:teqtop_team/model/task_detail/delete_task_res_model.dart';
 import 'package:teqtop_team/model/task_detail/task_detail_res_model.dart';
 import 'package:teqtop_team/model/tasks_listing/tasks_res_model.dart';
 import 'package:teqtop_team/network/remote_services.dart';
@@ -243,6 +244,20 @@ class GetRequests {
 
     if (apiResponse != null) {
       return driveDetailResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<DeleteTaskResModel?> deleteTask(int id) async {
+    var apiResponse =
+        await RemoteService.simpleGet("${ApiUrls.tasks}/delete/$id", headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json;charset=utf-8"
+    });
+
+    if (apiResponse != null) {
+      return deleteTaskResModelFromJson(apiResponse.response!);
     } else {
       return null;
     }

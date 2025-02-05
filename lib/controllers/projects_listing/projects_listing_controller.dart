@@ -16,13 +16,14 @@ class ProjectsListingController extends GetxController {
   RxBool isLoading = false.obs;
   RxList<ProjectModel?> projects = <ProjectModel>[].obs;
   RxInt notificationsCount = 0.obs;
+  RxString searchText = ''.obs;
 
   @override
   void onInit() {
     getProfilePhoto();
     initializeSearchTextController();
     setupSearchTextChangeListener();
-    getProjects('');
+    getProjects();
     getNotificationsCount();
 
     super.onInit();
@@ -50,9 +51,8 @@ class ProjectsListingController extends GetxController {
   }
 
   void setupSearchTextChangeListener() {
-    RxString searchText = ''.obs;
     searchTextChangeListenerWorker =
-        debounce(searchText, (callback) => getProjects(searchText.value));
+        debounce(searchText, (callback) => getProjects());
 
     searchTextController.addListener(() {
       searchText.value = searchTextController.text.toString().trim();
@@ -80,7 +80,7 @@ class ProjectsListingController extends GetxController {
     showSearchFieldTrailing.value = false;
   }
 
-  Future<void> getProjects(String searchText) async {
+  Future<void> getProjects() async {
     Map<String, String> requestBody = {
       // 'draw': '20',
       // 'columns%5B0%5D%5Bdata%5D': 'DT_RowIndex',
@@ -128,7 +128,7 @@ class ProjectsListingController extends GetxController {
       'order%5B0%5D%5Bdir%5D': 'DESC',
       'start': '0',
       'length': '-1',
-      'search%5Bvalue%5D': searchText,
+      'search%5Bvalue%5D': searchText.value,
       'search%5Bregex%5D': 'false'
     };
 

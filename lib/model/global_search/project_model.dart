@@ -5,6 +5,7 @@ import '../enum_values.dart';
 class ProjectModel {
   DataRowAttribute? dtRowAttr;
   int? id;
+  String? trash;
   String? proposalId;
   int? categoryId;
   int? userId;
@@ -32,6 +33,7 @@ class ProjectModel {
   ProjectModel({
     this.dtRowAttr,
     this.id,
+    this.trash,
     this.proposalId,
     this.categoryId,
     this.userId,
@@ -62,6 +64,7 @@ class ProjectModel {
             ? null
             : DataRowAttribute.fromJson(json["DT_RowAttr"]),
         id: json["id"],
+        trash: json["trash"],
         proposalId: json["proposal_id"],
         categoryId: json["category_id"],
         userId: json["user_id"],
@@ -95,6 +98,7 @@ class ProjectModel {
   Map<String, dynamic> toJson() => {
         "DT_RowAttr": dtRowAttr == null ? null : dtRowAttr!.toJson(),
         "id": id,
+        "trash": trash,
         "proposal_id": proposalId,
         "category_id": categoryId,
         "user_id": userId,

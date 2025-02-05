@@ -39,6 +39,7 @@ class CommonButtonOutline extends StatelessWidget {
       child: Obx(() => ElevatedButton(
           onPressed: isEnable?.value ?? RxBool(true).value ? onClick : null,
           style: ButtonStyle(
+              elevation: WidgetStateProperty.all(0),
               padding: WidgetStateProperty.all(EdgeInsets.zero),
               backgroundColor: WidgetStateProperty.all(Colors.white),
               side: WidgetStateProperty.all(BorderSide(

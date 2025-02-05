@@ -1,10 +1,14 @@
 import 'package:get/get.dart';
+import 'package:teqtop_team/controllers/global_search/global_search_controller.dart';
+import 'package:teqtop_team/controllers/projects_listing/projects_listing_controller.dart';
 import 'package:teqtop_team/model/project_detail/project_detail_res_model.dart';
+import 'package:teqtop_team/network/post_requests.dart';
 
 import '../../config/app_routes.dart';
 import '../../consts/app_consts.dart';
 import '../../network/get_requests.dart';
 import '../../utils/helpers.dart';
+import '../../views/dialogs/common/common_alert_dialog.dart';
 
 class ProjectDetailController extends GetxController {
   int? projectId;
@@ -15,7 +19,7 @@ class ProjectDetailController extends GetxController {
   @override
   void onInit() {
     getProjectId();
-    checkIfClearPreviousRoutes();
+    checkPreviousRoutes();
 
     super.onInit();
   }
@@ -32,7 +36,7 @@ class ProjectDetailController extends GetxController {
     super.onClose();
   }
 
-  void checkIfClearPreviousRoutes() {
+  void checkPreviousRoutes() {
     var previousRoute = Get.previousRoute;
     if (previousRoute == AppRoutes.routeNotifications ||
         previousRoute == AppRoutes.routeLogsListing) {
@@ -89,6 +93,69 @@ class ProjectDetailController extends GetxController {
       Helpers.printLog(
           description: "PROJECT_DETAIL_CONTROLLER_HANDLE_DRIVE_ON_TAP",
           message: "DATA_NOT_NULL");
+    }
+  }
+
+  void handleOnDelete() {
+    CommonAlertDialog.showDialog(
+      message: "message_project_delete_confirmation",
+      positiveText: "yes",
+      positiveBtnCallback: () async {
+        deleteProject();
+      },
+      isShowNegativeBtn: true,
+      negativeText: 'no',
+    );
+  }
+
+  void refreshPreviousPageData() {
+    ProjectsListingController? projectsListingController;
+    try {
+      projectsListingController = Get.find<ProjectsListingController>();
+    } catch (e) {
+      Helpers.printLog(
+          description: "PROJECT_DETAIL_CONTROLLER_REFRESH_PREVIOUS_PAGE_DATA",
+          message: "COULD_NOT_FIND_PROJECTS_LISTING_CONTROLLER");
+    }
+    if (projectsListingController != null) {
+      projectsListingController.getProjects();
+    }
+    GlobalSearchController? globalSearchController;
+    try {
+      globalSearchController = Get.find<GlobalSearchController>();
+    } catch (e) {
+      Helpers.printLog(
+          description: "PROJECT_DETAIL_CONTROLLER_REFRESH_PREVIOUS_PAGE_DATA",
+          message: "COULD_NOT_FIND_GLOBAL_SEARCH_CONTROLLER");
+    }
+    if (globalSearchController != null) {
+      globalSearchController.searchGlobally();
+    }
+  }
+
+  Future<void> deleteProject() async {
+    Get.back();
+    if (projectId != null) {
+      Map<String, dynamic> requestBody = {
+        '_method': 'DELETE',
+      };
+      isLoading.value = true;
+      try {
+        var response =
+            await PostRequests.deleteProject(projectId!, requestBody);
+        if (response != null) {
+          if (response.status == "success") {
+            Get.back();
+            refreshPreviousPageData();
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
+          }
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
+        }
+      } finally {
+        isLoading.value = false;
+      }
     }
   }
 }

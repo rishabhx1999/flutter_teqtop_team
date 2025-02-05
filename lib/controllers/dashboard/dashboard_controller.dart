@@ -57,6 +57,7 @@ class DashboardController extends GetxController
   int singlePostCommentsPage = 1;
   int? currentCommentsPostID;
   RxInt currentCommentsLength = 0.obs;
+  bool currentCommentsRefreshNeeded = false;
 
   @override
   void onInit() {
@@ -240,7 +241,8 @@ class DashboardController extends GetxController
     int commentsPerPage = 10;
     int maxPage = (currentCommentsLength.value / commentsPerPage).ceil();
 
-    if (singlePostCommentsPage <= maxPage) {
+    if (singlePostCommentsPage <= maxPage ||
+        currentCommentsRefreshNeeded == true) {
       areCommentsLoading.value = true;
       try {
         Map<String, dynamic> requestBody = {
@@ -257,6 +259,11 @@ class DashboardController extends GetxController
             if (response.comments != null) {
               singlePostComments
                   .assignAll(response.comments as Iterable<CommentList?>);
+              for (var comment in singlePostComments) {
+                if (comment != null) {
+                  comment.editController = TextEditingController();
+                }
+              }
               singlePostComments.refresh();
               singlePostCommentsPage++;
             }
@@ -268,6 +275,7 @@ class DashboardController extends GetxController
         }
       } finally {
         areCommentsLoading.value = false;
+        currentCommentsRefreshNeeded = false;
       }
     }
   }
@@ -505,43 +513,50 @@ class DashboardController extends GetxController
 
   Future<void> createComment() async {
     FocusManager.instance.primaryFocus?.unfocus();
-    isCommentCreating.value = true;
-    try {
-      Map<String, dynamic> requestBody = {
-        'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-            as String?,
-        'component_id': currentCommentsPostID,
-        'component': 'feed',
-        'comment':
-            '"${Helpers.convertToHTMLParagraphs(commentFieldController.text)}"',
-      };
-      var response = await PostRequests.createComment(requestBody);
-      if (response != null) {
-        commentFieldController.clear();
-
-        var post = posts.firstWhereOrNull(
-            (post) => post != null && post.id == currentCommentsPostID);
-        if (post != null) {
-          if (post.commentCount == null) {
-            post.commentCount = [
-              CommentCount(componentId: currentCommentsPostID)
-            ];
-          } else {
-            post.commentCount!
-                .add(CommentCount(componentId: currentCommentsPostID));
-          }
-          posts.refresh();
-
-          currentCommentsLength.value += 1;
-          currentCommentsLength.refresh();
-        }
-        singlePostCommentsPage = 1;
-        getComments();
-      } else {
-        Get.snackbar('error'.tr, 'message_server_error'.tr);
+    for (var comment in singlePostComments) {
+      if (comment != null) {
+        comment.isEditing.value = false;
       }
-    } finally {
-      isCommentCreating.value = false;
+    }
+    if (commentFieldController.text.isNotEmpty) {
+      isCommentCreating.value = true;
+      try {
+        Map<String, dynamic> requestBody = {
+          'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+              as String?,
+          'component_id': currentCommentsPostID,
+          'component': 'feed',
+          'comment':
+              '"${Helpers.convertToHTMLParagraphs(commentFieldController.text)}"',
+        };
+        var response = await PostRequests.createComment(requestBody);
+        if (response != null) {
+          commentFieldController.clear();
+
+          var post = posts.firstWhereOrNull(
+              (post) => post != null && post.id == currentCommentsPostID);
+          if (post != null) {
+            if (post.commentCount == null) {
+              post.commentCount = [
+                CommentCount(componentId: currentCommentsPostID)
+              ];
+            } else {
+              post.commentCount!
+                  .add(CommentCount(componentId: currentCommentsPostID));
+            }
+            posts.refresh();
+
+            currentCommentsLength.value += 1;
+            currentCommentsLength.refresh();
+          }
+          singlePostCommentsPage = 1;
+          getComments();
+        } else {
+          Get.snackbar('error'.tr, 'message_server_error'.tr);
+        }
+      } finally {
+        isCommentCreating.value = false;
+      }
     }
   }
 
@@ -822,6 +837,65 @@ class DashboardController extends GetxController
       }
     } finally {
       arePostsLoading.value = false;
+    }
+  }
+
+  void handleCommentOnDelete(int commentId) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    for (var comment in singlePostComments) {
+      if (comment != null) {
+        comment.isEditing.value = false;
+      }
+    }
+    CommonAlertDialog.showDialog(
+      message: "message_comment_delete_confirmation",
+      positiveText: "yes",
+      positiveBtnCallback: () async {
+        deleteComment(commentId);
+      },
+      isShowNegativeBtn: true,
+      negativeText: 'no',
+    );
+  }
+
+  Future<void> deleteComment(int commentId) async {
+    Get.back();
+    Map<String, dynamic> requestBody = {
+      'component_id': currentCommentsPostID,
+      'component': 'feed',
+      'id': commentId
+    };
+    areCommentsLoading.value = true;
+    try {
+      var response = await PostRequests.deletePostComment(requestBody);
+      if (response != null) {
+        if (response.status == "success") {
+          var deleteComment = singlePostComments.firstWhereOrNull(
+              (comment) => comment != null && comment.id == commentId);
+          if (deleteComment != null && deleteComment.editController != null) {
+            deleteComment.editController!.dispose();
+            deleteComment.editController = null;
+          }
+          var post = posts.firstWhereOrNull(
+              (post) => post != null && post.id == currentCommentsPostID);
+          if (post != null && post.commentCount!.isNotEmpty) {
+            post.commentCount!.removeLast();
+            posts.refresh();
+
+            currentCommentsLength.value -= 1;
+            currentCommentsLength.refresh();
+          }
+          singlePostCommentsPage = 1;
+          currentCommentsRefreshNeeded = true;
+          getComments();
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
+        }
+      } else {
+        Get.snackbar("error".tr, "message_server_error".tr);
+      }
+    } finally {
+      areCommentsLoading.value = false;
     }
   }
 }
