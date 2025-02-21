@@ -8,7 +8,7 @@ class CommonButton extends StatelessWidget {
   final String text;
   final Color? backgroundColor;
   final Color? textColor;
-  final VoidCallback onClick;
+  final Function() onClick;
   final RxBool? isEnable;
   final double? borderRadius;
   final double? height;

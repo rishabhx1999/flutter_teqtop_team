@@ -25,20 +25,25 @@ class RemoteService {
   //
   //
   //
-  static bool isLoginDay() {
+  static bool isTokenExpired() {
     String? loginDateTimeString =
         PreferenceManager.getPref(PreferenceManager.prefLoginDate) as String?;
-    if (loginDateTimeString != null && loginDateTimeString.isNotEmpty) {
+    int? loginExpireSeconds =
+        PreferenceManager.getPref(PreferenceManager.prefLoginExpireSeconds)
+            as int?;
+    if (loginDateTimeString != null &&
+        loginDateTimeString.isNotEmpty &&
+        loginExpireSeconds != null) {
       DateTime loginDateTime = DateTime.parse(loginDateTimeString);
       DateTime currentDateTime = DateTime.now();
 
-      if (loginDateTime.year == currentDateTime.year &&
-          loginDateTime.month == currentDateTime.month &&
-          loginDateTime.day == currentDateTime.day) {
-        return true;
+      int secondsDifference =
+          currentDateTime.difference(loginDateTime).inSeconds;
+      if (secondsDifference < loginExpireSeconds) {
+        return false;
       }
     }
-    return false;
+    return true;
   }
 
   //
@@ -64,18 +69,11 @@ class RemoteService {
       {required Map<String, String> headers,
       Map<String, dynamic>? requestBody,
       bool? isLogin}) async {
-    if (isLoginDay() || isLogin == true) {
+    if (isTokenExpired() == false || isLogin == true) {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
-        Helpers.printLog(
-            description: "REMOTE_SERVICE_SIMPLE_POST", message: "NO_INTERNET");
         return null;
       }
-
-      Helpers.printLog(
-          description: 'REMOTE_SERVICE_SIMPLE_POST',
-          message:
-              "REQUEST_DATA = $requestBody ===== REQUEST_URL = ${_baseUrl + endUrl} ===== REQUEST_HEADERS = ${json.encode(headers)}");
 
       var body = json.encode(requestBody);
       final http.Response response;
@@ -87,11 +85,6 @@ class RemoteService {
         response =
             await http.post(Uri.parse(_baseUrl + endUrl), headers: headers);
       }
-
-      Helpers.printLog(
-          description: 'REMOTE_SERVICE_SIMPLE_POST',
-          message:
-              "RESPONSE = ${response.body} ===== REQUEST_URL = ${_baseUrl + endUrl} ===== REQUEST_HEADERS = ${json.encode(headers)}");
 
       var responseCode = response.statusCode;
       if (Helpers.isResponseSuccessful(responseCode)) {
@@ -109,7 +102,7 @@ class RemoteService {
   //
   static Future<CommonResModel?> simpleGet(String endUrl,
       {required Map<String, String> headers}) async {
-    if (isLoginDay()) {
+    if (isTokenExpired() == false) {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
         Helpers.printLog(
@@ -125,10 +118,10 @@ class RemoteService {
 
       final response = await http.get(Uri.parse(url), headers: headers);
 
-      Helpers.printLog(
-          description: 'REMOTE_SERVICE_SIMPLE_GET',
-          message:
-              "RESPONSE = ${response.body} ===== REQUEST_URL = ${_baseUrl + endUrl} ===== REQUEST_HEADERS = ${json.encode(headers)}");
+      // Helpers.printLog(
+      //     description: 'REMOTE_SERVICE_SIMPLE_GET',
+      //     message:
+      //         "RESPONSE = ${response.body} ===== REQUEST_URL = ${_baseUrl + endUrl} ===== REQUEST_HEADERS = ${json.encode(headers)}");
 
       var responseCode = response.statusCode;
       if (Helpers.isResponseSuccessful(responseCode)) {
@@ -147,7 +140,7 @@ class RemoteService {
   static Future<CommonResModel?> getWithQueries(String endUrl,
       {required Map<String, String> headers,
       Map<String, String>? requestBody}) async {
-    if (isLoginDay()) {
+    if (isTokenExpired() == false) {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
         Helpers.printLog(
@@ -195,7 +188,7 @@ class RemoteService {
     bool? isLogin,
     http.MultipartFile? uploadMedia,
   }) async {
-    if (isLoginDay() || isLogin == true) {
+    if (isTokenExpired() == false || isLogin == true) {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
         Helpers.printLog(
@@ -247,7 +240,7 @@ class RemoteService {
   static Future<CommonResModel?> simplePut(String endUrl,
       {required Map<String, String> headers,
       Map<String, dynamic>? requestBody}) async {
-    if (isLoginDay()) {
+    if (isTokenExpired() == false) {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
         Helpers.printLog(
@@ -296,7 +289,7 @@ class RemoteService {
     required String parentURL,
     required Map<String, String> headers,
   }) async {
-    if (isLoginDay()) {
+    if (isTokenExpired() == false) {
       var isConnected = await InternetConnection.isConnected();
 
       if (!isConnected) {
@@ -349,7 +342,7 @@ class RemoteService {
     bool? isLogin,
     http.MultipartFile? uploadMedia,
   }) async {
-    if (isLoginDay() || isLogin == true) {
+    if (isTokenExpired() == false || isLogin == true) {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
         Helpers.printLog(
@@ -408,7 +401,7 @@ class RemoteService {
     Map<String, dynamic>? requestBody,
     bool? isLogin,
   }) async {
-    if (isLoginDay() || isLogin == true) {
+    if (isTokenExpired() == false || isLogin == true) {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
         Helpers.printLog(
@@ -461,7 +454,7 @@ class RemoteService {
   static Future<CommonResModel?> simplePutWithoutQueries(String endUrl,
       {required Map<String, String> headers,
       Map<String, dynamic>? requestBody}) async {
-    if (isLoginDay()) {
+    if (isTokenExpired() == false) {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
         Helpers.printLog(

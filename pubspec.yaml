@@ -86,14 +86,14 @@ flutter_native_splash:
   ios: true
   web: false
 
-  background_image: "assets/images/img_yellow_background.png"
-  image: "assets/images/img_yellow_background.png"
-  branding: "assets/images/img_yellow_background.png"
+  background_image: "assets/images/img_white_background.png"
+  image: "assets/images/img_white_background.png"
+  branding: "assets/images/img_white_background.png"
 
   android_12:
-    color: "#FFF4DC"
-    image: "assets/images/img_yellow_background.png"
-    branding: "assets/images/img_yellow_background.png"
+    color: "#FFFFFF"
+    image: "assets/images/img_white_background.png"
+    branding: "assets/images/img_white_background.png"
 
 flutter_launcher_icons:
   android: "launcher_icon"

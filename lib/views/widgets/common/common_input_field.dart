@@ -106,7 +106,7 @@ class CommonInputField extends StatelessWidget {
                         .textTheme
                         .bodyLarge
                         ?.copyWith(color: AppColors.colorA9A9A9),
-                    suffixIcon: trailing ?? const SizedBox(),
+                    suffixIcon: trailing,
                     fillColor: fillColor ?? Colors.white,
                     filled: true,
                     border: inputBorder,

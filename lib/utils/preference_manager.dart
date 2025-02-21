@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PreferenceManager {
   static const prefIsLogin = "pref_key_is_user_login";
   static const prefLoginDate = "pref_key_login_date";
+  static const prefLoginExpireSeconds = "pref_key_login_expire_seconds";
   static const prefUserToken = "pref_key_user_token";
   static const prefUserProfilePhoto = "pref_key_user_profile_photo";
   static const prefUserId = "pref_key_user_id";

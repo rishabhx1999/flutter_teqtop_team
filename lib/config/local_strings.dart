@@ -145,9 +145,14 @@ class LocalStrings extends Translations {
           'inactive': 'Inactive',
           'edit_comment': 'Edit Comment',
           'yes': 'Yes',
+          'text': 'text...',
+          'enter_text': 'Enter text',
+          'assign_hours': 'Assign Hours',
 
           //
           'error': 'Error',
+          'success': 'Success',
+          'message_adding_content_in_between': 'Adding in between',
           'message_enter_email': 'Please enter your email address',
           'message_enter_folder_name': 'Please enter your folder name',
           'message_enter_role': 'Please enter role',
@@ -195,6 +200,7 @@ class LocalStrings extends Translations {
           'message_select_project_category': 'Please select project category',
           'message_select_proposal': 'Please select proposal',
           'message_select_person': 'Please select person',
+          'message_add_description': 'Please add description',
           'message_select_priority': 'Please select priority',
           'message_select_participants': 'Please select participant(s)',
           'message_select_observers': 'Please select observer(s)',

@@ -9,7 +9,7 @@ import 'package:teqtop_team/consts/app_icons.dart';
 import 'package:teqtop_team/controllers/dashboard/dashboard_controller.dart';
 import 'package:teqtop_team/model/dashboard/comment_list.dart';
 import 'package:teqtop_team/views/bottom_sheets/post_comments_bottom_sheet.dart';
-import 'package:teqtop_team/views/pages/dashboard/components/create_comment_widget.dart';
+import 'package:teqtop_team/views/widgets/common/common_multimedia_content_create_widget.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/create_post_widget.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/menu_drawer_widget.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/post_widget.dart';
@@ -248,15 +248,53 @@ class DashboardPage extends StatelessWidget {
                                       }
                                       dashboardController
                                           .singlePostCommentsPage = 1;
+                                      dashboardController
+                                              .commentFieldContentItemsInsertAfterIndex =
+                                          null;
+                                      dashboardController
+                                          .commentFieldContentEditIndex = null;
+                                      dashboardController.commentFieldContent
+                                          .clear();
                                       PostCommentsBottomSheet.show(
                                         context: context,
                                         createCommentWidget:
-                                            CreateCommentWidget(
-                                          controller: dashboardController
-                                              .commentFieldController,
-                                          hint: 'add_comment'.tr,
+                                            CommonMultimediaContentCreateWidget(
+                                          textController: dashboardController
+                                              .commentFieldTextController,
+                                          hint: 'enter_text'.tr,
                                           createComment:
                                               dashboardController.createComment,
+                                          isEditingComment: false.obs,
+                                          isTextFieldEmpty: dashboardController
+                                              .isCommentFieldTextEmpty,
+                                          onTextChanged: dashboardController
+                                              .onCommentFieldTextChange,
+                                          contentItems: dashboardController
+                                              .commentFieldContent,
+                                          clickImage: dashboardController
+                                              .clickCommentImage,
+                                          pickImages: dashboardController
+                                              .pickCommentImages,
+                                          addText: dashboardController
+                                              .addTextInCommentContent,
+                                          removeContentItem: dashboardController
+                                              .removeCommentContentItem,
+                                          addContentAfter: dashboardController
+                                              .initializeAddingInBetweenCommentContent,
+                                          pickFiles: dashboardController
+                                              .pickCommentDocuments,
+                                          editText: dashboardController
+                                              .editCommentContentText,
+                                          showCreateEditButton: true,
+                                          showShadow: true,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          backgroundColor: Colors.white,
+                                          textFieldBackgroundColor: Colors.grey
+                                              .withValues(alpha: 0.1),
+                                          isCreateOrEditLoading:
+                                              dashboardController
+                                                  .isCommentCreateLoading,
                                         ),
                                         commentCount: dashboardController
                                             .currentCommentsLength,
@@ -271,6 +309,8 @@ class DashboardPage extends StatelessWidget {
                                         handleCommentOnDelete:
                                             dashboardController
                                                 .handleCommentOnDelete,
+                                        extractCommentItems: dashboardController
+                                            .convertHTMLToCommentContent,
                                       );
                                     },
                                     postData:

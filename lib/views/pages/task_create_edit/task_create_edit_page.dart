@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -9,6 +11,7 @@ import 'package:teqtop_team/model/global_search/project_model.dart';
 import 'package:teqtop_team/model/task_create_edit/task_priority.dart';
 import 'package:teqtop_team/views/widgets/common/common_button_shimmer.dart';
 import 'package:teqtop_team/views/widgets/common/common_input_field_shimmer.dart';
+import 'package:teqtop_team/views/widgets/common/common_multimedia_content_create_widget.dart';
 
 import '../../../config/app_colors.dart';
 import '../../../consts/app_consts.dart';
@@ -27,6 +30,12 @@ class TaskCreateEditPage extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.white));
+    final inputBorder = OutlineInputBorder(
+        borderRadius: BorderRadius.circular(0),
+        borderSide: BorderSide(color: Colors.transparent, width: 0.5));
+    final errorInputBorder = OutlineInputBorder(
+        borderRadius: BorderRadius.circular(0),
+        borderSide: BorderSide(color: Colors.transparent, width: 0.5));
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -916,24 +925,409 @@ class TaskCreateEditPage extends StatelessWidget {
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
                             taskCreateEditController.areEmployeesLoading.value
+                        ? Shimmer.fromColors(
+                            baseColor: AppColors.shimmerBaseColor,
+                            highlightColor: AppColors.shimmerHighlightColor,
+                            child: Container(
+                              height: 20,
+                              width: 60,
+                              decoration: BoxDecoration(
+                                color: AppColors.shimmerBaseColor,
+                              ),
+                            ))
+                        : Text(
+                            'description'.tr.toUpperCase(),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    fontSize:
+                                        AppConsts.commonFontSizeFactor * 14),
+                          ),
+                  ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  Obx(
+                    () => taskCreateEditController.areProjectsLoading.value ||
+                            taskCreateEditController.areEmployeesLoading.value
                         ? CommonInputFieldShimmer(
                             labelShimmerBorderRadius: 0,
-                            textFieldShimmerHeight: 124,
+                            textFieldShimmerHeight: 250,
                           )
-                        : CommonInputField(
-                            fillColor: AppColors.colorF9F9F9,
-                            borderColor: Colors.transparent,
-                            controller:
-                                taskCreateEditController.descriptionController,
-                            maxLines: 4,
-                            hint: 'enter_task_description',
-                            label: 'description',
-                            onChanged: (value) {},
-                            validator:
-                                Validations.checkTaskDescriptionValidations,
-                            inputType: TextInputType.text,
-                            textInputAction: TextInputAction.done,
+                        : CommonMultimediaContentCreateWidget(
+                            textController: taskCreateEditController
+                                .descriptionTextController,
+                            hint: 'enter_text',
+                            isTextFieldEmpty: taskCreateEditController
+                                .isDescriptionTextFieldEmpty,
+                            onTextChanged: taskCreateEditController
+                                .onDescriptionTextChange,
+                            contentItems:
+                                taskCreateEditController.descriptionItems,
+                            clickImage:
+                                taskCreateEditController.clickDescriptionImage,
+                            pickImages:
+                                taskCreateEditController.pickDescriptionImages,
+                            addText:
+                                taskCreateEditController.addTextInDescription,
+                            removeContentItem:
+                                taskCreateEditController.removeDescriptionItem,
+                            addContentAfter: taskCreateEditController
+                                .addDescriptionItemAfter,
+                            pickFiles: taskCreateEditController
+                                .pickDescriptionDocuments,
+                            editText:
+                                taskCreateEditController.editDescriptionText,
+                            showCreateEditButton: false,
+                            isCreateOrEditLoading: false.obs,
                           ),
+                    // Container(
+                    //     padding: const EdgeInsets.only(top: 16),
+                    //     height: 220,
+                    //     color: AppColors.colorF9F9F9,
+                    //     child: Column(
+                    //       mainAxisSize: MainAxisSize.min,
+                    //       mainAxisAlignment: MainAxisAlignment.start,
+                    //       crossAxisAlignment: CrossAxisAlignment.start,
+                    //       children: [
+                    //         Expanded(
+                    //             child: Obx(
+                    //           () => ListView.separated(
+                    //               padding:
+                    //                   const EdgeInsets.only(bottom: 16),
+                    //               shrinkWrap: true,
+                    //               itemBuilder: (context, index) {
+                    //                 return Padding(
+                    //                   padding: const EdgeInsets.symmetric(
+                    //                       horizontal: 16),
+                    //                   child: Stack(
+                    //                     children: [
+                    //                       taskCreateEditController
+                    //                                   .descriptionItems[
+                    //                                       index]
+                    //                                   .text !=
+                    //                               null
+                    //                           ? Padding(
+                    //                               padding:
+                    //                                   const EdgeInsets
+                    //                                       .only(
+                    //                                       right: 14),
+                    //                               child: Text(
+                    //                                 taskCreateEditController
+                    //                                     .descriptionItems[
+                    //                                         index]
+                    //                                     .text!,
+                    //                                 style: Theme.of(
+                    //                                         context)
+                    //                                     .textTheme
+                    //                                     .bodySmall
+                    //                                     ?.copyWith(
+                    //                                         fontSize:
+                    //                                             AppConsts
+                    //                                                     .commonFontSizeFactor *
+                    //                                                 14),
+                    //                               ),
+                    //                             )
+                    //                           : taskCreateEditController
+                    //                                       .descriptionItems[
+                    //                                           index]
+                    //                                       .image !=
+                    //                                   null
+                    //                               ? Image.file(
+                    //                                   File(taskCreateEditController
+                    //                                       .descriptionItems[
+                    //                                           index]
+                    //                                       .image!
+                    //                                       .path),
+                    //                                   fit: BoxFit.cover,
+                    //                                 )
+                    //                               : taskCreateEditController
+                    //                                           .descriptionItems[
+                    //                                               index]
+                    //                                           .file !=
+                    //                                       null
+                    //                                   ? Container(
+                    //                                       padding:
+                    //                                           EdgeInsets
+                    //                                               .fromLTRB(
+                    //                                                   14,
+                    //                                                   10,
+                    //                                                   40,
+                    //                                                   10),
+                    //                                       width: double
+                    //                                           .infinity,
+                    //                                       decoration: BoxDecoration(
+                    //                                           color: AppColors
+                    //                                               .kPrimaryColor
+                    //                                               .withValues(
+                    //                                                   alpha:
+                    //                                                       0.1)),
+                    //                                       child: Text(
+                    //                                         taskCreateEditController
+                    //                                             .descriptionItems[
+                    //                                                 index]
+                    //                                             .file!
+                    //                                             .name,
+                    //                                         style: Theme.of(
+                    //                                                 context)
+                    //                                             .textTheme
+                    //                                             .bodyMedium
+                    //                                             ?.copyWith(
+                    //                                               color: AppColors
+                    //                                                   .kPrimaryColor,
+                    //                                             ),
+                    //                                       ),
+                    //                                     )
+                    //                                   : const SizedBox(),
+                    //                       Positioned(
+                    //                         right: taskCreateEditController
+                    //                                     .descriptionItems[
+                    //                                         index]
+                    //                                     .text !=
+                    //                                 null
+                    //                             ? 0
+                    //                             : 8,
+                    //                         top: taskCreateEditController
+                    //                                     .descriptionItems[
+                    //                                         index]
+                    //                                     .text !=
+                    //                                 null
+                    //                             ? 0
+                    //                             : 8,
+                    //                         child: GestureDetector(
+                    //                           behavior:
+                    //                               HitTestBehavior.opaque,
+                    //                           onTap: () {
+                    //                             taskCreateEditController
+                    //                                 .removeDescriptionItem(
+                    //                                     taskCreateEditController
+                    //                                             .descriptionItems[
+                    //                                         index]);
+                    //                           },
+                    //                           child: Container(
+                    //                               width: taskCreateEditController
+                    //                                           .descriptionItems[
+                    //                                               index]
+                    //                                           .text !=
+                    //                                       null
+                    //                                   ? 18
+                    //                                   : 24,
+                    //                               height: taskCreateEditController
+                    //                                           .descriptionItems[
+                    //                                               index]
+                    //                                           .text !=
+                    //                                       null
+                    //                                   ? 18
+                    //                                   : 24,
+                    //                               decoration: BoxDecoration(
+                    //                                   color: AppColors
+                    //                                       .kPrimaryColor,
+                    //                                   shape: BoxShape
+                    //                                       .circle),
+                    //                               child: Center(
+                    //                                   child: Icon(
+                    //                                 Icons.close,
+                    //                                 color: Colors.white,
+                    //                                 size: taskCreateEditController
+                    //                                             .descriptionItems[
+                    //                                                 index]
+                    //                                             .text !=
+                    //                                         null
+                    //                                     ? 12
+                    //                                     : 16,
+                    //                               ))),
+                    //                         ),
+                    //                       )
+                    //                     ],
+                    //                   ),
+                    //                 );
+                    //               },
+                    //               separatorBuilder: (context, index) {
+                    //                 return GestureDetector(
+                    //                   behavior: HitTestBehavior.opaque,
+                    //                   onTap: () {
+                    //                     taskCreateEditController
+                    //                         .addDescriptionItemAfter(
+                    //                             index);
+                    //                   },
+                    //                   child: const SizedBox(
+                    //                     height: 16,
+                    //                   ),
+                    //                 );
+                    //               },
+                    //               itemCount: taskCreateEditController
+                    //                   .descriptionItems.length),
+                    //         )),
+                    //         Obx(
+                    //           () => TextFormField(
+                    //             controller: taskCreateEditController
+                    //                 .descriptionTextController,
+                    //             maxLines: 1,
+                    //             style:
+                    //                 Theme.of(context).textTheme.bodyLarge,
+                    //             keyboardType: TextInputType.text,
+                    //             cursorColor: Colors.black,
+                    //             textCapitalization:
+                    //                 TextCapitalization.none,
+                    //             decoration: InputDecoration(
+                    //               hintText: 'enter_text'.tr,
+                    //               enabled: true,
+                    //               hintStyle: Theme.of(context)
+                    //                   .textTheme
+                    //                   .bodyLarge
+                    //                   ?.copyWith(
+                    //                       color: AppColors.colorA9A9A9),
+                    //               fillColor: Colors.transparent,
+                    //               filled: true,
+                    //               border: inputBorder,
+                    //               errorBorder: errorInputBorder,
+                    //               enabledBorder: inputBorder,
+                    //               disabledBorder: inputBorder,
+                    //               focusedBorder: inputBorder,
+                    //               focusedErrorBorder: errorInputBorder,
+                    //               contentPadding:
+                    //                   const EdgeInsets.fromLTRB(
+                    //                       16, 14, 70, 14),
+                    //               suffixIcon: taskCreateEditController
+                    //                       .isDescriptionTextFieldEmpty
+                    //                       .value
+                    //                   ? const SizedBox()
+                    //                   : GestureDetector(
+                    //                       behavior:
+                    //                           HitTestBehavior.opaque,
+                    //                       onTap: taskCreateEditController
+                    //                           .addTextInDescription,
+                    //                       child: Icon(
+                    //                         Icons.check,
+                    //                         color: AppColors.color54B435,
+                    //                       ),
+                    //                     ),
+                    //             ),
+                    //             onChanged: taskCreateEditController
+                    //                 .onDescriptionTextChange,
+                    //           ),
+                    //         ),
+                    //         Container(
+                    //           width: double.infinity,
+                    //           padding:
+                    //               const EdgeInsets.fromLTRB(5, 5, 10, 5),
+                    //           decoration: BoxDecoration(
+                    //               border: Border(
+                    //                   top: BorderSide(
+                    //                       color: Colors.black
+                    //                           .withValues(alpha: 0.07),
+                    //                       width: 1))),
+                    //           child: Row(
+                    //             mainAxisSize: MainAxisSize.min,
+                    //             mainAxisAlignment:
+                    //                 MainAxisAlignment.start,
+                    //             crossAxisAlignment:
+                    //                 CrossAxisAlignment.center,
+                    //             children: [
+                    //               GestureDetector(
+                    //                 behavior: HitTestBehavior.opaque,
+                    //                 onTap: taskCreateEditController
+                    //                     .clickDescriptionImage,
+                    //                 child: Container(
+                    //                   width: 26,
+                    //                   height: 26,
+                    //                   margin: EdgeInsets.all(5),
+                    //                   decoration: BoxDecoration(
+                    //                       color: AppColors.color2998BA
+                    //                           .withValues(alpha: 0.3),
+                    //                       shape: BoxShape.circle),
+                    //                   child: Center(
+                    //                     child: SvgPicture.asset(
+                    //                       AppIcons.icPhotoCamera,
+                    //                       width: 16,
+                    //                     ),
+                    //                   ),
+                    //                 ),
+                    //               ),
+                    //               GestureDetector(
+                    //                 behavior: HitTestBehavior.opaque,
+                    //                 onTap: taskCreateEditController
+                    //                     .pickDescriptionImages,
+                    //                 child: Container(
+                    //                   width: 26,
+                    //                   height: 26,
+                    //                   margin: EdgeInsets.all(5),
+                    //                   decoration: BoxDecoration(
+                    //                       color: AppColors.colorEDDEA1
+                    //                           .withValues(alpha: 0.3),
+                    //                       shape: BoxShape.circle),
+                    //                   child: Center(
+                    //                     child: SvgPicture.asset(
+                    //                       AppIcons.icImage,
+                    //                       width: 16,
+                    //                     ),
+                    //                   ),
+                    //                 ),
+                    //               ),
+                    //               GestureDetector(
+                    //                 behavior: HitTestBehavior.opaque,
+                    //                 onTap: taskCreateEditController
+                    //                     .pickDescriptionDocuments,
+                    //                 child: Container(
+                    //                   width: 26,
+                    //                   height: 26,
+                    //                   margin: EdgeInsets.all(5),
+                    //                   decoration: BoxDecoration(
+                    //                       color: AppColors.colorF1C40F
+                    //                           .withValues(alpha: 0.3),
+                    //                       shape: BoxShape.circle),
+                    //                   child: Center(
+                    //                     child: SvgPicture.asset(
+                    //                       AppIcons.icDocument,
+                    //                       width: 16,
+                    //                     ),
+                    //                   ),
+                    //                 ),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //         )
+                    //       ],
+                    //     ),
+                    //   )
+
+                    // CommonInputField(
+                    //         fillColor: AppColors.colorF9F9F9,
+                    //         borderColor: Colors.transparent,
+                    //         controller:
+                    //             taskCreateEditController.descriptionController,
+                    //         maxLines: 4,
+                    //         hint: 'enter_task_description',
+                    //         label: 'description',
+                    //         onChanged: (value) {},
+                    //         validator:
+                    //             Validations.checkTaskDescriptionValidations,
+                    //         inputType: TextInputType.text,
+                    //         textInputAction: TextInputAction.done,
+                    //       ),
+                  ),
+                  Obx(
+                    () => Visibility(
+                      visible: taskCreateEditController
+                          .showAddDescriptionMessage.value,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.only(top: 4, left: 14, right: 14),
+                        child: Text(
+                          "message_add_description".tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                  color: Colors.red,
+                                  fontSize:
+                                      AppConsts.commonFontSizeFactor * 12),
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(
                     height: 44,

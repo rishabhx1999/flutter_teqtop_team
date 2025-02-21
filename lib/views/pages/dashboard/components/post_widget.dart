@@ -68,11 +68,6 @@ class PostWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // getImages();
 
-    Helpers.printLog(
-        description: "POST_WIDGET_BUILD_FUNCTION",
-        message:
-            "DESCRIPTION :- ${Helpers.cleanHtml(postData.description ?? "")} \n IMAGES :- $images");
-
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(

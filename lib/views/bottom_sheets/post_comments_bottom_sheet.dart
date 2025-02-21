@@ -8,6 +8,8 @@ import 'package:teqtop_team/utils/helpers.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/comment_widget.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/comment_widget_shimmer.dart';
 
+import '../../model/media_content_model.dart';
+
 class PostCommentsBottomSheet {
   static show({
     required BuildContext context,
@@ -18,6 +20,8 @@ class PostCommentsBottomSheet {
     required final RxList<CommentList?> comments,
     required ScrollController scrollController,
     required Function(int) handleCommentOnDelete,
+    required Future<List<MediaContentModel>> Function(String)
+        extractCommentItems,
   }) {
     Helpers.printLog(description: "COMMENT_BOTTOM_SHEET_SHOW_REACHED");
     showModalBottomSheet(
@@ -34,6 +38,7 @@ class PostCommentsBottomSheet {
             comments: comments,
             scrollController: scrollController,
             handleCommentOnDelete: handleCommentOnDelete,
+            extractCommentItems: extractCommentItems,
           );
         },
         shape: const RoundedRectangleBorder(
@@ -50,6 +55,7 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
   final RxList<CommentList?> comments;
   final ScrollController scrollController;
   final Function(int) handleCommentOnDelete;
+  final Future<List<MediaContentModel>> Function(String) extractCommentItems;
 
   const PostCommentsBottomSheetContent({
     super.key,
@@ -60,6 +66,7 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
     required this.comments,
     required this.scrollController,
     required this.handleCommentOnDelete,
+    required this.extractCommentItems,
   });
 
   Future<void> fetchComments() async {
@@ -84,7 +91,7 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
         padding:
             EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 48),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
           decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.only(
@@ -133,6 +140,7 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
                             : CommentWidget(
                                 commentData: comments[index] ?? CommentList(),
                                 onTapDelete: handleCommentOnDelete,
+                                extractCommentItems: extractCommentItems,
                               );
                       },
                       separatorBuilder: (context, index) {
@@ -162,7 +170,7 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
                 ),
               ),
               const SizedBox(
-                height: 30,
+                height: 16,
               ),
               createCommentWidget
             ],

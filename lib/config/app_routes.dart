@@ -25,4 +25,6 @@ class AppRoutes {
   static const String routeFolderDetail = "/route_folder_detail";
   static const String routeEditEmployeeInformation =
       "/route_edit_employee_information";
+  static const String routeAssignHoursListing =
+      "/route_assign_hours_listing";
 }

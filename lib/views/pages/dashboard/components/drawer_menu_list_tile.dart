@@ -35,10 +35,15 @@ class DrawerMenuListTile extends StatelessWidget {
               const SizedBox(
                 width: 16,
               ),
-              SvgPicture.asset(
-                leading,
-                width: 18,
-              ),
+              leading.toLowerCase().endsWith('.svg')
+                  ? SvgPicture.asset(
+                      leading,
+                      width: 18,
+                    )
+                  : Image.asset(
+                      leading,
+                      width: 18,
+                    ),
               const SizedBox(
                 width: 12,
               ),

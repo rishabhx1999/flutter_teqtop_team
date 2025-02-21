@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:teqtop_team/controllers/task_detail/task_detail_controller.dart';
 import 'package:teqtop_team/controllers/tasks_listing/tasks_listing_controller.dart';
@@ -12,14 +14,16 @@ import 'package:teqtop_team/utils/helpers.dart';
 import '../../config/app_routes.dart';
 import '../../model/global_search/project_model.dart';
 import '../../model/global_search/task_model.dart';
+import '../../model/media_content_model.dart';
 import '../../network/get_requests.dart';
 import '../../network/post_requests.dart';
+import '../../utils/permission_handler.dart';
 import '../../utils/preference_manager.dart';
 
 class TaskCreateEditController extends GetxController {
   final GlobalKey<FormState> formKey = GlobalKey();
   late TextEditingController nameController;
-  late TextEditingController descriptionController;
+  late TextEditingController descriptionTextController;
   late TextEditingController startDateController;
   late TextEditingController endDateController;
   RxBool areProjectsLoading = false.obs;
@@ -57,11 +61,18 @@ class TaskCreateEditController extends GetxController {
   RxBool showSelectPriorityMessage = false.obs;
   RxBool showSelectParticipantsMessage = false.obs;
   RxBool showSelectObserversMessage = false.obs;
+  RxBool showAddDescriptionMessage = false.obs;
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
   RxBool isLoading = false.obs;
   RxBool fromTaskDetail = false.obs;
   Rx<TaskModel?> editTaskDetail = Rx<TaskModel?>(null);
+  RxList<MediaContentModel> descriptionItems = <MediaContentModel>[].obs;
+  int? addDescriptionItemAfterIndex;
+  int? descriptionItemEditIndex;
+  final ImagePicker _imagePicker = ImagePicker();
+  RxBool isDescriptionTextFieldEmpty = true.obs;
+  final FilePicker _filePicker = FilePicker.platform;
 
   @override
   void onInit() {
@@ -106,60 +117,60 @@ class TaskCreateEditController extends GetxController {
 
   void initializeTextEditingControllers() {
     nameController = TextEditingController();
-    descriptionController = TextEditingController();
+    descriptionTextController = TextEditingController();
     startDateController = TextEditingController();
     endDateController = TextEditingController();
   }
 
   void disposeTextEditingControllers() {
     nameController.dispose();
-    descriptionController.dispose();
+    descriptionTextController.dispose();
     startDateController.dispose();
     endDateController.dispose();
   }
 
   Future<void> editTask() async {
-    FocusManager.instance.primaryFocus?.unfocus();
-    if (areRequiredFieldsFilled() && editTaskDetail.value!.id != null) {
-      Map<String, dynamic> requestBody = {
-        'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-            as String?,
-        'id': editTaskDetail.value!.id,
-        'extras':
-            convertToCustomJsonFormat(selectedParticipants, selectedObservers),
-        'description':
-            Helpers.convertToHTMLParagraphs(descriptionController.text),
-        'deadline': selectedEndDate == null
-            ? ''
-            : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
-        'name': nameController.text.toString().trim(),
-        'project': selectedProject.value!.id,
-        'responsible': selectedResponsiblePerson.value!.id,
-        'priority': selectedPriority.value!.priorityNumber == null
-            ? null
-            : selectedPriority.value!.priorityNumber! - 1,
-        'observer': generateIdsString(selectedObservers),
-        'participants': generateIdsString(selectedParticipants),
-      };
-
-      isLoading.value = true;
-      try {
-        var response = await PostRequests.editTask(requestBody);
-        if (response != null) {
-          if (response.status == "success") {
-            Get.back();
-            final taskDetailController = Get.find<TaskDetailController>();
-            taskDetailController.getTaskDetail();
-          } else {
-            Get.snackbar("error".tr, "message_server_error".tr);
-          }
-        } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
-        }
-      } finally {
-        isLoading.value = false;
-      }
-    }
+    // FocusManager.instance.primaryFocus?.unfocus();
+    // if (areRequiredFieldsFilled() && editTaskDetail.value!.id != null) {
+    //   Map<String, dynamic> requestBody = {
+    //     'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+    //         as String?,
+    //     'id': editTaskDetail.value!.id,
+    //     'extras':
+    //         convertToCustomJsonFormat(selectedParticipants, selectedObservers),
+    //     'description':
+    //         Helpers.convertToHTMLParagraphs(descriptionTextController.text),
+    //     'deadline': selectedEndDate == null
+    //         ? ''
+    //         : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
+    //     'name': nameController.text.toString().trim(),
+    //     'project': selectedProject.value!.id,
+    //     'responsible': selectedResponsiblePerson.value!.id,
+    //     'priority': selectedPriority.value!.priorityNumber == null
+    //         ? null
+    //         : selectedPriority.value!.priorityNumber! - 1,
+    //     'observer': generateIdsString(selectedObservers),
+    //     'participants': generateIdsString(selectedParticipants),
+    //   };
+    //
+    //   isLoading.value = true;
+    //   try {
+    //     var response = await PostRequests.editTask(requestBody);
+    //     if (response != null) {
+    //       if (response.status == "success") {
+    //         Get.back();
+    //         final taskDetailController = Get.find<TaskDetailController>();
+    //         taskDetailController.getTaskDetail();
+    //       } else {
+    //         Get.snackbar("error".tr, "message_server_error".tr);
+    //       }
+    //     } else {
+    //       Get.snackbar("error".tr, "message_server_error".tr);
+    //     }
+    //   } finally {
+    //     isLoading.value = false;
+    //   }
+    // }
   }
 
   void setInitialFieldValues() {
@@ -236,7 +247,7 @@ class TaskCreateEditController extends GetxController {
             DateFormat('MM/dd/yy').format(selectedEndDate!);
       }
 
-      descriptionController.text =
+      descriptionTextController.text =
           Helpers.formatHtmlParagraphs(editTaskDetail.value!.description ?? "");
     }
   }
@@ -244,51 +255,51 @@ class TaskCreateEditController extends GetxController {
   Future<void> createTask() async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (areRequiredFieldsFilled()) {
-      Map<String, dynamic> requestBody = {
-        'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-            as String?,
-        'name': nameController.text.toString().trim(),
-        'project': selectedProject.value!.id,
-        'responsible': selectedResponsiblePerson.value!.id,
-        'priority': selectedPriority.value!.priorityNumber,
-        'observer': generateIdsString(selectedObservers),
-        'participants': generateIdsString(selectedParticipants),
-        'extras':
-            convertToCustomJsonFormat(selectedParticipants, selectedObservers),
-        'description':
-            Helpers.convertToHTMLParagraphs(descriptionController.text),
-        'deadline': selectedEndDate == null
-            ? ''
-            : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
-        'created_at': selectedStartDate == null
-            ? ''
-            : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
-                selectedStartDate!.year,
-                selectedStartDate!.month,
-                selectedStartDate!.day,
-                DateTime.now().hour,
-                DateTime.now().minute,
-                DateTime.now().second,
-              )),
-      };
-
-      isLoading.value = true;
-      try {
-        var response = await PostRequests.createTask(requestBody);
-        if (response != null) {
-          if (response.status == "Added a new task") {
-            Get.back();
-            final tasksListingController = Get.find<TasksListingController>();
-            tasksListingController.getTasks();
-          } else {
-            Get.snackbar("error".tr, "message_server_error".tr);
-          }
-        } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
-        }
-      } finally {
-        isLoading.value = false;
-      }
+      // Map<String, dynamic> requestBody = {
+      //   'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+      //       as String?,
+      //   'name': nameController.text.toString().trim(),
+      //   'project': selectedProject.value!.id,
+      //   'responsible': selectedResponsiblePerson.value!.id,
+      //   'priority': selectedPriority.value!.priorityNumber,
+      //   'observer': generateIdsString(selectedObservers),
+      //   'participants': generateIdsString(selectedParticipants),
+      //   'extras':
+      //       convertToCustomJsonFormat(selectedParticipants, selectedObservers),
+      //   'description':
+      //       Helpers.convertToHTMLParagraphs(descriptionTextController.text),
+      //   'deadline': selectedEndDate == null
+      //       ? ''
+      //       : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
+      //   'created_at': selectedStartDate == null
+      //       ? ''
+      //       : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
+      //           selectedStartDate!.year,
+      //           selectedStartDate!.month,
+      //           selectedStartDate!.day,
+      //           DateTime.now().hour,
+      //           DateTime.now().minute,
+      //           DateTime.now().second,
+      //         )),
+      // };
+      //
+      // isLoading.value = true;
+      // try {
+      //   var response = await PostRequests.createTask(requestBody);
+      //   if (response != null) {
+      //     if (response.status == "Added a new task") {
+      //       Get.back();
+      //       final tasksListingController = Get.find<TasksListingController>();
+      //       tasksListingController.getTasks();
+      //     } else {
+      //       Get.snackbar("error".tr, "message_server_error".tr);
+      //     }
+      //   } else {
+      //     Get.snackbar("error".tr, "message_server_error".tr);
+      //   }
+      // } finally {
+      //   isLoading.value = false;
+      // }
     }
   }
 
@@ -312,6 +323,9 @@ class TaskCreateEditController extends GetxController {
     bool areObserversSelected = selectedObservers.isNotEmpty;
     showSelectObserversMessage.value = !areObserversSelected;
 
+    bool areDescriptionItemsPresent = descriptionItems.isNotEmpty;
+    showAddDescriptionMessage.value = !areDescriptionItemsPresent;
+
     bool areTextFieldsFilled = formKey.currentState!.validate();
 
     return isProjectSelected &&
@@ -319,6 +333,7 @@ class TaskCreateEditController extends GetxController {
         isPrioritySelected &&
         areParticipantsSelected &&
         areObserversSelected &&
+        areDescriptionItemsPresent &&
         areTextFieldsFilled;
   }
 
@@ -391,8 +406,89 @@ class TaskCreateEditController extends GetxController {
     }
   }
 
+  void addTextInDescription() {
+    if (descriptionTextController.text.isEmpty) return;
+
+    final newItem = MediaContentModel(text: descriptionTextController.text);
+
+    if (descriptionItemEditIndex != null) {
+      descriptionItems.insert(descriptionItemEditIndex!, newItem);
+    } else {
+      final insertIndex = (addDescriptionItemAfterIndex != null)
+          ? addDescriptionItemAfterIndex! + 1
+          : descriptionItems.length;
+      descriptionItems.insert(insertIndex, newItem);
+    }
+    descriptionItemEditIndex = null;
+    addDescriptionItemAfterIndex = null;
+    descriptionTextController.clear();
+    isDescriptionTextFieldEmpty.value = true;
+  }
+
+  void onDescriptionTextChange(String value) {
+    isDescriptionTextFieldEmpty.value = value.isEmpty;
+  }
+
+  void clickDescriptionImage() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    var havePermission = await PermissionHandler.requestCameraPermission();
+    if (havePermission) {
+      var image = await _imagePicker.pickImage(source: ImageSource.camera);
+      if (image != null) {
+        if (addDescriptionItemAfterIndex == null) {
+          descriptionItems.add(MediaContentModel(image: image));
+        } else {
+          descriptionItems.insert(addDescriptionItemAfterIndex! + 1,
+              MediaContentModel(image: image));
+        }
+        addDescriptionItemAfterIndex = null;
+      }
+      // handlePostButtonEnable();
+    }
+  }
+
+  void pickDescriptionImages() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    var images = await _imagePicker.pickMultiImage();
+    if (images.isEmpty) return;
+
+    for (var image in images) {
+      if (addDescriptionItemAfterIndex == null) {
+        descriptionItems.add(MediaContentModel(image: image));
+      } else {
+        descriptionItems.insert(
+            addDescriptionItemAfterIndex! + 1, MediaContentModel(image: image));
+        addDescriptionItemAfterIndex = addDescriptionItemAfterIndex! + 1;
+      }
+    }
+    addDescriptionItemAfterIndex = null;
+    // handlePostButtonEnable();
+  }
+
   void onChangeProject(var newProject) {
     selectedProject.value = newProject as ProjectModel;
+  }
+
+  void pickDescriptionDocuments() async {
+    var files = await _filePicker.pickFiles(allowMultiple: true);
+    if (files == null) return;
+
+    for (var file in files.files) {
+      if (file.path == null) continue;
+
+      var mediaContent = (file.extension != null &&
+              ['jpg', 'jpeg', 'png'].contains(file.extension!.toLowerCase()))
+          ? MediaContentModel(image: XFile(file.path!))
+          : MediaContentModel(file: file);
+
+      if (addDescriptionItemAfterIndex == null) {
+        descriptionItems.add(mediaContent);
+      } else {
+        addDescriptionItemAfterIndex = addDescriptionItemAfterIndex! + 1;
+        descriptionItems.insert(addDescriptionItemAfterIndex!, mediaContent);
+      }
+    }
+    addDescriptionItemAfterIndex = null;
   }
 
   String truncateDropdownSelectedValue(String text) {
@@ -600,5 +696,24 @@ class TaskCreateEditController extends GetxController {
         trimmedInput.split(',').map((e) => int.parse(e.trim())).toList();
 
     return intList;
+  }
+
+  void removeDescriptionItem(MediaContentModel item) {
+    descriptionItems.remove(item);
+  }
+
+  void addDescriptionItemAfter(int index) {
+    addDescriptionItemAfterIndex = index;
+    Get.snackbar("success".tr, "message_adding_content_in_between".tr);
+  }
+
+  void editDescriptionText(int index) {
+    if (descriptionItems[index].text != null &&
+        descriptionItems[index].text!.isNotEmpty) {
+      descriptionTextController.clear();
+      descriptionTextController.text = descriptionItems[index].text!;
+      descriptionItems.removeAt(index);
+      descriptionItemEditIndex = index;
+    }
   }
 }

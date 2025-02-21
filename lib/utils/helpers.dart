@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -5,16 +6,30 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:html/dom.dart' as html_dom;
 import 'package:html/parser.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
+import 'dart:typed_data' as typed_data;
 
 class Helpers {
   Helpers._();
 
-  static printLog({required String description, String? message}) {
+  static void printLog({required String description, String? message}) {
     if (AppConsts.isDebug) {
-      debugPrint("$description ===== $message \n -----ENDS_HERE------");
+      const int chunkSize = 800;
+      String logHeader = "$description ===== ";
+
+      if (message != null && message.length > chunkSize) {
+        debugPrint(logHeader);
+        for (int i = 0; i < message.length; i += chunkSize) {
+          debugPrint(message.substring(i,
+              i + chunkSize > message.length ? message.length : i + chunkSize));
+        }
+        debugPrint("-----ENDS_HERE-----");
+      } else {
+        debugPrint("$logHeader$message \n-----ENDS_HERE-----");
+      }
     }
   }
 
@@ -198,8 +213,7 @@ class Helpers {
   // }
 
   static Future<void> openFile({required String path, String? fileName}) async {
-    final file =
-    await downloadFile(AppConsts.imgInitialUrl + path, fileName!);
+    final file = await downloadFile(AppConsts.imgInitialUrl + path, fileName!);
     if (file == null) return;
     Helpers.printLog(
         description: "DASHBOARD_CONTROLLER_OPEN_POST_FILE",
@@ -221,6 +235,67 @@ class Helpers {
       await raf.close();
       return file;
     } catch (e) {
+      return null;
+    }
+  }
+
+  static String getMimeType(String extension) {
+    switch (extension.toLowerCase()) {
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'gif':
+        return 'image/gif';
+      default:
+        return 'application/octet-stream';
+    }
+  }
+
+  static Future<String> convertImageToDataUrl(XFile file) async {
+    try {
+      typed_data.Uint8List bytes = await file.readAsBytes();
+
+      String base64String = base64Encode(bytes);
+
+      String extension = file.path.split('.').last;
+
+      String mimeType = getMimeType(extension);
+
+      return 'data:$mimeType;base64,$base64String';
+    } catch (e) {
+      printLog(
+          description: 'HELPERS_CONVERT_IMAGE_TO_DATA_URL',
+          message: 'ERROR CONVERTING IMAGE TO DATA URL: $e');
+      return '';
+    }
+  }
+
+  static Future<XFile?> convertDataUrlToImage(
+      String dataUrl, String filePath) async {
+    try {
+      final RegExp dataUrlPattern = RegExp(r'data:(.*?);base64,(.*)');
+      final match = dataUrlPattern.firstMatch(dataUrl);
+
+      if (match == null) {
+        printLog(
+            description: 'HELPERS_CONVERT_DATA_URL_TO_IMAGE',
+            message: 'INVALID DATA URL');
+        return null;
+      }
+
+      String base64String = match.group(2)!;
+      typed_data.Uint8List bytes = base64Decode(base64String);
+
+      File file = File(filePath);
+      await file.writeAsBytes(bytes);
+
+      return XFile(file.path);
+    } catch (e) {
+      printLog(
+          description: 'HELPERS_CONVERT_DATA_URL_TO_IMAGE',
+          message: 'ERROR CONVERTING DATA URL TO IMAGE: $e');
       return null;
     }
   }

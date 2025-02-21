@@ -5,6 +5,7 @@ import 'package:teqtop_team/model/dashboard/comment_list.dart';
 import 'package:teqtop_team/utils/helpers.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/comment_widget.dart';
 
+import '../../model/media_content_model.dart';
 import '../pages/dashboard/components/comment_widget_shimmer.dart';
 
 class TaskCommentsBottomSheet {
@@ -16,9 +17,9 @@ class TaskCommentsBottomSheet {
       required final RxList<CommentList?> comments,
       required ScrollController scrollController,
       required Function(int) handleCommentOnEdit,
-      required Function(int) editComment,
       required Function(int) handleCommentOnDelete,
-      required RxBool isCommentEditing}) {
+      required Future<List<MediaContentModel>> Function(String)
+          extractCommentItems}) {
     Helpers.printLog(description: "COMMENT_BOTTOM_SHEET_SHOW_REACHED");
     showModalBottomSheet(
         context: context,
@@ -33,9 +34,8 @@ class TaskCommentsBottomSheet {
             areCommentsLoading: areCommentsLoading,
             scrollController: scrollController,
             handleCommentOnEdit: handleCommentOnEdit,
-            isCommentEditing: isCommentEditing,
-            editComment: editComment,
             handleCommentOnDelete: handleCommentOnDelete,
+            extractCommentItems: extractCommentItems,
           );
         },
         shape: const RoundedRectangleBorder(
@@ -51,9 +51,8 @@ class TaskCommentsBottomSheetContent extends StatelessWidget {
   final RxList<CommentList?> comments;
   final ScrollController scrollController;
   final Function(int) handleCommentOnEdit;
-  final RxBool isCommentEditing;
-  final Function(int) editComment;
   final Function(int) handleCommentOnDelete;
+  final Future<List<MediaContentModel>> Function(String) extractCommentItems;
 
   const TaskCommentsBottomSheetContent({
     super.key,
@@ -63,9 +62,8 @@ class TaskCommentsBottomSheetContent extends StatelessWidget {
     required this.areCommentsLoading,
     required this.scrollController,
     required this.handleCommentOnEdit,
-    required this.isCommentEditing,
-    required this.editComment,
     required this.handleCommentOnDelete,
+    required this.extractCommentItems,
   });
 
   @override
@@ -84,7 +82,7 @@ class TaskCommentsBottomSheetContent extends StatelessWidget {
         padding:
             EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 48),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
           decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.only(
@@ -133,9 +131,8 @@ class TaskCommentsBottomSheetContent extends StatelessWidget {
                             : CommentWidget(
                                 commentData: comments[index] ?? CommentList(),
                                 onTapEdit: handleCommentOnEdit,
-                                isEditLoading: isCommentEditing,
-                                editComment: editComment,
                                 onTapDelete: handleCommentOnDelete,
+                                extractCommentItems: extractCommentItems,
                               );
                       },
                       separatorBuilder: (context, index) {
@@ -165,7 +162,7 @@ class TaskCommentsBottomSheetContent extends StatelessWidget {
                 ),
               ),
               const SizedBox(
-                height: 30,
+                height: 16,
               ),
               createCommentWidget
             ],

@@ -16,9 +16,10 @@ class SplashPage extends StatelessWidget {
   SplashPage({super.key});
 
   void _moveToNextScreen() {
-    var nextScreen = PreferenceManager.isUserLoggedIn() && isLoginDay()
-        ? AppRoutes.routeDashboard
-        : AppRoutes.routeLogin;
+    var nextScreen =
+        PreferenceManager.isUserLoggedIn() && isTokenExpired() == false
+            ? AppRoutes.routeDashboard
+            : AppRoutes.routeLogin;
     Get.offNamed(nextScreen);
     Helpers.printLog(
         description: "SPLASH_PAGE_MOVE_TO_NEXT_SCREEN",
@@ -26,20 +27,25 @@ class SplashPage extends StatelessWidget {
             "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
   }
 
-  bool isLoginDay() {
+  bool isTokenExpired() {
     String? loginDateTimeString =
         PreferenceManager.getPref(PreferenceManager.prefLoginDate) as String?;
-    if (loginDateTimeString != null && loginDateTimeString.isNotEmpty) {
+    int? loginExpireSeconds =
+        PreferenceManager.getPref(PreferenceManager.prefLoginExpireSeconds)
+            as int?;
+    if (loginDateTimeString != null &&
+        loginDateTimeString.isNotEmpty &&
+        loginExpireSeconds != null) {
       DateTime loginDateTime = DateTime.parse(loginDateTimeString);
       DateTime currentDateTime = DateTime.now();
 
-      if (loginDateTime.year == currentDateTime.year &&
-          loginDateTime.month == currentDateTime.month &&
-          loginDateTime.day == currentDateTime.day) {
-        return true;
+      int secondsDifference =
+          currentDateTime.difference(loginDateTime).inSeconds;
+      if (secondsDifference < loginExpireSeconds) {
+        return false;
       }
     }
-    return false;
+    return true;
   }
 
   @override

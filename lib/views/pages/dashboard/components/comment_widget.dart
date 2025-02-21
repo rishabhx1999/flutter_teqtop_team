@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
+import 'package:teqtop_team/model/media_content_model.dart';
 import 'package:teqtop_team/utils/helpers.dart';
 
+import '../../../../config/app_colors.dart';
 import '../../../../consts/app_icons.dart';
 import '../../../../consts/app_images.dart';
 import '../../../../model/dashboard/comment_list.dart';
-import '../../../dialogs/common/common_alert_dialog.dart';
 
 class CommentWidget extends StatelessWidget {
   final CommentList commentData;
   final Function(int)? onTapEdit;
   final Function(int) onTapDelete;
-  final RxBool? isEditLoading;
-  final Function(int)? editComment;
+  final Future<List<MediaContentModel>> Function(String) extractCommentItems;
+  final RxList<MediaContentModel> commentItems = <MediaContentModel>[].obs;
+
+  // final RxBool? isEditLoading;
 
   final inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
@@ -25,13 +27,28 @@ class CommentWidget extends StatelessWidget {
     super.key,
     required this.commentData,
     this.onTapEdit,
-    this.isEditLoading,
-    this.editComment,
+    // this.isEditLoading,
     required this.onTapDelete,
+    required this.extractCommentItems,
   });
+
+  Future<void> getCommentItems() async {
+    String? html = commentData.comment;
+    if (commentData.comment != null && commentData.comment!.isNotEmpty) {
+      var items = await extractCommentItems(html!);
+      commentItems.assignAll(items);
+      for (var item in commentItems) {
+        Helpers.printLog(
+            description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
+            message: "ITEM = ${item.toString()}");
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    getCommentItems();
+
     return SizedBox(
       width: double.infinity,
       child: Column(
@@ -126,101 +143,178 @@ class CommentWidget extends StatelessWidget {
                       ])
             ],
           ),
+          // Obx(
+          //   () => commentData.isEditing.value
+          //       ? SizedBox(
+          //           height: 19,
+          //           child: TextField(
+          //             controller: commentData.editController,
+          //             style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          //                 fontSize: AppConsts.commonFontSizeFactor * 14),
+          //             keyboardType: TextInputType.text,
+          //             cursorColor: Colors.black,
+          //             textCapitalization: TextCapitalization.none,
+          //             focusNode: commentData.focusNode,
+          //             onChanged: (value) {
+          //               if (value.isNotEmpty) {
+          //                 commentData.showTextFieldSuffix.value = true;
+          //               } else {
+          //                 commentData.showTextFieldSuffix.value = false;
+          //               }
+          //             },
+          //             decoration: InputDecoration(
+          //                 hintText: 'edit_comment'.tr,
+          //                 enabled: true,
+          //                 hintStyle: Theme.of(context)
+          //                     .textTheme
+          //                     .bodySmall
+          //                     ?.copyWith(
+          //                       fontSize: AppConsts.commonFontSizeFactor * 14,
+          //                       color: Colors.black.withValues(alpha: 0.3),
+          //                     ),
+          //                 fillColor: Colors.white,
+          //                 filled: true,
+          //                 border: inputBorder,
+          //                 errorBorder: inputBorder,
+          //                 enabledBorder: inputBorder,
+          //                 disabledBorder: inputBorder,
+          //                 focusedBorder: inputBorder,
+          //                 focusedErrorBorder: inputBorder,
+          //                 suffixIcon:
+          //                     isEditLoading != null && isEditLoading!.value
+          //                         ? Container(
+          //                             height: 18,
+          //                             width: 48,
+          //                             padding: const EdgeInsets.symmetric(
+          //                                 horizontal: 15, vertical: 0),
+          //                             child: CircularProgressIndicator(
+          //                               strokeWidth: 2,
+          //                               color: AppColors.kPrimaryColor,
+          //                             ),
+          //                           )
+          //                         : commentData.showTextFieldSuffix.value
+          //                             ? GestureDetector(
+          //                                 behavior: HitTestBehavior.opaque,
+          //                                 onTap: () {
+          //                                   if (commentData.id != null &&
+          //                                       editComment != null) {
+          //                                     editComment!(commentData.id!);
+          //                                   }
+          //                                 },
+          //                                 child: Icon(
+          //                                   Icons.check,
+          //                                   color: AppColors.color54B435,
+          //                                 ),
+          //                               )
+          //                             : const SizedBox(),
+          //                 contentPadding: EdgeInsets.only(
+          //                     left: 38, right: 0, top: 0, bottom: 0)),
+          //           ),
+          //         )
+          //       :
           Obx(
-            () => commentData.isEditing.value
-                ? SizedBox(
-                    height: 19,
-                    child: TextField(
-                      controller: commentData.editController,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: AppConsts.commonFontSizeFactor * 14),
-                      keyboardType: TextInputType.text,
-                      cursorColor: Colors.black,
-                      textCapitalization: TextCapitalization.none,
-                      focusNode: commentData.focusNode,
-                      onChanged: (value) {
-                        if (value.isNotEmpty) {
-                          commentData.showTextFieldSuffix.value = true;
-                        } else {
-                          commentData.showTextFieldSuffix.value = false;
-                        }
-                      },
-                      decoration: InputDecoration(
-                          hintText: 'edit_comment'.tr,
-                          enabled: true,
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                fontSize: AppConsts.commonFontSizeFactor * 14,
-                                color: Colors.black.withValues(alpha: 0.3),
-                              ),
-                          fillColor: Colors.white,
-                          filled: true,
-                          border: inputBorder,
-                          errorBorder: inputBorder,
-                          enabledBorder: inputBorder,
-                          disabledBorder: inputBorder,
-                          focusedBorder: inputBorder,
-                          focusedErrorBorder: inputBorder,
-                          suffixIcon:
-                              isEditLoading != null && isEditLoading!.value
-                                  ? Container(
-                                      height: 18,
-                                      width: 48,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 15, vertical: 0),
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: AppColors.kPrimaryColor,
-                                      ),
-                                    )
-                                  : commentData.showTextFieldSuffix.value
-                                      ? GestureDetector(
-                                          behavior: HitTestBehavior.opaque,
-                                          onTap: () {
-                                            if (commentData.id != null &&
-                                                editComment != null) {
-                                              editComment!(commentData.id!);
-                                            }
-                                          },
-                                          child: Icon(
-                                            Icons.check,
-                                            color: AppColors.color54B435,
-                                          ),
-                                        )
-                                      : const SizedBox(),
-                          contentPadding: EdgeInsets.only(
-                              left: 38, right: 0, top: 0, bottom: 0)),
-                    ),
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      const SizedBox(
-                        width: 38,
-                      ),
-                      Expanded(
-                        child: Text(
-                          Helpers.cleanHtml(commentData.comment ?? "")
-                              .substring(
-                                  1,
-                                  Helpers.cleanHtml(commentData.comment ?? "")
-                                          .length -
-                                      1),
+            () => ListView.separated(
+                padding: const EdgeInsets.only(left: 38),
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  return commentItems[index].text != null
+                      ? SelectableText(
+                          commentItems[index].text!,
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
                               ?.copyWith(
                                   fontSize:
                                       AppConsts.commonFontSizeFactor * 14),
-                        ),
-                      ),
-                    ],
-                  ),
-          )
+                        )
+                      : commentItems[index].imageString != null
+                          ? FadeInImage.assetNetwork(
+                              placeholder: AppImages.imgPlaceholder,
+                              image: AppConsts.imgInitialUrl +
+                                  commentItems[index].imageString!,
+                              imageErrorBuilder: (BuildContext context,
+                                  Object error, StackTrace? stackTrace) {
+                                return Image.asset(
+                                  AppImages.imgPlaceholder,
+                                  height: 250,
+                                  fit: BoxFit.contain,
+                                );
+                              },
+                              height: 250,
+                              fit: BoxFit.contain,
+                            )
+                          : commentItems[index].fileString != null
+                              ? GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    if (commentItems[index]
+                                        .fileString!
+                                        .isNotEmpty) {
+                                      Helpers.openFile(
+                                          path: commentItems[index].fileString!,
+                                          fileName: commentItems[index]
+                                              .fileString!
+                                              .split("/")
+                                              .last);
+                                    }
+                                  },
+                                  child: Container(
+                                    padding:
+                                        EdgeInsets.fromLTRB(14, 10, 10, 10),
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                        color: AppColors.kPrimaryColor
+                                            .withValues(alpha: 0.1)),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            commentItems[index]
+                                                .fileString!
+                                                .split("/")
+                                                .last,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color:
+                                                      AppColors.kPrimaryColor,
+                                                ),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 12,
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: SvgPicture.asset(
+                                            AppIcons.icDownload,
+                                            width: 24,
+                                            colorFilter: ColorFilter.mode(
+                                                AppColors.kPrimaryColor,
+                                                BlendMode.srcIn),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox();
+                },
+                separatorBuilder: (context, index) {
+                  return const SizedBox(
+                    height: 10,
+                  );
+                },
+                itemCount: commentItems.length),
+          ),
+          // )
         ],
       ),
     );

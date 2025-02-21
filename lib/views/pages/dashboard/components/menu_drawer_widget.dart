@@ -38,10 +38,6 @@ class MenuDrawerWidget extends StatelessWidget {
                       dashboardController.refreshPage();
                     } else {
                       Get.offAllNamed(AppRoutes.routeDashboard);
-                      Helpers.printLog(
-                          description: "DRAWER_WIDGET_ITEM_ON_TAP",
-                          message:
-                              "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
                     }
                   },
                   leading: AppIcons.icFeeds,
@@ -57,10 +53,6 @@ class MenuDrawerWidget extends StatelessWidget {
                     } else {
                       Get.offNamed(AppRoutes.routeEmployeesListing);
                     }
-                    Helpers.printLog(
-                        description: "DRAWER_WIDGET_ITEM_ON_TAP",
-                        message:
-                            "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
                   },
                   leading: AppIcons.icEmployees,
                   title: "employees"),
@@ -75,10 +67,6 @@ class MenuDrawerWidget extends StatelessWidget {
                     } else {
                       Get.offNamed(AppRoutes.routeDailyReportsListing);
                     }
-                    Helpers.printLog(
-                        description: "DRAWER_WIDGET_ITEM_ON_TAP",
-                        message:
-                            "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
                   },
                   leading: AppIcons.icDailyReport,
                   title: "daily_report"),
@@ -93,10 +81,6 @@ class MenuDrawerWidget extends StatelessWidget {
                     } else {
                       Get.offNamed(AppRoutes.routeProjectsListing);
                     }
-                    Helpers.printLog(
-                        description: "DRAWER_WIDGET_ITEM_ON_TAP",
-                        message:
-                            "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
                   },
                   leading: AppIcons.icProjects,
                   title: "projects"),
@@ -111,10 +95,6 @@ class MenuDrawerWidget extends StatelessWidget {
                     } else {
                       Get.offNamed(AppRoutes.routeTasksListing);
                     }
-                    Helpers.printLog(
-                        description: "DRAWER_WIDGET_ITEM_ON_TAP",
-                        message:
-                            "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
                   },
                   leading: AppIcons.icTasks,
                   title: "tasks"),
@@ -129,13 +109,23 @@ class MenuDrawerWidget extends StatelessWidget {
                     } else {
                       Get.offNamed(AppRoutes.routeLogsListing);
                     }
-                    Helpers.printLog(
-                        description: "DRAWER_WIDGET_ITEM_ON_TAP",
-                        message:
-                            "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
                   },
                   leading: AppIcons.icLogs,
                   title: "logs"),
+              DrawerMenuListTile(
+                  onTap: () {
+                    if (Get.currentRoute == AppRoutes.routeDashboard) {
+                      final dashboardController =
+                          Get.find<DashboardController>();
+                      dashboardController.scaffoldKey.currentState
+                          ?.closeDrawer();
+                      Get.toNamed(AppRoutes.routeAssignHoursListing);
+                    } else {
+                      Get.offNamed(AppRoutes.routeAssignHoursListing);
+                    }
+                  },
+                  leading: AppIcons.icAssignHours,
+                  title: "assign_hours"),
               DrawerMenuListTile(
                   onTap: () {
                     if (Get.currentRoute == AppRoutes.routeDashboard) {
@@ -147,10 +137,6 @@ class MenuDrawerWidget extends StatelessWidget {
                     } else {
                       Get.offNamed(AppRoutes.routeLeavesListing);
                     }
-                    Helpers.printLog(
-                        description: "DRAWER_WIDGET_ITEM_ON_TAP",
-                        message:
-                            "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
                   },
                   leading: AppIcons.icLeaves,
                   title: "leaves"),

@@ -10,6 +10,7 @@ import 'package:teqtop_team/config/local_strings.dart';
 import 'package:teqtop_team/config/size_config.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/utils/preference_manager.dart';
+import 'package:teqtop_team/views/pages/assign_hours_listing/assign_hours_listing_page.dart';
 import 'package:teqtop_team/views/pages/daily_reports_listing/daily_reports_listing_page.dart';
 import 'package:teqtop_team/views/pages/dashboard/dashboard_page.dart';
 import 'package:teqtop_team/views/pages/drive_detail/drive_detail_page.dart';
@@ -38,9 +39,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      systemNavigationBarColor: Colors.transparent));
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+      statusBarColor: Colors.white, systemNavigationBarColor: Colors.white));
   await PreferenceManager.init();
 
   runApp(const MyApp());
@@ -74,131 +74,93 @@ class MyApp extends StatelessWidget {
               getPages: [
                 GetPage(name: AppRoutes.routeSplash, page: () => SplashPage()),
                 GetPage(
-                    name: AppRoutes.routeLogin,
-                    page: () => LoginPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeLogin,
+                  page: () => LoginPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeDashboard,
-                    page: () => DashboardPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeDashboard,
+                  page: () => DashboardPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeProfileDetail,
-                    page: () => ProfileDetailPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeProfileDetail,
+                  page: () => ProfileDetailPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeGlobalSearch,
-                    page: () => GlobalSearchPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeGlobalSearch,
+                  page: () => GlobalSearchPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeEditProfile,
-                    page: () => EditProfilePage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeEditProfile,
+                  page: () => EditProfilePage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeNotifications,
-                    page: () => NotificationsPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeNotifications,
+                  page: () => NotificationsPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeEmployeesListing,
-                    page: () => EmployeesListingPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeEmployeesListing,
+                  page: () => EmployeesListingPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeDailyReportsListing,
-                    page: () => DailyReportsListingPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeDailyReportsListing,
+                  page: () => DailyReportsListingPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeEmployeeDetail,
-                    page: () => EmployeeDetailPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeEmployeeDetail,
+                  page: () => EmployeeDetailPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeEmployeeDailyReports,
-                    page: () => EmployeeDailyReportsPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeEmployeeDailyReports,
+                  page: () => EmployeeDailyReportsPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeProjectsListing,
-                    page: () => ProjectsListingPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeProjectsListing,
+                  page: () => ProjectsListingPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeProjectDetail,
-                    page: () => ProjectDetailPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeProjectDetail,
+                  page: () => ProjectDetailPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeDriveDetail,
-                    page: () => DriveDetailPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeDriveDetail,
+                  page: () => DriveDetailPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeTasksListing,
-                    page: () => TasksListingPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeTasksListing,
+                  page: () => TasksListingPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeProjectCreateEdit,
-                    page: () => ProjectCreateEditPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeProjectCreateEdit,
+                  page: () => ProjectCreateEditPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeTaskCreateEdit,
-                    page: () => TaskCreateEditPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeTaskCreateEdit,
+                  page: () => TaskCreateEditPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeTaskDetail,
-                    page: () => TaskDetailPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeTaskDetail,
+                  page: () => TaskDetailPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeLeavesListing,
-                    page: () => LeavesListingPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeLeavesListing,
+                  page: () => LeavesListingPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeLogsListing,
-                    page: () => LogsListingPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeLogsListing,
+                  page: () => LogsListingPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeFolderDetail,
-                    page: () => FolderDetailPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeFolderDetail,
+                  page: () => FolderDetailPage(),
+                ),
                 GetPage(
-                    name: AppRoutes.routeEditEmployeeInformation,
-                    page: () => EditEmployeeInformationPage(),
-                    transition: Transition.rightToLeft,
-                    transitionDuration:
-                        Duration(milliseconds: transitionDuration)),
+                  name: AppRoutes.routeEditEmployeeInformation,
+                  page: () => EditEmployeeInformationPage(),
+                ),
+                GetPage(
+                  name: AppRoutes.routeAssignHoursListing,
+                  page: () => AssignHoursListingPage(),
+                ),
               ],
               navigatorObservers: [AppRouteObserver()],
             ));

@@ -19,6 +19,8 @@ class AppIcons {
   static const String icProjects = "assets/icons/ic_projects.svg";
   static const String icTasks = "assets/icons/ic_tasks.svg";
   static const String icLogs = "assets/icons/ic_logs.svg";
+  static const String icKey = "assets/icons/ic_key.png";
+  static const String icAssignHours = "assets/icons/ic_assign_hours.png";
   static const String icLeaves = "assets/icons/ic_leaves.svg";
   static const String icLogOut = "assets/icons/ic_log_out.svg";
   static const String icBack = "assets/icons/ic_back.svg";

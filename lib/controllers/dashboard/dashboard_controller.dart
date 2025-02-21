@@ -16,11 +16,13 @@ import 'package:teqtop_team/network/post_requests.dart';
 import 'package:teqtop_team/utils/helpers.dart';
 import 'package:teqtop_team/utils/permission_handler.dart';
 import 'package:http/http.dart' as http;
+import 'package:html/parser.dart' as html_parser;
 
 import '../../config/app_routes.dart';
 import '../../model/dashboard/feed_model.dart';
 import '../../model/dashboard/post_image_model.dart';
 import '../../model/employees_listing/employee_model.dart';
+import '../../model/media_content_model.dart';
 import '../../utils/preference_manager.dart';
 import '../../views/dialogs/common/common_alert_dialog.dart';
 
@@ -28,11 +30,14 @@ class DashboardController extends GetxController
     with GetTickerProviderStateMixin {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   late TextEditingController createPostTextController;
-  late TextEditingController commentFieldController;
+  late TextEditingController commentFieldTextController;
+  RxBool isCommentFieldTextEmpty = true.obs;
   RxBool isPostButtonEnable = false.obs;
   late ImagePicker _imagePicker;
+  late ImagePicker _commentImagePicker;
   RxList<XFile?> selectedImages = <XFile?>[].obs;
   late FilePicker _filePicker;
+  late FilePicker _commentFilePicker;
   RxList<PlatformFile?> selectedDocuments = <PlatformFile?>[].obs;
   RxBool arePostsLoading = false.obs;
   RxBool areCommentsLoading = false.obs;
@@ -43,7 +48,7 @@ class DashboardController extends GetxController
   int feedPage = 1;
   RxBool isPostCreating = false.obs;
   RxBool isPostEditing = false.obs;
-  RxBool isCommentCreating = false.obs;
+  RxBool isCommentCreateLoading = false.obs;
   List<String> remoteFilePaths = [];
   RxList<EmployeeModel?> employees = <EmployeeModel>[].obs;
   List<PostMediaModel> postsMedia = [];
@@ -58,17 +63,22 @@ class DashboardController extends GetxController
   int? currentCommentsPostID;
   RxInt currentCommentsLength = 0.obs;
   bool currentCommentsRefreshNeeded = false;
+  RxList<MediaContentModel> commentFieldContent = <MediaContentModel>[].obs;
+  int? commentFieldContentItemsInsertAfterIndex;
+  int? commentFieldContentEditIndex;
 
   @override
   void onInit() {
     initializeTextEditingControllers();
     initializeImagePicker();
+    initializeCommentImagePicker();
     initializeFilePicker();
     getLoggedInUser();
     getPosts();
     addListenerToScrollControllers();
     getEmployees();
     getNotifications();
+    initializeCommentFilePicker();
 
     super.onInit();
   }
@@ -84,6 +94,14 @@ class DashboardController extends GetxController
     disposeTextEditingControllers();
     disposeScrollControllers();
     super.onClose();
+  }
+
+  void onCommentFieldTextChange(String value) {
+    if (value.isEmpty) {
+      isCommentFieldTextEmpty.value = true;
+    } else {
+      isCommentFieldTextEmpty.value = false;
+    }
   }
 
   void addListenerToScrollControllers() {
@@ -209,11 +227,6 @@ class DashboardController extends GetxController
                 List<String>.from(jsonDecode(post.files) as List<dynamic>);
 
             for (var file in extractedFiles) {
-              Helpers.printLog(
-                description: "DASHBOARD_CONTROLLER_GET_POSTS_MEDIA",
-                message:
-                    "DESCRIPTION = ${Helpers.cleanHtml(post.description ?? "")} ===== FILE = $file",
-              );
               if (Helpers.isImage(file) &&
                   !postMediaModel.images.any((img) => img.image == file)) {
                 postMediaModel.images.add(PostImageModel(
@@ -298,14 +311,18 @@ class DashboardController extends GetxController
     _filePicker = FilePicker.platform;
   }
 
+  void initializeCommentFilePicker() {
+    _commentFilePicker = FilePicker.platform;
+  }
+
   void initializeTextEditingControllers() {
     createPostTextController = TextEditingController();
-    commentFieldController = TextEditingController();
+    commentFieldTextController = TextEditingController();
   }
 
   void disposeTextEditingControllers() {
     createPostTextController.dispose();
-    commentFieldController.dispose();
+    commentFieldTextController.dispose();
   }
 
   void disposeScrollControllers() {
@@ -337,8 +354,13 @@ class DashboardController extends GetxController
   void clickImage() async {
     var havePermission = await PermissionHandler.requestCameraPermission();
     if (havePermission) {
-      selectedImages
-          .add(await _imagePicker.pickImage(source: ImageSource.camera));
+      var image = await _imagePicker.pickImage(source: ImageSource.camera);
+      Helpers.printLog(
+          description: "DASHBOARD_CONTROLLER_CLICK_IMAGE",
+          message: "IMAGE_CLICKED = ${image.toString()}");
+      if (image != null) {
+        selectedImages.add(image);
+      }
       handlePostButtonEnable();
     }
   }
@@ -365,6 +387,30 @@ class DashboardController extends GetxController
     }
   }
 
+  void pickCommentDocuments() async {
+    var files = await _commentFilePicker.pickFiles(allowMultiple: true);
+    if (files == null) return;
+
+    for (var file in files.files) {
+      if (file.path == null) continue;
+
+      var mediaContent = (file.extension != null &&
+              ['jpg', 'jpeg', 'png'].contains(file.extension!.toLowerCase()))
+          ? MediaContentModel(image: XFile(file.path!))
+          : MediaContentModel(file: file);
+
+      if (commentFieldContentItemsInsertAfterIndex == null) {
+        commentFieldContent.add(mediaContent);
+      } else {
+        commentFieldContentItemsInsertAfterIndex =
+            commentFieldContentItemsInsertAfterIndex! + 1;
+        commentFieldContent.insert(
+            commentFieldContentItemsInsertAfterIndex!, mediaContent);
+      }
+    }
+    commentFieldContentItemsInsertAfterIndex = null;
+  }
+
   void initializeImagePicker() {
     _imagePicker = ImagePicker();
   }
@@ -377,6 +423,33 @@ class DashboardController extends GetxController
   void removeEditPostPreviousImage(PostImageModel image) {
     editPostPreviousImages.remove(image);
     handlePostButtonEnable();
+  }
+
+  Future<List<MediaContentModel>> convertHTMLToCommentContent(
+      String html) async {
+    List<MediaContentModel> mediaList = [];
+
+    var document = html_parser.parse(html.replaceAll(r'\"', '"'));
+
+    for (var element in document.body!.children) {
+      if (element.localName == 'p') {
+        if (element.children.isEmpty) {
+          mediaList.add(MediaContentModel(text: element.text));
+        } else {
+          var child = element.children.first;
+          if (child.localName == 'img' && child.attributes.containsKey('src')) {
+            mediaList
+                .add(MediaContentModel(imageString: child.attributes['src']));
+          } else if (child.localName == 'a' &&
+              child.attributes.containsKey('href')) {
+            mediaList
+                .add(MediaContentModel(fileString: child.attributes['href']));
+          }
+        }
+      }
+    }
+
+    return mediaList;
   }
 
   void removeSelectedDocument(PlatformFile file) {
@@ -512,50 +585,56 @@ class DashboardController extends GetxController
   }
 
   Future<void> createComment() async {
+    Helpers.printLog(description: "DASHBOARD_CONTROLLER_CREATE_COMMENT");
     FocusManager.instance.primaryFocus?.unfocus();
-    for (var comment in singlePostComments) {
-      if (comment != null) {
-        comment.isEditing.value = false;
-      }
-    }
-    if (commentFieldController.text.isNotEmpty) {
-      isCommentCreating.value = true;
+    // for (var comment in singlePostComments) {
+    //   if (comment != null) {
+    //     comment.isEditing.value = false;
+    //   }
+    // }
+
+    if (commentFieldContent.isNotEmpty) {
+      isCommentCreateLoading.value = true;
+      String htmlComment = await convertCommentContentToHTML();
       try {
-        Map<String, dynamic> requestBody = {
-          'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-              as String?,
-          'component_id': currentCommentsPostID,
-          'component': 'feed',
-          'comment':
-              '"${Helpers.convertToHTMLParagraphs(commentFieldController.text)}"',
-        };
-        var response = await PostRequests.createComment(requestBody);
-        if (response != null) {
-          commentFieldController.clear();
+        if (htmlComment.isNotEmpty) {
+          Map<String, dynamic> requestBody = {
+            'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+                as String?,
+            'component_id': currentCommentsPostID,
+            'component': 'feed',
+            'comment': '"$htmlComment"',
+          };
+          var response = await PostRequests.createComment(requestBody);
+          if (response != null) {
+            commentFieldTextController.clear();
+            commentFieldContent.clear();
+            isCommentFieldTextEmpty.value = true;
 
-          var post = posts.firstWhereOrNull(
-              (post) => post != null && post.id == currentCommentsPostID);
-          if (post != null) {
-            if (post.commentCount == null) {
-              post.commentCount = [
-                CommentCount(componentId: currentCommentsPostID)
-              ];
-            } else {
-              post.commentCount!
-                  .add(CommentCount(componentId: currentCommentsPostID));
+            var post = posts.firstWhereOrNull(
+                (post) => post != null && post.id == currentCommentsPostID);
+            if (post != null) {
+              if (post.commentCount == null) {
+                post.commentCount = [
+                  CommentCount(componentId: currentCommentsPostID)
+                ];
+              } else {
+                post.commentCount!
+                    .add(CommentCount(componentId: currentCommentsPostID));
+              }
+              posts.refresh();
+
+              currentCommentsLength.value += 1;
+              currentCommentsLength.refresh();
             }
-            posts.refresh();
-
-            currentCommentsLength.value += 1;
-            currentCommentsLength.refresh();
+            singlePostCommentsPage = 1;
+            getComments();
+          } else {
+            Get.snackbar('error'.tr, 'message_server_error'.tr);
           }
-          singlePostCommentsPage = 1;
-          getComments();
-        } else {
-          Get.snackbar('error'.tr, 'message_server_error'.tr);
         }
       } finally {
-        isCommentCreating.value = false;
+        isCommentCreateLoading.value = false;
       }
     }
   }
@@ -615,6 +694,31 @@ class DashboardController extends GetxController
       Get.snackbar('error'.tr, 'message_server_error'.tr);
     }
     return null;
+  }
+
+  Future<String> convertCommentContentToHTML() async {
+    List<String> htmlParts = [];
+
+    for (var media in commentFieldContent) {
+      if (media.text != null) {
+        htmlParts.add("<p>${media.text}</p>");
+      } else if (media.image != null) {
+        // String? imageUrl = await Helpers.convertImageToDataUrl(media.image!);
+        String? imageUrl = await uploadFile(media.image!.path, null);
+        if (imageUrl != null && imageUrl.isNotEmpty) {
+          htmlParts.add('<p><img src="$imageUrl" class="decode"></p>');
+        }
+      } else if (media.file != null && media.file!.path != null) {
+        String? fileUrl =
+            await uploadFile(media.file!.path!, media.file!.extension);
+        if (fileUrl != null && fileUrl.isNotEmpty) {
+          htmlParts.add(
+              '<p><a href="$fileUrl" rel="noopener noreferrer">${media.file!.name}</a></p>');
+        }
+      }
+    }
+
+    return htmlParts.join("").replaceAll('"', r'\"');
   }
 
   Future<void> getEmployees() async {
@@ -711,17 +815,23 @@ class DashboardController extends GetxController
         loggedInUser.value != null &&
         loggedInUser.value!.userId != null) {
       if (post.likedBy == 1) {
+        Helpers.printLog(
+            description: "DASHBOARD_CONTROLLER_TOGGLE_LIKE_LOCALLY",
+            message: "DISLIKING");
         post.likedBy = 0;
         if (post.likeUsers != null) {
+          Helpers.printLog(
+              description: "DASHBOARD_CONTROLLER_TOGGLE_LIKE_LOCALLY",
+              message: "DISLIKING = POST_LIKE_USERS_NOT_NULL");
           post.likeUsers!.removeWhere((user) =>
               user != null && user.userId == loggedInUser.value!.userId);
         }
       } else {
         post.likedBy = 1;
         if (post.likeUsers == null) {
-          post.likeUsers = [LikeUser(id: loggedInUser.value!.userId)];
+          post.likeUsers = [LikeUser(userId: loggedInUser.value!.userId)];
         } else {
-          post.likeUsers!.add(LikeUser(id: loggedInUser.value!.userId));
+          post.likeUsers!.add(LikeUser(userId: loggedInUser.value!.userId));
         }
       }
     }
@@ -758,10 +868,6 @@ class DashboardController extends GetxController
         notificationsCount.value = response.userNotification!.length;
         notifications.assignAll(response.userNotification!.toList());
       }
-      Helpers.printLog(
-          description: "DASHBOARD_CONTROLLER_GET_NOTIFICATIONS",
-          message:
-              "TOTAL_NOTIFICATIONS = ${response.userNotification != null ? response.userNotification!.length : 0}");
     }
   }
 
@@ -896,6 +1002,86 @@ class DashboardController extends GetxController
       }
     } finally {
       areCommentsLoading.value = false;
+    }
+  }
+
+  void initializeCommentImagePicker() {
+    _commentImagePicker = ImagePicker();
+  }
+
+  void clickCommentImage() async {
+    var havePermission = await PermissionHandler.requestCameraPermission();
+    if (havePermission) {
+      var image =
+          await _commentImagePicker.pickImage(source: ImageSource.camera);
+      if (image != null) {
+        if (commentFieldContentItemsInsertAfterIndex == null) {
+          commentFieldContent.add(MediaContentModel(image: image));
+        } else {
+          commentFieldContent.insert(
+              commentFieldContentItemsInsertAfterIndex! + 1,
+              MediaContentModel(image: image));
+        }
+        commentFieldContentItemsInsertAfterIndex = null;
+      }
+      // handlePostButtonEnable();
+    }
+  }
+
+  void pickCommentImages() async {
+    var images = await _commentImagePicker.pickMultiImage();
+    if (images.isNotEmpty) {
+      for (var image in images) {
+        if (commentFieldContentItemsInsertAfterIndex == null) {
+          commentFieldContent.add(MediaContentModel(image: image));
+        } else {
+          commentFieldContent.insert(
+              commentFieldContentItemsInsertAfterIndex! + 1,
+              MediaContentModel(image: image));
+          commentFieldContentItemsInsertAfterIndex =
+              commentFieldContentItemsInsertAfterIndex! + 1;
+        }
+      }
+      commentFieldContentItemsInsertAfterIndex = null;
+    }
+    // handlePostButtonEnable();
+  }
+
+  void addTextInCommentContent() {
+    if (commentFieldTextController.text.isEmpty) return;
+
+    final newItem = MediaContentModel(text: commentFieldTextController.text);
+
+    if (commentFieldContentEditIndex != null) {
+      commentFieldContent.insert(commentFieldContentEditIndex!, newItem);
+    } else {
+      final insertIndex = (commentFieldContentItemsInsertAfterIndex != null)
+          ? commentFieldContentItemsInsertAfterIndex! + 1
+          : commentFieldContent.length;
+      commentFieldContent.insert(insertIndex, newItem);
+    }
+    commentFieldContentEditIndex = null;
+    commentFieldContentItemsInsertAfterIndex = null;
+    commentFieldTextController.clear();
+    isCommentFieldTextEmpty.value = true;
+  }
+
+  void removeCommentContentItem(MediaContentModel item) {
+    commentFieldContent.remove(item);
+  }
+
+  void initializeAddingInBetweenCommentContent(int index) {
+    commentFieldContentItemsInsertAfterIndex = index;
+    Get.snackbar("Success", "Adding in between");
+  }
+
+  void editCommentContentText(int index) {
+    if (commentFieldContent[index].text != null &&
+        commentFieldContent[index].text!.isNotEmpty) {
+      commentFieldTextController.clear();
+      commentFieldTextController.text = commentFieldContent[index].text!;
+      commentFieldContent.removeAt(index);
+      commentFieldContentEditIndex = index;
     }
   }
 }

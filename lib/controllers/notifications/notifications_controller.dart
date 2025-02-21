@@ -51,12 +51,6 @@ class NotificationsController extends GetxController {
         }
       }
     }
-
-    for (var className in uniqueClasses) {
-      Helpers.printLog(
-          description: "NOTIFICATION_CONTROLLER_EXTRACT_AND_PRINT_CLASSES",
-          message: "DATA = $className");
-    }
   }
 
   void handleNotificationOnTap(int index) {
