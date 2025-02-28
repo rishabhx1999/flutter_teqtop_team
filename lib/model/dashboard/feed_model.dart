@@ -1,3 +1,4 @@
+import '../media_content_model.dart';
 import 'comment_count.dart';
 import 'comment_list.dart';
 import 'like_user.dart';
@@ -18,6 +19,7 @@ class FeedModel {
   List<CommentCount?>? commentCount;
   List<CommentList?>? commentList;
   List<LikeUser?>? likeUsers;
+  List<MediaContentModel> feedItems = [];
 
   FeedModel({
     this.id,

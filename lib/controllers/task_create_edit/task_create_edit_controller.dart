@@ -6,12 +6,13 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:teqtop_team/controllers/task_detail/task_detail_controller.dart';
-import 'package:teqtop_team/controllers/tasks_listing/tasks_listing_controller.dart';
 import 'package:teqtop_team/model/employees_listing/employee_model.dart';
 import 'package:teqtop_team/model/task_create_edit/task_priority.dart';
 import 'package:teqtop_team/utils/helpers.dart';
+import 'package:http/http.dart' as http;
 
 import '../../config/app_routes.dart';
+import '../../consts/app_consts.dart';
 import '../../model/global_search/project_model.dart';
 import '../../model/global_search/task_model.dart';
 import '../../model/media_content_model.dart';
@@ -19,6 +20,7 @@ import '../../network/get_requests.dart';
 import '../../network/post_requests.dart';
 import '../../utils/permission_handler.dart';
 import '../../utils/preference_manager.dart';
+import '../tasks_listing/tasks_listing_controller.dart';
 
 class TaskCreateEditController extends GetxController {
   final GlobalKey<FormState> formKey = GlobalKey();
@@ -130,50 +132,53 @@ class TaskCreateEditController extends GetxController {
   }
 
   Future<void> editTask() async {
-    // FocusManager.instance.primaryFocus?.unfocus();
-    // if (areRequiredFieldsFilled() && editTaskDetail.value!.id != null) {
-    //   Map<String, dynamic> requestBody = {
-    //     'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-    //         as String?,
-    //     'id': editTaskDetail.value!.id,
-    //     'extras':
-    //         convertToCustomJsonFormat(selectedParticipants, selectedObservers),
-    //     'description':
-    //         Helpers.convertToHTMLParagraphs(descriptionTextController.text),
-    //     'deadline': selectedEndDate == null
-    //         ? ''
-    //         : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
-    //     'name': nameController.text.toString().trim(),
-    //     'project': selectedProject.value!.id,
-    //     'responsible': selectedResponsiblePerson.value!.id,
-    //     'priority': selectedPriority.value!.priorityNumber == null
-    //         ? null
-    //         : selectedPriority.value!.priorityNumber! - 1,
-    //     'observer': generateIdsString(selectedObservers),
-    //     'participants': generateIdsString(selectedParticipants),
-    //   };
-    //
-    //   isLoading.value = true;
-    //   try {
-    //     var response = await PostRequests.editTask(requestBody);
-    //     if (response != null) {
-    //       if (response.status == "success") {
-    //         Get.back();
-    //         final taskDetailController = Get.find<TaskDetailController>();
-    //         taskDetailController.getTaskDetail();
-    //       } else {
-    //         Get.snackbar("error".tr, "message_server_error".tr);
-    //       }
-    //     } else {
-    //       Get.snackbar("error".tr, "message_server_error".tr);
-    //     }
-    //   } finally {
-    //     isLoading.value = false;
-    //   }
-    // }
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (areRequiredFieldsFilled() && editTaskDetail.value!.id != null) {
+      isLoading.value = true;
+      String htmlDescription =
+          await Helpers.convertMultimediaContentToHTML(descriptionItems);
+
+      try {
+        if (htmlDescription.isNotEmpty) {
+          Map<String, dynamic> requestBody = {
+            'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+                as String?,
+            'id': editTaskDetail.value!.id,
+            'extras': convertToCustomJsonFormat(
+                selectedParticipants, selectedObservers),
+            'description': '"$htmlDescription"',
+            'deadline': selectedEndDate == null
+                ? ''
+                : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
+            'name': nameController.text.toString().trim(),
+            'project': selectedProject.value!.id,
+            'responsible': selectedResponsiblePerson.value!.id,
+            'priority': selectedPriority.value!.priorityNumber == null
+                ? null
+                : selectedPriority.value!.priorityNumber! - 1,
+            'observer': generateIdsString(selectedObservers),
+            'participants': generateIdsString(selectedParticipants),
+          };
+          var response = await PostRequests.editTask(requestBody);
+          if (response != null) {
+            if (response.status == "success") {
+              Get.back();
+              final taskDetailController = Get.find<TaskDetailController>();
+              taskDetailController.getTaskDetail();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
+            }
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
+          }
+        }
+      } finally {
+        isLoading.value = false;
+      }
+    }
   }
 
-  void setInitialFieldValues() {
+  Future<void> setInitialFieldValues() async {
     if (editTaskDetail.value != null && fromTaskDetail.value) {
       nameController.text = editTaskDetail.value!.name ?? "";
 
@@ -247,59 +252,93 @@ class TaskCreateEditController extends GetxController {
             DateFormat('MM/dd/yy').format(selectedEndDate!);
       }
 
-      descriptionTextController.text =
-          Helpers.formatHtmlParagraphs(editTaskDetail.value!.description ?? "");
+      String? html = editTaskDetail.value!.description;
+      if (html != null && html.isNotEmpty) {
+        var items = await Helpers.convertHTMLToMultimediaContent(html);
+        descriptionItems.assignAll(items);
+        for (var item in descriptionItems) {
+          if (item.imageString != null && item.imageString!.isNotEmpty) {
+            item.downloadedImage = await Helpers.downloadFile(
+                AppConsts.imgInitialUrl + item.imageString!,
+                item.imageString!.split("/").last);
+          }
+          // Helpers.printLog(
+          //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
+          //     message: "ITEM = ${item.toString()}");
+        }
+      }
     }
+  }
+
+  Future<String?> uploadFile(String filePath, String? fileType) async {
+    var uploadMedia = await http.MultipartFile.fromPath('data_file', filePath);
+    Map<String, dynamic> requestBody = {
+      'token':
+          PreferenceManager.getPref(PreferenceManager.prefUserToken) as String?,
+      'extension': fileType ?? '',
+      'data_file': '(binary)',
+      '_comp': 'feed',
+      'format': 'application'
+    };
+    var response = await PostRequests.uploadFile(uploadMedia, requestBody);
+    if (response != null) {
+      return response.src;
+    } else {
+      Get.snackbar('error'.tr, 'message_server_error'.tr);
+    }
+    return null;
   }
 
   Future<void> createTask() async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (areRequiredFieldsFilled()) {
-      // Map<String, dynamic> requestBody = {
-      //   'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-      //       as String?,
-      //   'name': nameController.text.toString().trim(),
-      //   'project': selectedProject.value!.id,
-      //   'responsible': selectedResponsiblePerson.value!.id,
-      //   'priority': selectedPriority.value!.priorityNumber,
-      //   'observer': generateIdsString(selectedObservers),
-      //   'participants': generateIdsString(selectedParticipants),
-      //   'extras':
-      //       convertToCustomJsonFormat(selectedParticipants, selectedObservers),
-      //   'description':
-      //       Helpers.convertToHTMLParagraphs(descriptionTextController.text),
-      //   'deadline': selectedEndDate == null
-      //       ? ''
-      //       : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
-      //   'created_at': selectedStartDate == null
-      //       ? ''
-      //       : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
-      //           selectedStartDate!.year,
-      //           selectedStartDate!.month,
-      //           selectedStartDate!.day,
-      //           DateTime.now().hour,
-      //           DateTime.now().minute,
-      //           DateTime.now().second,
-      //         )),
-      // };
-      //
-      // isLoading.value = true;
-      // try {
-      //   var response = await PostRequests.createTask(requestBody);
-      //   if (response != null) {
-      //     if (response.status == "Added a new task") {
-      //       Get.back();
-      //       final tasksListingController = Get.find<TasksListingController>();
-      //       tasksListingController.getTasks();
-      //     } else {
-      //       Get.snackbar("error".tr, "message_server_error".tr);
-      //     }
-      //   } else {
-      //     Get.snackbar("error".tr, "message_server_error".tr);
-      //   }
-      // } finally {
-      //   isLoading.value = false;
-      // }
+      isLoading.value = true;
+      String htmlDescription =
+          await Helpers.convertMultimediaContentToHTML(descriptionItems);
+      try {
+        if (htmlDescription.isNotEmpty) {
+          Map<String, dynamic> requestBody = {
+            'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+                as String?,
+            'name': nameController.text.toString().trim(),
+            'project': selectedProject.value!.id,
+            'responsible': selectedResponsiblePerson.value!.id,
+            'priority': selectedPriority.value!.priorityNumber,
+            'observer': generateIdsString(selectedObservers),
+            'participants': generateIdsString(selectedParticipants),
+            'extras': convertToCustomJsonFormat(
+                selectedParticipants, selectedObservers),
+            'description': '"$htmlDescription"',
+            'deadline': selectedEndDate == null
+                ? ''
+                : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
+            'created_at': selectedStartDate == null
+                ? ''
+                : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
+                    selectedStartDate!.year,
+                    selectedStartDate!.month,
+                    selectedStartDate!.day,
+                    DateTime.now().hour,
+                    DateTime.now().minute,
+                    DateTime.now().second,
+                  )),
+          };
+          var response = await PostRequests.createTask(requestBody);
+          if (response != null) {
+            if (response.status == "Added a new task") {
+              Get.back();
+              final tasksListingController = Get.find<TasksListingController>();
+              tasksListingController.getTasks();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
+            }
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
+          }
+        }
+      } finally {
+        isLoading.value = false;
+      }
     }
   }
 
@@ -394,6 +433,11 @@ class TaskCreateEditController extends GetxController {
       var response = await GetRequests.getProjects(requestBody);
       if (response != null) {
         if (response.data != null) {
+          response.data!.removeWhere((element) =>
+              element != null &&
+              element.trash != null &&
+              element.trash!.toLowerCase().contains("trash"));
+
           projects.assignAll(response.data!.toList());
           projects.insert(0, ProjectModel(name: "select_project".tr));
           selectedProject.value = projects[0];

@@ -1,3 +1,4 @@
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:teqtop_team/model/employees_listing/data_row_attribute.dart';
 
 import '../enum_values.dart';
@@ -29,6 +30,7 @@ class ProjectModel {
   String? folderName;
   DateTime? createdAt;
   DateTime? projectCreatedAt;
+  RxBool multiUse = false.obs;
 
   ProjectModel({
     this.dtRowAttr,

@@ -35,8 +35,8 @@ class DailyReportWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 76,
-              height: 76,
+              width: 68,
+              height: 68,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(width: 1, color: AppColors.colorFFB400)),

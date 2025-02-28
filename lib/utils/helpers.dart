@@ -11,6 +11,12 @@ import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'dart:typed_data' as typed_data;
+import 'package:html/parser.dart' as html_parser;
+import 'package:http/http.dart' as http;
+import 'package:teqtop_team/utils/preference_manager.dart';
+
+import '../model/media_content_model.dart';
+import '../network/post_requests.dart';
 
 class Helpers {
   Helpers._();
@@ -215,9 +221,9 @@ class Helpers {
   static Future<void> openFile({required String path, String? fileName}) async {
     final file = await downloadFile(AppConsts.imgInitialUrl + path, fileName!);
     if (file == null) return;
-    Helpers.printLog(
-        description: "DASHBOARD_CONTROLLER_OPEN_POST_FILE",
-        message: "DOWNLOADED_FILE_PATH = ${file.path}");
+    // Helpers.printLog(
+    //     description: "DASHBOARD_CONTROLLER_OPEN_POST_FILE",
+    //     message: "DOWNLOADED_FILE_PATH = ${file.path}");
     OpenFile.open(file.path);
   }
 
@@ -265,38 +271,148 @@ class Helpers {
 
       return 'data:$mimeType;base64,$base64String';
     } catch (e) {
-      printLog(
-          description: 'HELPERS_CONVERT_IMAGE_TO_DATA_URL',
-          message: 'ERROR CONVERTING IMAGE TO DATA URL: $e');
+      // printLog(
+      //     description: 'HELPERS_CONVERT_IMAGE_TO_DATA_URL',
+      //     message: 'ERROR CONVERTING IMAGE TO DATA URL: $e');
       return '';
     }
   }
 
-  static Future<XFile?> convertDataUrlToImage(
-      String dataUrl, String filePath) async {
+  static String extensionFromMimeType(String mimeType) {
+    switch (mimeType.toLowerCase()) {
+      case 'image/jpeg':
+        return 'jpg';
+      case 'image/png':
+        return 'png';
+      case 'image/gif':
+        return 'gif';
+      case 'image/bmp':
+        return 'bmp';
+      case 'image/svg+xml':
+        return 'svg';
+      default:
+        return 'bin'; // fallback
+    }
+  }
+
+  static Future<File?> convertDataUrlToFile(String dataUrl) async {
     try {
-      final RegExp dataUrlPattern = RegExp(r'data:(.*?);base64,(.*)');
-      final match = dataUrlPattern.firstMatch(dataUrl);
+      final regex = RegExp(r'data:(.*);base64,(.*)');
+      final match = regex.firstMatch(dataUrl);
 
-      if (match == null) {
-        printLog(
-            description: 'HELPERS_CONVERT_DATA_URL_TO_IMAGE',
-            message: 'INVALID DATA URL');
-        return null;
-      }
+      if (match == null) return null;
 
-      String base64String = match.group(2)!;
-      typed_data.Uint8List bytes = base64Decode(base64String);
+      final mimeType = match.group(1);
+      final base64String = match.group(2);
+      if (mimeType == null || base64String == null) return null;
 
-      File file = File(filePath);
+      String ext = extensionFromMimeType(mimeType);
+      String? fileName = "file_${DateTime.now().millisecondsSinceEpoch}.$ext";
+
+      final typed_data.Uint8List bytes = base64Decode(base64String);
+
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/$fileName';
+
+      final file = File(filePath);
       await file.writeAsBytes(bytes);
 
-      return XFile(file.path);
+      return file;
     } catch (e) {
-      printLog(
-          description: 'HELPERS_CONVERT_DATA_URL_TO_IMAGE',
-          message: 'ERROR CONVERTING DATA URL TO IMAGE: $e');
+      debugPrint("Error converting Data URL to File: $e");
       return null;
     }
+  }
+
+  static bool isBase64DataUrl(String input) {
+    // This regex checks for the Data URL scheme with base64 encoding.
+    final regex = RegExp(r'^data:(.*);base64,(.*)$');
+    return regex.hasMatch(input);
+  }
+
+  static Future<List<MediaContentModel>> convertHTMLToMultimediaContent(
+      String html) async {
+    List<MediaContentModel> mediaList = [];
+
+    var document = html_parser.parse(html
+            .replaceAll(r'\"', '"') // First pass
+            .replaceAll(r'\\', '') // **New: Remove residual escaping**
+        );
+
+    for (var element in document.body!.children) {
+      if (element.localName == 'p') {
+        if (element.children.isEmpty) {
+          mediaList.add(MediaContentModel(text: element.text));
+        } else {
+          var child = element.children.first;
+          if (child.localName == 'img' && child.attributes.containsKey('src')) {
+            mediaList.add(MediaContentModel(
+                imageString: child.attributes['src']!
+                    .replaceAll(
+                        r'\"', '"') // **New: Remove surrounding escapes**
+                    .replaceAll(r'\\', '') // **New: Remove extra backslashes**
+                ));
+          } else if (child.localName == 'a' &&
+              child.attributes.containsKey('href')) {
+            mediaList.add(MediaContentModel(
+                fileString: child.attributes['href']!
+                    .replaceAll(r'\"', '"')
+                    .replaceAll(r'\\', '')));
+          }
+        }
+      }
+    }
+
+    return mediaList;
+  }
+
+  static Future<String?> uploadFile(String filePath, String? fileType) async {
+    var uploadMedia = await http.MultipartFile.fromPath('data_file', filePath);
+    Map<String, dynamic> requestBody = {
+      'token':
+          PreferenceManager.getPref(PreferenceManager.prefUserToken) as String?,
+      'extension': fileType ?? '',
+      'data_file': '(binary)',
+      '_comp': 'feed',
+      'format': 'application'
+    };
+    var response = await PostRequests.uploadFile(uploadMedia, requestBody);
+    if (response != null) {
+      return response.src;
+    } else {
+      Get.snackbar('error'.tr, 'message_server_error'.tr);
+    }
+    return null;
+  }
+
+  static Future<String> convertMultimediaContentToHTML(
+      List<MediaContentModel> content) async {
+    List<String> htmlParts = [];
+
+    for (var media in content) {
+      if (media.text != null) {
+        htmlParts.add("<p>${media.text}</p>");
+      } else if (media.image != null) {
+        // String? imageUrl = await Helpers.convertImageToDataUrl(media.image!);
+        String? imageUrl = await uploadFile(media.image!.path, null);
+        if (imageUrl != null && imageUrl.isNotEmpty) {
+          htmlParts.add('<p><img src="$imageUrl" class="decode"></p>');
+        }
+      } else if (media.imageString != null && media.imageString!.isNotEmpty) {
+        htmlParts.add('<p><img src="${media.imageString}" class="decode"></p>');
+      } else if (media.file != null && media.file!.path != null) {
+        String? fileUrl =
+            await uploadFile(media.file!.path!, media.file!.extension);
+        if (fileUrl != null && fileUrl.isNotEmpty) {
+          htmlParts.add(
+              '<p><a href="$fileUrl" rel="noopener noreferrer">${media.file!.name}</a></p>');
+        }
+      } else if (media.fileString != null && media.fileString!.isNotEmpty) {
+        htmlParts.add(
+            '<p><a href="${media.fileString}" rel="noopener noreferrer">${media.fileString}</a></p>');
+      }
+    }
+
+    return htmlParts.join("").replaceAll('"', r'\"');
   }
 }

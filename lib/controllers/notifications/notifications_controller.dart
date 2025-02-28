@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
-import 'package:teqtop_team/utils/helpers.dart';
 import 'package:teqtop_team/utils/in_app_notification_type.dart';
 
 import '../../config/app_routes.dart';
 import '../../consts/app_consts.dart';
 import '../../model/dashboard/notification_model.dart';
+import '../../network/get_requests.dart';
 import '../dashboard/dashboard_controller.dart';
 
 class NotificationsController extends GetxController {
@@ -31,6 +31,9 @@ class NotificationsController extends GetxController {
   void getNotifications() {
     final dashboardController = Get.find<DashboardController>();
     notifications.assignAll(dashboardController.notifications);
+    if (notifications.isNotEmpty) {
+      readNotifications();
+    }
     extractAndPrintClasses();
   }
 
@@ -92,5 +95,19 @@ class NotificationsController extends GetxController {
       AppRoutes.routeLeavesListing,
       (route) => route.settings.name == AppRoutes.routeDashboard,
     );
+  }
+
+  Future<void> readNotifications() async {
+    var response = await GetRequests.readNotifications();
+    if (response != null) {
+      if (response.success == "success") {
+        updateNotificationsCount();
+      }
+    }
+  }
+
+  void updateNotificationsCount() {
+    final dashboardController = Get.find<DashboardController>();
+    dashboardController.notificationsCount.value = 0;
   }
 }

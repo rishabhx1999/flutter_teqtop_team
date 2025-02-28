@@ -78,17 +78,17 @@ class EmployeeDailyReportsController extends GetxController {
         inputDate.subtract(Duration(days: daysToMonday));
 
     if (firstAccessibleDate.isBefore(calendarFirstDay)) {
-      Helpers.printLog(
-          description:
-              'EMPLOYEE_DAILY_REPORTS_CONTROLLER_CALCULATE_FIRST_ACCESSIBLE_DATE',
-          message: "RESULT = $calendarFirstDay");
+      // Helpers.printLog(
+      //     description:
+      //         'EMPLOYEE_DAILY_REPORTS_CONTROLLER_CALCULATE_FIRST_ACCESSIBLE_DATE',
+      //     message: "RESULT = $calendarFirstDay");
       return calendarFirstDay;
     }
 
-    Helpers.printLog(
-        description:
-            'EMPLOYEE_DAILY_REPORTS_CONTROLLER_CALCULATE_FIRST_ACCESSIBLE_DATE',
-        message: "RESULT = $firstAccessibleDate");
+    // Helpers.printLog(
+    //     description:
+    //         'EMPLOYEE_DAILY_REPORTS_CONTROLLER_CALCULATE_FIRST_ACCESSIBLE_DATE',
+    //     message: "RESULT = $firstAccessibleDate");
     return firstAccessibleDate;
   }
 
@@ -103,14 +103,14 @@ class EmployeeDailyReportsController extends GetxController {
   }
 
   void handleOnTableCalendarPageChange(DateTime day) {
-    Helpers.printLog(
-        description:
-            'EMPLOYEE_DAILY_REPORTS_CONTROLLER_HANDLE_ON_TABLE_CALENDAR_PAGE_CHANGE',
-        message: "DATE = $day");
-    Helpers.printLog(
-        description:
-            'EMPLOYEE_DAILY_REPORTS_CONTROLLER_HANDLE_ON_TABLE_CALENDAR_PAGE_CHANGE',
-        message: "IS_SF_CALENDAR_VIEW_CHANGED = $isSfCalendarViewChanged");
+    // Helpers.printLog(
+    //     description:
+    //         'EMPLOYEE_DAILY_REPORTS_CONTROLLER_HANDLE_ON_TABLE_CALENDAR_PAGE_CHANGE',
+    //     message: "DATE = $day");
+    // Helpers.printLog(
+    //     description:
+    //         'EMPLOYEE_DAILY_REPORTS_CONTROLLER_HANDLE_ON_TABLE_CALENDAR_PAGE_CHANGE',
+    //     message: "IS_SF_CALENDAR_VIEW_CHANGED = $isSfCalendarViewChanged");
     if (isSfCalendarViewChanged == true) {
     } else {
       selectedDay.value = calculateFirstAccessibleDate(day);
@@ -121,15 +121,15 @@ class EmployeeDailyReportsController extends GetxController {
   }
 
   void handleOnSfCalendarViewChange(ViewChangedDetails viewChangedDetail) {
-    Helpers.printLog(
-        description:
-            'EMPLOYEE_DAILY_REPORTS_CONTROLLER_HANDLE_ON_SF_CALENDAR_ON_VIEW_CHANGE');
+    // Helpers.printLog(
+    //     description:
+    //         'EMPLOYEE_DAILY_REPORTS_CONTROLLER_HANDLE_ON_SF_CALENDAR_ON_VIEW_CHANGE');
     if (viewChangedDetail.visibleDates.isNotEmpty) {
-      Helpers.printLog(
-          description:
-              'EMPLOYEE_DAILY_REPORTS_CONTROLLER_HANDLE_ON_SF_CALENDAR_ON_VIEW_CHANGE',
-          message:
-              'VISIBLE_DATES_FIRST = ${viewChangedDetail.visibleDates.first}');
+      // Helpers.printLog(
+      //     description:
+      //         'EMPLOYEE_DAILY_REPORTS_CONTROLLER_HANDLE_ON_SF_CALENDAR_ON_VIEW_CHANGE',
+      //     message:
+      //         'VISIBLE_DATES_FIRST = ${viewChangedDetail.visibleDates.first}');
       final DateTime visibleEndDate = viewChangedDetail.visibleDates.last;
       if (visibleEndDate.isAfter(calendarLastDay)) {
         Future.delayed(const Duration(milliseconds: 500), () {
@@ -230,11 +230,11 @@ class EmployeeDailyReportsController extends GetxController {
           DateTime parsedEndTime = Helpers.convert12HourTimeStringToDateTime(
               endTime, selectedDay.value);
 
-          Helpers.printLog(
-              description:
-                  "EMPLOYEE_DAILY_REPORTS_CONTROLLER_PARSE_DAILY_REPORT",
-              message:
-                  "SUBJECT = $subject ===== START = $parsedStartTime ===== END = $parsedEndTime");
+          // Helpers.printLog(
+          //     description:
+          //         "EMPLOYEE_DAILY_REPORTS_CONTROLLER_PARSE_DAILY_REPORT",
+          //     message:
+          //         "SUBJECT = $subject ===== START = $parsedStartTime ===== END = $parsedEndTime");
 
           Appointment appointment = Appointment(
             startTime: parsedStartTime,
@@ -256,11 +256,11 @@ class EmployeeDailyReportsController extends GetxController {
     for (var appointment in appointmentsList) {
       totalDuration += appointment.endTime.difference(appointment.startTime);
     }
-    Helpers.printLog(
-        description:
-            "EMPLOYEE_DAILY_REPORTS_CONTROLLER_CALCULATE_TOTAL_WORK_TIME",
-        message:
-            "IN_HOURS = ${totalDuration.inHours} ===== IN_MINUTES = ${totalDuration.inMinutes}");
+    // Helpers.printLog(
+    //     description:
+    //         "EMPLOYEE_DAILY_REPORTS_CONTROLLER_CALCULATE_TOTAL_WORK_TIME",
+    //     message:
+    //         "IN_HOURS = ${totalDuration.inHours} ===== IN_MINUTES = ${totalDuration.inMinutes}");
     totalWorkTime.value = Duration.zero;
     totalWorkTime.value = totalDuration;
   }

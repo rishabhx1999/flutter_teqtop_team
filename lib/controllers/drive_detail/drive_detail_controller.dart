@@ -58,9 +58,9 @@ class DriveDetailController extends GetxController {
   void getDriveURL() {
     Map? data = Get.arguments;
     if (data != null && data.isNotEmpty) {
-      Helpers.printLog(
-          description: "DRIVE_DETAIL_CONTROLLER_GET_DRIVE_URL",
-          message: "DATA_NOT_NULL");
+      // Helpers.printLog(
+      //     description: "DRIVE_DETAIL_CONTROLLER_GET_DRIVE_URL",
+      //     message: "DATA_NOT_NULL");
       if (data.containsKey(AppConsts.keyDriveURL)) {
         driveURL = data[AppConsts.keyDriveURL];
       }
@@ -148,10 +148,10 @@ class DriveDetailController extends GetxController {
         for (var item in driveDetail!.driveFolders!) {
           if (item != null) {
             if (item.isFile == "true" && item.path != null) {
-              Helpers.printLog(
-                  description:
-                      "DRIVE_DETAIL_CONTROLLER_SEPARATE_FILES_AND_FOLDERS",
-                  message: "FILES = ${item.path}");
+              // Helpers.printLog(
+              //     description:
+              //         "DRIVE_DETAIL_CONTROLLER_SEPARATE_FILES_AND_FOLDERS",
+              //     message: "FILES = ${item.path}");
               files.add(item.path!);
             }
             if (item.isFolder == "true") {

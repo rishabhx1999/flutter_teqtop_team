@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
 import 'package:teqtop_team/model/media_content_model.dart';
-import 'package:teqtop_team/utils/helpers.dart';
 
 import '../../../consts/app_consts.dart';
 import 'common_button.dart';
@@ -89,7 +88,7 @@ class CommonMultimediaContentCreateWidget extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.only(top: 16),
-              height: 250,
+              height: 300,
               decoration: BoxDecoration(
                   color: backgroundColor ?? AppColors.colorF9F9F9,
                   borderRadius: borderRadius ?? BorderRadius.zero,
@@ -241,10 +240,10 @@ class CommonMultimediaContentCreateWidget extends StatelessWidget {
                             behavior: HitTestBehavior.opaque,
                             onTap: () {
                               addContentAfter(index);
-                              Helpers.printLog(
-                                  description:
-                                      "CREATE_COMMENT_WIDGET_CONTENT_ITEMS_SEPARATOR_TAPPED",
-                                  message: "INDEX = $index");
+                              // Helpers.printLog(
+                              //     description:
+                              //         "CREATE_COMMENT_WIDGET_CONTENT_ITEMS_SEPARATOR_TAPPED",
+                              //     message: "INDEX = $index");
                             },
                             child: const SizedBox(
                               height: 16,
@@ -262,7 +261,7 @@ class CommonMultimediaContentCreateWidget extends StatelessWidget {
                           left: 10, right: 10, bottom: 10),
                       child: TextField(
                         controller: textController,
-                        maxLines: null,
+                        maxLines: 2,
                         style: Theme.of(context).textTheme.bodyMedium,
                         keyboardType: TextInputType.multiline,
                         cursorColor: Colors.black,

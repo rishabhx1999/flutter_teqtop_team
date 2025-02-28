@@ -19,11 +19,15 @@ class ApiUrls {
   static const searchGlobally = 'search-globally';
   static const addPic = 'add_pic';
   static const users = 'users';
+  static const weeklyHoursDelete = 'weeklyHours/delete';
+  static const notificationsUpdateUncheck = 'notifications/update-uncheck';
   static const projects = 'projects';
   static const tasksAdd = 'tasks/add';
   static const tasksUpdate = 'tasks/update';
   static const commentUpdate = 'comment/update';
   static const commentDelete = 'comment/delete';
+  static const weeklyHoursAdd = 'weeklyHours/add';
+  static const weeklyHoursPause = 'weeklyHours/pause';
   static const commentList = 'comment/list';
   static const commentMore = 'comment/more';
   static const tasks = 'tasks';
@@ -31,5 +35,6 @@ class ApiUrls {
   static const notifications = 'notifications';
   static const leaves = 'leaves';
   static const dailyReport = 'daily-report';
+  static const weeklyHours = 'weeklyHours';
   static const drivesAdd = 'drives/add';
 }

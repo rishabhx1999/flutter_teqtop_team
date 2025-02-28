@@ -3,19 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/config/app_routes.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
 import 'package:teqtop_team/controllers/assign_hours_listing/assign_hours_listing_controller.dart';
+import 'package:teqtop_team/model/assign_hours_listing/assign_hours.dart';
 import 'package:teqtop_team/model/global_search/project_model.dart';
+import 'package:teqtop_team/views/pages/assign_hours_listing/components/assign_hour_widget.dart';
+import 'package:teqtop_team/views/pages/assign_hours_listing/components/assign_hour_widget_shimmer.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/menu_drawer_widget.dart';
-import 'package:teqtop_team/views/pages/projects_listing/components/project_widget.dart';
-import 'package:teqtop_team/views/pages/projects_listing/components/project_widget_shimmer.dart';
+import 'package:teqtop_team/views/widgets/common/common_button_shimmer.dart';
 
 import '../../../consts/app_images.dart';
+import '../../../model/daily_reports_listing/value_time.dart';
+import '../../../model/employees_listing/employee_model.dart';
+import '../../widgets/common/common_button.dart';
+import '../../widgets/common/common_button_outline.dart';
 import '../../widgets/common/common_dropdown_button.dart';
+import '../../widgets/common/common_input_field.dart';
 import '../../widgets/common/common_search_field.dart';
+import '../daily_reports_listing/components/daily_report_widget.dart';
 
 class AssignHoursListingPage extends StatelessWidget {
   final assignHoursListingController = Get.put(AssignHoursListingController());
@@ -170,198 +179,505 @@ class AssignHoursListingPage extends StatelessWidget {
                 const SizedBox(
                   height: 16,
                 ),
-                CommonSearchField(
-                  isShowLeading: true,
-                  controller: assignHoursListingController.searchTextController,
-                  onChanged:
-                      assignHoursListingController.handleSearchTextChange,
-                  hint: "search",
-                  isShowTrailing:
-                      assignHoursListingController.showSearchFieldTrailing,
-                  onTapTrailing:
-                      assignHoursListingController.handleClearSearchField,
+                Obx(
+                  () => assignHoursListingController
+                              .areAssignHoursLoading.value ||
+                          assignHoursListingController.areUsersLoading.value ||
+                          assignHoursListingController.areProjectsLoading.value
+                      ? Shimmer.fromColors(
+                          baseColor: AppColors.shimmerBaseColor,
+                          highlightColor: AppColors.shimmerHighlightColor,
+                          child: Container(
+                            height: 48.0,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: AppColors.shimmerBaseColor,
+                            ),
+                          ))
+                      : CommonSearchField(
+                          isShowLeading: true,
+                          controller:
+                              assignHoursListingController.searchTextController,
+                          onChanged: assignHoursListingController
+                              .handleSearchTextChange,
+                          hint: "search",
+                          isShowTrailing: assignHoursListingController
+                              .showSearchFieldTrailing,
+                          onTapTrailing: assignHoursListingController
+                              .handleClearSearchField,
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                        ),
                 ),
                 const SizedBox(
-                  height: 16,
+                  height: 8,
                 ),
-                // Row(
-                //   mainAxisSize: MainAxisSize.max,
-                //   mainAxisAlignment: MainAxisAlignment.start,
-                //   crossAxisAlignment: CrossAxisAlignment.center,
-                //   children: [
-                //     Expanded(
-                //       child: Obx(
-                //             () => CommonDropdownWidget(
-                //           maxDropdownHeight: 200,
-                //           onChanged:
-                //           dailyReportsListingController.onChangeUser,
-                //           items: dailyReportsListingController.users
-                //               .map((user) =>
-                //               DropdownMenuItem<EmployeeModel>(
-                //                 value: user,
-                //                 child: Text(
-                //                   user != null ? user.name ?? "" : "",
-                //                   style: Theme.of(context)
-                //                       .textTheme
-                //                       .bodyMedium
-                //                       ?.copyWith(
-                //                       fontSize: AppConsts
-                //                           .commonFontSizeFactor *
-                //                           14),
-                //                 ),
-                //               ))
-                //               .toList(),
-                //           value:
-                //           dailyReportsListingController.selectedUser,
-                //           selectedItemBuilder: (BuildContext context) {
-                //             return dailyReportsListingController.users
-                //                 .map<Widget>((user) {
-                //               return Align(
-                //                 alignment: Alignment.centerLeft,
-                //                 child: Text(
-                //                   user != null && user.name != null
-                //                       ? dailyReportsListingController
-                //                       .truncateDropdownSelectedValue(
-                //                       user.name!)
-                //                       : "",
-                //                   style: Theme.of(context)
-                //                       .textTheme
-                //                       .bodyMedium
-                //                       ?.copyWith(
-                //                       color: Colors.black
-                //                           .withValues(alpha: 0.5),
-                //                       fontSize: AppConsts
-                //                           .commonFontSizeFactor *
-                //                           14),
-                //                 ),
-                //               );
-                //             }).toList();
-                //           },
-                //         ),
-                //       ),
-                //     ),
-                //     const SizedBox(
-                //       width: 18,
-                //     ),
-                //     Expanded(
-                //       child: Obx(
-                //             () => dailyReportsListingController
-                //             .areDailyReportsLoading.value ||
-                //             dailyReportsListingController
-                //                 .areUsersLoading.value
-                //             ? Shimmer.fromColors(
-                //             baseColor: AppColors.shimmerBaseColor,
-                //             highlightColor: AppColors.shimmerHighlightColor,
-                //             child: Container(
-                //               height: 40.0,
-                //               width: double.infinity,
-                //               decoration: BoxDecoration(
-                //                 color: AppColors.shimmerBaseColor,
-                //               ),
-                //             ))
-                //             : CommonDropdownWidget(
-                //           maxDropdownHeight: 200,
-                //           onChanged:
-                //           dailyReportsListingController.onChangeTime,
-                //           items: dailyReportsListingController.times
-                //               .map((time) => DropdownMenuItem<ValueTime>(
-                //             value: time,
-                //             child: Text(
-                //               time.time,
-                //               style: Theme.of(context)
-                //                   .textTheme
-                //                   .bodyMedium
-                //                   ?.copyWith(
-                //                   fontSize: AppConsts
-                //                       .commonFontSizeFactor *
-                //                       14),
-                //             ),
-                //           ))
-                //               .toList(),
-                //           value:
-                //           dailyReportsListingController.selectedTime,
-                //           selectedItemBuilder: (BuildContext context) {
-                //             return dailyReportsListingController.times
-                //                 .map<Widget>((time) {
-                //               return Align(
-                //                 alignment: Alignment.centerLeft,
-                //                 child: Text(
-                //                   dailyReportsListingController
-                //                       .truncateDropdownSelectedValue(
-                //                       time.time),
-                //                   style: Theme.of(context)
-                //                       .textTheme
-                //                       .bodyMedium
-                //                       ?.copyWith(
-                //                       color: Colors.black
-                //                           .withValues(alpha: 0.5),
-                //                       fontSize: AppConsts
-                //                           .commonFontSizeFactor *
-                //                           14),
-                //                 ),
-                //               );
-                //             }).toList();
-                //           },
-                //         ),
-                //       ),
-                //     ),
-                //   ],
-                // ),
-                // const SizedBox(
-                //   height: 20,
-                // ),
-                // Obx(
-                //       () => dailyReportsListingController
-                //       .areDailyReportsLoading.value ||
-                //       dailyReportsListingController.areUsersLoading.value
-                //       ? Shimmer.fromColors(
-                //       baseColor: AppColors.shimmerBaseColor,
-                //       highlightColor: AppColors.shimmerHighlightColor,
-                //       child: Container(
-                //         height: 40.0,
-                //         width: double.infinity,
-                //         decoration: BoxDecoration(
-                //           color: AppColors.shimmerBaseColor,
-                //         ),
-                //       ))
-                //       : CommonButton(
-                //     text: "search",
-                //     onClick:
-                //     dailyReportsListingController.getDailyReports,
-                //     height: 40,
-                //   ),
-                // ),
-                // Obx(
-                //       () => GridView.builder(
-                //       padding: EdgeInsets.symmetric(vertical: 20),
-                //       shrinkWrap: true,
-                //       physics: const NeverScrollableScrollPhysics(),
-                //       itemCount: dailyReportsListingController
-                //           .areUsersLoading.value ||
-                //           dailyReportsListingController
-                //               .areDailyReportsLoading.value
-                //           ? 10
-                //           : dailyReportsListingController.dailyReports.length,
-                //       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                //           mainAxisSpacing: 20,
-                //           crossAxisSpacing: 20,
-                //           crossAxisCount: 2),
-                //       itemBuilder: (context, index) {
-                //         return dailyReportsListingController
-                //             .areUsersLoading.value ||
-                //             dailyReportsListingController
-                //                 .areDailyReportsLoading.value
-                //             ? DailyReportWidgetShimmer()
-                //             : DailyReportWidget(
-                //           dailyReportData: dailyReportsListingController
-                //               .dailyReports[index] ??
-                //               DailyReport(),
-                //           onTap: dailyReportsListingController
-                //               .handleDailyReportOnTap,
-                //           index: index,
-                //         );
-                //       }),
-                // )
+                Obx(() => assignHoursListingController
+                            .areAssignHoursLoading.value ||
+                        assignHoursListingController.areUsersLoading.value ||
+                        assignHoursListingController.areProjectsLoading.value
+                    ? Shimmer.fromColors(
+                        baseColor: AppColors.shimmerBaseColor,
+                        highlightColor: AppColors.shimmerHighlightColor,
+                        child: Container(
+                          height: 48.0,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: AppColors.shimmerBaseColor,
+                          ),
+                        ))
+                    : CommonDropdownWidget(
+                        maxDropdownHeight: 200,
+                        height: 48,
+                        onChanged: assignHoursListingController.onChangeProject,
+                        items: assignHoursListingController.projects
+                            .map((project) => DropdownMenuItem<ProjectModel>(
+                                  value: project,
+                                  child: Text(
+                                    project != null ? project.name ?? "" : "",
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                            fontSize:
+                                                AppConsts.commonFontSizeFactor *
+                                                    14),
+                                  ),
+                                ))
+                            .toList(),
+                        value: assignHoursListingController.selectedProject,
+                        selectedItemBuilder: (BuildContext context) {
+                          return assignHoursListingController.projects
+                              .map<Widget>((project) {
+                            return Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                project != null && project.name != null
+                                    ? project.name!
+                                    : "",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                        color:
+                                            Colors.black.withValues(alpha: 0.5),
+                                        fontSize:
+                                            AppConsts.commonFontSizeFactor *
+                                                14),
+                              ),
+                            );
+                          }).toList();
+                        },
+                      )),
+                const SizedBox(
+                  height: 8,
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Obx(
+                        () => assignHoursListingController
+                                    .areAssignHoursLoading.value ||
+                                assignHoursListingController
+                                    .areUsersLoading.value ||
+                                assignHoursListingController
+                                    .areProjectsLoading.value
+                            ? Shimmer.fromColors(
+                                baseColor: AppColors.shimmerBaseColor,
+                                highlightColor: AppColors.shimmerHighlightColor,
+                                child: Container(
+                                  height: 48.0,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.shimmerBaseColor,
+                                  ),
+                                ))
+                            : CommonDropdownWidget(
+                                maxDropdownHeight: 200,
+                                height: 48,
+                                onChanged:
+                                    assignHoursListingController.onChangeUser,
+                                items: assignHoursListingController.users
+                                    .map((user) =>
+                                        DropdownMenuItem<EmployeeModel>(
+                                          value: user,
+                                          child: Text(
+                                            user != null ? user.name ?? "" : "",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                    fontSize: AppConsts
+                                                            .commonFontSizeFactor *
+                                                        14),
+                                          ),
+                                        ))
+                                    .toList(),
+                                value:
+                                    assignHoursListingController.selectedUser,
+                                selectedItemBuilder: (BuildContext context) {
+                                  return assignHoursListingController.users
+                                      .map<Widget>((user) {
+                                    return Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        user != null && user.name != null
+                                            ? user.name!
+                                            : "",
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                                color: Colors.black
+                                                    .withValues(alpha: 0.5),
+                                                fontSize: AppConsts
+                                                        .commonFontSizeFactor *
+                                                    14),
+                                      ),
+                                    );
+                                  }).toList();
+                                },
+                              ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 18,
+                    ),
+                    Expanded(
+                      child: Obx(
+                        () => assignHoursListingController
+                                    .areAssignHoursLoading.value ||
+                                assignHoursListingController
+                                    .areUsersLoading.value ||
+                                assignHoursListingController
+                                    .areProjectsLoading.value
+                            ? Shimmer.fromColors(
+                                baseColor: AppColors.shimmerBaseColor,
+                                highlightColor: AppColors.shimmerHighlightColor,
+                                child: Container(
+                                  height: 48.0,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.shimmerBaseColor,
+                                  ),
+                                ))
+                            : CommonDropdownWidget(
+                                maxDropdownHeight: 200,
+                                height: 48,
+                                onChanged:
+                                    assignHoursListingController.onChangeTime,
+                                items: assignHoursListingController.times
+                                    .map((time) => DropdownMenuItem<ValueTime>(
+                                          value: time,
+                                          child: Text(
+                                            time.time,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                    fontSize: AppConsts
+                                                            .commonFontSizeFactor *
+                                                        14),
+                                          ),
+                                        ))
+                                    .toList(),
+                                value:
+                                    assignHoursListingController.selectedTime,
+                                selectedItemBuilder: (BuildContext context) {
+                                  return assignHoursListingController.times
+                                      .map<Widget>((time) {
+                                    return Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        time.time,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                                color: Colors.black
+                                                    .withValues(alpha: 0.5),
+                                                fontSize: AppConsts
+                                                        .commonFontSizeFactor *
+                                                    14),
+                                      ),
+                                    );
+                                  }).toList();
+                                },
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+                Obx(
+                  () => Visibility(
+                    visible: assignHoursListingController.selectedTime.value !=
+                            null &&
+                        assignHoursListingController.selectedTime.value!.time ==
+                            "select_date".tr,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: CommonInputField(
+                              textStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.5),
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 14),
+                              hintStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.1),
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 14),
+                              inputVerticalPadding: 0,
+                              inputHorizontalPadding: 16,
+                              showLabel: false,
+                              controller: assignHoursListingController
+                                  .startDateController,
+                              hint: "start_date",
+                              label: "start_date",
+                              borderWidth: 0,
+                              inputType: TextInputType.datetime,
+                              textInputAction: TextInputAction.done,
+                              fillColor:
+                                  AppColors.colorD9D9D9.withValues(alpha: 0.2),
+                              borderColor: Colors.transparent,
+                              isEnable: false,
+                              onTap: assignHoursListingController
+                                  .handleStartDateFieldOnTap,
+                              onTapFirstArg: context,
+                              errorMaxLines: 2,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 18,
+                          ),
+                          Expanded(
+                            child: CommonInputField(
+                              textStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.5),
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 14),
+                              hintStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.1),
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 14),
+                              inputVerticalPadding: 0,
+                              inputHorizontalPadding: 16,
+                              showLabel: false,
+                              controller: assignHoursListingController
+                                  .endDateController,
+                              hint: "end_date",
+                              label: "end_date",
+                              borderWidth: 0,
+                              inputType: TextInputType.datetime,
+                              textInputAction: TextInputAction.done,
+                              fillColor:
+                                  AppColors.colorD9D9D9.withValues(alpha: 0.2),
+                              borderColor: Colors.transparent,
+                              isEnable: false,
+                              onTap: assignHoursListingController
+                                  .handleEndDateFieldOnTap,
+                              onTapFirstArg: context,
+                              errorMaxLines: 2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(
+                        child: Obx(
+                      () => assignHoursListingController
+                                  .areAssignHoursLoading.value ||
+                              assignHoursListingController
+                                  .areUsersLoading.value ||
+                              assignHoursListingController
+                                  .areProjectsLoading.value
+                          ? CommonButtonShimmer(
+                              borderRadius: 0,
+                              height: 48,
+                            )
+                          : CommonButtonOutline(
+                              text: "reset".tr,
+                              onClick: () {
+                                assignHoursListingController.resetFilters();
+                              },
+                              fontWeight: FontWeight.w600,
+                              height: 48,
+                            ),
+                    )),
+                    const SizedBox(
+                      width: 18,
+                    ),
+                    Expanded(
+                        child: Obx(
+                      () => assignHoursListingController
+                                  .areAssignHoursLoading.value ||
+                              assignHoursListingController
+                                  .areUsersLoading.value ||
+                              assignHoursListingController
+                                  .areProjectsLoading.value
+                          ? CommonButtonShimmer(
+                              borderRadius: 0,
+                              height: 48,
+                            )
+                          : CommonButton(
+                              text: "filter".tr,
+                              onClick: () {
+                                assignHoursListingController.filterData = true;
+                                assignHoursListingController.getAssignHours();
+                              },
+                              fontWeight: FontWeight.w600,
+                              fontSize: AppConsts.commonFontSizeFactor * 16,
+                              height: 48,
+                            ),
+                    ))
+                  ],
+                ),
+                const SizedBox(
+                  height: 32,
+                ),
+                Obx(
+                  () => assignHoursListingController
+                              .areAssignHoursLoading.value ||
+                          assignHoursListingController.areUsersLoading.value ||
+                          assignHoursListingController.areProjectsLoading.value
+                      ? Shimmer.fromColors(
+                          baseColor: AppColors.shimmerBaseColor,
+                          highlightColor: AppColors.shimmerHighlightColor,
+                          child: Container(
+                            height: 94.0,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: AppColors.shimmerBaseColor,
+                            ),
+                          ))
+                      : GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            Get.toNamed(AppRoutes
+                                .routeCreateEditEmployeeAssignedProjectsHours);
+                          },
+                          child: DottedBorder(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            padding: EdgeInsets.zero,
+                            dashPattern: [4],
+                            strokeWidth: 1,
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(vertical: 34),
+                              color: AppColors.colorF7F7F7,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: AppColors.color7E869E
+                                            .withValues(alpha: 0.25)),
+                                    child: Icon(
+                                      Icons.add_rounded,
+                                      color: AppColors.color222222,
+                                      size: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 14,
+                                  ),
+                                  Text(
+                                    "create".tr,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                            fontSize:
+                                                AppConsts.commonFontSizeFactor *
+                                                    18),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                ),
+                Obx(
+                  () => GridView.builder(
+                      padding: EdgeInsets.symmetric(vertical: 32),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: assignHoursListingController
+                                  .areAssignHoursLoading.value ||
+                              assignHoursListingController
+                                  .areUsersLoading.value ||
+                              assignHoursListingController
+                                  .areProjectsLoading.value
+                          ? 10
+                          : assignHoursListingController.assignHoursList.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          mainAxisSpacing: 20,
+                          crossAxisSpacing: 20,
+                          crossAxisCount: 2),
+                      itemBuilder: (context, index) {
+                        return assignHoursListingController
+                                    .areAssignHoursLoading.value ||
+                                assignHoursListingController
+                                    .areUsersLoading.value ||
+                                assignHoursListingController
+                                    .areProjectsLoading.value
+                            ? AssignHourWidgetShimmer()
+                            : AssignHourWidget(
+                                onTap: assignHoursListingController
+                                    .handleAssignHourOnTap,
+                                index: index,
+                                assignHoursData: assignHoursListingController
+                                        .assignHoursList[index] ??
+                                    AssignHours(),
+                              );
+                      }),
+                ),
               ],
             ),
           ),

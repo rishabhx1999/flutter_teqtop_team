@@ -24,4 +24,12 @@ class AppConsts {
   static String keyEmployeeProfilePhoto = 'key_employee_profile_photo';
   static String keyEmployeeName = 'key_employee_name';
   static String keyDailyReportDate = 'key_daily_report_date';
+  static String keyCreatedDateTime = 'key_created_date_time';
+  static String keyModifiedDateTime = 'key_modified_date_time';
+  static String keyEmployeeAssignedProjectsHours =
+      'key_employee_assigned_projects_hours';
+  static String keyEmployeeAssignedProjectsHoursId =
+      'key_employee_assigned_projects_hours_id';
+  static String keyImagesURLS = 'key_images_urls';
+  static String keyIndex = 'key_index';
 }

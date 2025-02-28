@@ -15,6 +15,7 @@ class CommonSearchField extends StatelessWidget {
   final bool? isShowLeading;
   final inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.zero, borderSide: BorderSide.none);
+  final EdgeInsetsGeometry? contentPadding;
 
   CommonSearchField({
     super.key,
@@ -24,6 +25,7 @@ class CommonSearchField extends StatelessWidget {
     this.isShowTrailing,
     this.onTapTrailing,
     this.isShowLeading,
+    this.contentPadding,
   });
 
   @override
@@ -82,7 +84,7 @@ class CommonSearchField extends StatelessWidget {
             focusedErrorBorder: inputBorder,
             errorBorder: inputBorder,
             disabledBorder: inputBorder,
-            contentPadding: EdgeInsets.all(8)),
+            contentPadding: contentPadding ?? EdgeInsets.all(8)),
         cursorColor: AppColors.kPrimaryColor,
         keyboardType: TextInputType.text,
         style: Theme.of(context)

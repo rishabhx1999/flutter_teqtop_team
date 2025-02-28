@@ -4,11 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/model/dashboard/comment_list.dart';
-import 'package:teqtop_team/utils/helpers.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/comment_widget.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/comment_widget_shimmer.dart';
-
-import '../../model/media_content_model.dart';
 
 class PostCommentsBottomSheet {
   static show({
@@ -20,15 +17,16 @@ class PostCommentsBottomSheet {
     required final RxList<CommentList?> comments,
     required ScrollController scrollController,
     required Function(int) handleCommentOnDelete,
-    required Future<List<MediaContentModel>> Function(String)
-        extractCommentItems,
+    required FocusNode createCommentTextFieldFocusNode,
+    required RxBool showCreateCommentWidget,
+    required Function(int, int) handleCommentImageOnTap,
   }) {
-    Helpers.printLog(description: "COMMENT_BOTTOM_SHEET_SHOW_REACHED");
+    // Helpers.printLog(description: "COMMENT_BOTTOM_SHEET_SHOW_REACHED");
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.85),
+            maxHeight: MediaQuery.of(context).size.height * 0.92),
         builder: (context) {
           return PostCommentsBottomSheetContent(
             createCommentWidget: createCommentWidget,
@@ -38,7 +36,9 @@ class PostCommentsBottomSheet {
             comments: comments,
             scrollController: scrollController,
             handleCommentOnDelete: handleCommentOnDelete,
-            extractCommentItems: extractCommentItems,
+            createCommentTextFieldFocusNode: createCommentTextFieldFocusNode,
+            showCreateCommentWidget: showCreateCommentWidget,
+            handleCommentImageOnTap: handleCommentImageOnTap,
           );
         },
         shape: const RoundedRectangleBorder(
@@ -55,7 +55,9 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
   final RxList<CommentList?> comments;
   final ScrollController scrollController;
   final Function(int) handleCommentOnDelete;
-  final Future<List<MediaContentModel>> Function(String) extractCommentItems;
+  final RxBool showCreateCommentWidget;
+  final FocusNode createCommentTextFieldFocusNode;
+  final Function(int, int) handleCommentImageOnTap;
 
   const PostCommentsBottomSheetContent({
     super.key,
@@ -66,7 +68,9 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
     required this.comments,
     required this.scrollController,
     required this.handleCommentOnDelete,
-    required this.extractCommentItems,
+    required this.createCommentTextFieldFocusNode,
+    required this.showCreateCommentWidget,
+    required this.handleCommentImageOnTap,
   });
 
   Future<void> fetchComments() async {
@@ -75,12 +79,14 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Helpers.printLog(description: "POST_COMMENTS_BOTTOM_SHEET_BUILD");
     fetchComments();
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
+        showCreateCommentWidget.value = false;
         for (var comment in comments) {
           if (comment != null) {
             comment.isEditing.value = false;
@@ -140,7 +146,10 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
                             : CommentWidget(
                                 commentData: comments[index] ?? CommentList(),
                                 onTapDelete: handleCommentOnDelete,
-                                extractCommentItems: extractCommentItems,
+                                commentItems: comments[index] == null
+                                    ? []
+                                    : comments[index]!.commentItems,
+                                handleImageOnTap: handleCommentImageOnTap,
                               );
                       },
                       separatorBuilder: (context, index) {
@@ -172,7 +181,32 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
               const SizedBox(
                 height: 16,
               ),
-              createCommentWidget
+              Obx(() => showCreateCommentWidget.value
+                  ? createCommentWidget
+                  : GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        showCreateCommentWidget.value = true;
+                        createCommentTextFieldFocusNode.requestFocus();
+                      },
+                      child: Container(
+                        height: 48,
+                        width: double.infinity,
+                        color: Colors.grey.withValues(alpha: 0.1),
+                        padding: const EdgeInsets.all(10),
+                        child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "create_comment".tr,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                  ),
+                            )),
+                      ),
+                    ))
             ],
           ),
         ),

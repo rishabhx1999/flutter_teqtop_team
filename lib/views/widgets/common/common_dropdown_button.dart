@@ -38,6 +38,7 @@ class CommonDropdownWidget extends StatelessWidget {
       child: DropdownButtonHideUnderline(
         child: Obx(
           () => DropdownButton2(
+            isExpanded: true,
             iconStyleData: IconStyleData(
                 icon: Padding(
                   padding: EdgeInsets.fromLTRB(8, 8, 16, 8),

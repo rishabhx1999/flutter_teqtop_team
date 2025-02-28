@@ -39,7 +39,8 @@ class ProjectDetailController extends GetxController {
   void checkPreviousRoutes() {
     var previousRoute = Get.previousRoute;
     if (previousRoute == AppRoutes.routeNotifications ||
-        previousRoute == AppRoutes.routeLogsListing) {
+        previousRoute == AppRoutes.routeLogsListing ||
+        previousRoute == AppRoutes.routeTaskDetail) {
       shouldClearPreviousRoutes = true;
     }
   }
@@ -90,9 +91,9 @@ class ProjectDetailController extends GetxController {
       Get.toNamed(AppRoutes.routeDriveDetail, arguments: {
         AppConsts.keyDriveURL: projectDetail.value!.drive,
       });
-      Helpers.printLog(
-          description: "PROJECT_DETAIL_CONTROLLER_HANDLE_DRIVE_ON_TAP",
-          message: "DATA_NOT_NULL");
+      // Helpers.printLog(
+      //     description: "PROJECT_DETAIL_CONTROLLER_HANDLE_DRIVE_ON_TAP",
+      //     message: "DATA_NOT_NULL");
     }
   }
 
@@ -113,9 +114,9 @@ class ProjectDetailController extends GetxController {
     try {
       projectsListingController = Get.find<ProjectsListingController>();
     } catch (e) {
-      Helpers.printLog(
-          description: "PROJECT_DETAIL_CONTROLLER_REFRESH_PREVIOUS_PAGE_DATA",
-          message: "COULD_NOT_FIND_PROJECTS_LISTING_CONTROLLER");
+      // Helpers.printLog(
+      //     description: "PROJECT_DETAIL_CONTROLLER_REFRESH_PREVIOUS_PAGE_DATA",
+      //     message: "COULD_NOT_FIND_PROJECTS_LISTING_CONTROLLER");
     }
     if (projectsListingController != null) {
       projectsListingController.getProjects();
@@ -124,9 +125,9 @@ class ProjectDetailController extends GetxController {
     try {
       globalSearchController = Get.find<GlobalSearchController>();
     } catch (e) {
-      Helpers.printLog(
-          description: "PROJECT_DETAIL_CONTROLLER_REFRESH_PREVIOUS_PAGE_DATA",
-          message: "COULD_NOT_FIND_GLOBAL_SEARCH_CONTROLLER");
+      // Helpers.printLog(
+      //     description: "PROJECT_DETAIL_CONTROLLER_REFRESH_PREVIOUS_PAGE_DATA",
+      //     message: "COULD_NOT_FIND_GLOBAL_SEARCH_CONTROLLER");
     }
     if (globalSearchController != null) {
       globalSearchController.searchGlobally();

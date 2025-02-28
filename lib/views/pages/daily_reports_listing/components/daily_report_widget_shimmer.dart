@@ -20,8 +20,8 @@ class DailyReportWidgetShimmer extends StatelessWidget {
               baseColor: AppColors.shimmerBaseColor,
               highlightColor: AppColors.shimmerHighlightColor,
               child: Container(
-                width: 76,
-                height: 76,
+                width: 68,
+                height: 68,
                 decoration: BoxDecoration(
                     color: AppColors.shimmerBaseColor, shape: BoxShape.circle),
               )),

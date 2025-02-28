@@ -2,31 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/model/dashboard/comment_list.dart';
-import 'package:teqtop_team/utils/helpers.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/comment_widget.dart';
 
-import '../../model/media_content_model.dart';
 import '../pages/dashboard/components/comment_widget_shimmer.dart';
 
 class TaskCommentsBottomSheet {
-  static show(
-      {required BuildContext context,
-      required Widget createCommentWidget,
-      required RxInt commentCount,
-      required RxBool areCommentsLoading,
-      required final RxList<CommentList?> comments,
-      required ScrollController scrollController,
-      required Function(int) handleCommentOnEdit,
-      required Function(int) handleCommentOnDelete,
-      required Future<List<MediaContentModel>> Function(String)
-          extractCommentItems}) {
-    Helpers.printLog(description: "COMMENT_BOTTOM_SHEET_SHOW_REACHED");
+  static show({
+    required BuildContext context,
+    required Widget createCommentWidget,
+    required RxInt commentCount,
+    required RxBool areCommentsLoading,
+    required final RxList<CommentList?> comments,
+    required ScrollController scrollController,
+    required Function(int) handleCommentOnEdit,
+    required Function(int) handleCommentOnDelete,
+    required FocusNode createCommentTextFieldFocusNode,
+    required RxBool showCreateCommentWidget,
+    required Function(int, int) handleCommentImageOnTap,
+  }) {
+    // Helpers.printLog(description: "COMMENT_BOTTOM_SHEET_SHOW_REACHED");
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.85),
+            maxHeight: MediaQuery.of(context).size.height * 0.92),
         builder: (context) {
+          // Helpers.printLog(
+          //     description: "TASK_COMMENTS_BOTTOM_SHEET_SHOW_MODAL_BOTTOM_SHEET",
+          //     message: "CURRENT_ROUTE = ${Get.currentRoute}");
           return TaskCommentsBottomSheetContent(
             createCommentWidget: createCommentWidget,
             comments: comments,
@@ -35,7 +38,9 @@ class TaskCommentsBottomSheet {
             scrollController: scrollController,
             handleCommentOnEdit: handleCommentOnEdit,
             handleCommentOnDelete: handleCommentOnDelete,
-            extractCommentItems: extractCommentItems,
+            createCommentTextFieldFocusNode: createCommentTextFieldFocusNode,
+            showCreateCommentWidget: showCreateCommentWidget,
+            handleCommentImageOnTap: handleCommentImageOnTap,
           );
         },
         shape: const RoundedRectangleBorder(
@@ -52,7 +57,9 @@ class TaskCommentsBottomSheetContent extends StatelessWidget {
   final ScrollController scrollController;
   final Function(int) handleCommentOnEdit;
   final Function(int) handleCommentOnDelete;
-  final Future<List<MediaContentModel>> Function(String) extractCommentItems;
+  final RxBool showCreateCommentWidget;
+  final FocusNode createCommentTextFieldFocusNode;
+  final Function(int, int) handleCommentImageOnTap;
 
   const TaskCommentsBottomSheetContent({
     super.key,
@@ -63,15 +70,21 @@ class TaskCommentsBottomSheetContent extends StatelessWidget {
     required this.scrollController,
     required this.handleCommentOnEdit,
     required this.handleCommentOnDelete,
-    required this.extractCommentItems,
+    required this.createCommentTextFieldFocusNode,
+    required this.showCreateCommentWidget,
+    required this.handleCommentImageOnTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Helpers.printLog(
+    //     description: "TASK_COMMENTS_BOTTOM_SHEET_BUILD",
+    //     message: "CURRENT_ROUTE = ${Get.currentRoute}");
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
+        showCreateCommentWidget.value = false;
         for (var comment in comments) {
           if (comment != null) {
             comment.isEditing.value = false;
@@ -132,7 +145,10 @@ class TaskCommentsBottomSheetContent extends StatelessWidget {
                                 commentData: comments[index] ?? CommentList(),
                                 onTapEdit: handleCommentOnEdit,
                                 onTapDelete: handleCommentOnDelete,
-                                extractCommentItems: extractCommentItems,
+                                commentItems: comments[index] == null
+                                    ? []
+                                    : comments[index]!.commentItems,
+                                handleImageOnTap: handleCommentImageOnTap,
                               );
                       },
                       separatorBuilder: (context, index) {
@@ -164,7 +180,32 @@ class TaskCommentsBottomSheetContent extends StatelessWidget {
               const SizedBox(
                 height: 16,
               ),
-              createCommentWidget
+              Obx(() => showCreateCommentWidget.value
+                  ? createCommentWidget
+                  : GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        showCreateCommentWidget.value = true;
+                        createCommentTextFieldFocusNode.requestFocus();
+                      },
+                      child: Container(
+                        height: 48,
+                        width: double.infinity,
+                        color: Colors.grey.withValues(alpha: 0.1),
+                        padding: const EdgeInsets.all(10),
+                        child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "create_comment".tr,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                  ),
+                            )),
+                      ),
+                    ))
             ],
           ),
         ),

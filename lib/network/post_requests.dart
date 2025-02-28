@@ -1,3 +1,4 @@
+import 'package:teqtop_team/model/create_edit_employee_assigned_projects_hours/create_employee_assigned_projects_hours_res_model.dart';
 import 'package:teqtop_team/model/dashboard/create_comment_res_model.dart';
 import 'package:teqtop_team/model/dashboard/delete_post_comment_res_model.dart';
 import 'package:teqtop_team/model/dashboard/edit_post_res_model.dart';
@@ -9,6 +10,7 @@ import 'package:teqtop_team/model/dashboard/upload_file_res_model.dart';
 import 'package:teqtop_team/model/drive_detail/add_drive_files_res_model.dart';
 import 'package:teqtop_team/model/drive_detail/create_drive_folder_res_model.dart';
 import 'package:teqtop_team/model/edit_profile/edit_profile_res_model.dart';
+import 'package:teqtop_team/model/employee_assigned_projects_hours/play_pause_project_res_model.dart';
 import 'package:teqtop_team/model/login/login_res_model.dart';
 import 'package:teqtop_team/model/project_create_edit/create_project_res_model.dart';
 import 'package:teqtop_team/model/project_detail/delete_project_res_model.dart';
@@ -30,7 +32,7 @@ class PostRequests {
 
   static Future<LoginResModel?> loginUser(
       Map<String, dynamic> requestBody) async {
-    Helpers.printLog(description: "POST_REQUESTS_LOGIN_USER_REACHED");
+    // Helpers.printLog(description: "POST_REQUESTS_LOGIN_USER_REACHED");
     var apiResponse = await RemoteService.simplePost(ApiUrls.login,
         headers: {
           "Accept": "application/json",
@@ -166,7 +168,7 @@ class PostRequests {
 
   static Future<CreateProjectResModel?> createProject(
       Map<String, dynamic> requestBody) async {
-    Helpers.printLog(description: "POST_REQUESTS_CREATE_PROJECT_REACHED");
+    // Helpers.printLog(description: "POST_REQUESTS_CREATE_PROJECT_REACHED");
     var apiResponse = await RemoteService.simplePost(
       ApiUrls.projects,
       headers: {
@@ -185,7 +187,7 @@ class PostRequests {
 
   static Future<CreateTaskResModel?> createTask(
       Map<String, dynamic> requestBody) async {
-    Helpers.printLog(description: "POST_REQUESTS_CREATE_TASK_REACHED");
+    // Helpers.printLog(description: "POST_REQUESTS_CREATE_TASK_REACHED");
     var apiResponse = await RemoteService.simplePost(
       ApiUrls.tasksAdd,
       headers: {
@@ -253,7 +255,7 @@ class PostRequests {
 
   static Future<EditTaskResModel?> editTask(
       Map<String, dynamic> requestBody) async {
-    Helpers.printLog(description: "POST_REQUESTS_EDIT_TASK_REACHED");
+    // Helpers.printLog(description: "POST_REQUESTS_EDIT_TASK_REACHED");
     var apiResponse = await RemoteService.simplePostWithQueries(
       ApiUrls.tasksUpdate,
       headers: {
@@ -272,7 +274,7 @@ class PostRequests {
 
   static Future<EditTaskCommentResModel?> editTaskComment(
       Map<String, dynamic> requestBody) async {
-    Helpers.printLog(description: "POST_REQUESTS_EDIT_TASK_COMMENT_REACHED");
+    // Helpers.printLog(description: "POST_REQUESTS_EDIT_TASK_COMMENT_REACHED");
     var apiResponse = await RemoteService.simplePostWithQueries(
       ApiUrls.commentUpdate,
       headers: {
@@ -307,6 +309,24 @@ class PostRequests {
     }
   }
 
+  static Future<PlayPauseProjectResModel?> playPauseProject(
+      Map<String, dynamic> requestBody) async {
+    var apiResponse = await RemoteService.simplePostWithQueries(
+      ApiUrls.weeklyHoursPause,
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=utf-8"
+      },
+      requestBody: requestBody,
+    );
+
+    if (apiResponse != null) {
+      return playPauseProjectResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
   static Future<DeletePostCommentResModel?> deletePostComment(
       Map<String, dynamic> requestBody) async {
     var apiResponse = await RemoteService.simplePostWithQueries(
@@ -320,6 +340,26 @@ class PostRequests {
 
     if (apiResponse != null) {
       return deletePostCommentResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<CreateEmployeeAssignedProjectsHoursResModel?>
+      createEmployeeAssignedProjectsHours(
+          Map<String, dynamic> requestBody) async {
+    var apiResponse = await RemoteService.simplePostWithQueries(
+      ApiUrls.weeklyHoursAdd,
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=utf-8"
+      },
+      requestBody: requestBody,
+    );
+
+    if (apiResponse != null) {
+      return createEmployeeAssignedProjectsHoursResModelFromJson(
+          apiResponse.response!);
     } else {
       return null;
     }
@@ -345,7 +385,7 @@ class PostRequests {
 
   static Future<TaskCommentsResModel?> getTaskComments(
       Map<String, dynamic> requestBody) async {
-    Helpers.printLog(description: "POST_REQUESTS_GET_TASK_COMMENTS_REACHED");
+    // Helpers.printLog(description: "POST_REQUESTS_GET_TASK_COMMENTS_REACHED");
     var apiResponse = await RemoteService.simplePost(
       ApiUrls.commentMore,
       headers: {
@@ -364,7 +404,7 @@ class PostRequests {
 
   static Future<CreateTaskCommentResModel?> createTaskComment(
       Map<String, dynamic> requestBody) async {
-    Helpers.printLog(description: "POST_REQUESTS_CREATE_TASK_COMMENT_REACHED");
+    // Helpers.printLog(description: "POST_REQUESTS_CREATE_TASK_COMMENT_REACHED");
     var apiResponse = await RemoteService.simplePost(
       ApiUrls.commentAdd,
       headers: {
@@ -383,7 +423,7 @@ class PostRequests {
 
   static Future<CreateDriveFolderResModel?> createDriveFolder(
       Map<String, dynamic> requestBody) async {
-    Helpers.printLog(description: "POST_REQUESTS_CREATE_DRIVE_FOLDER_REACHED");
+    // Helpers.printLog(description: "POST_REQUESTS_CREATE_DRIVE_FOLDER_REACHED");
     var apiResponse = await RemoteService.simplePost(
       ApiUrls.drivesFolderAdd,
       headers: {

@@ -11,15 +11,18 @@ import 'package:teqtop_team/config/size_config.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/utils/preference_manager.dart';
 import 'package:teqtop_team/views/pages/assign_hours_listing/assign_hours_listing_page.dart';
+import 'package:teqtop_team/views/pages/create_edit_employee_assigned_projects_hours/create_edit_employee_assigned_projects_hours_page.dart';
 import 'package:teqtop_team/views/pages/daily_reports_listing/daily_reports_listing_page.dart';
 import 'package:teqtop_team/views/pages/dashboard/dashboard_page.dart';
 import 'package:teqtop_team/views/pages/drive_detail/drive_detail_page.dart';
 import 'package:teqtop_team/views/pages/edit_employee_information/edit_employee_information_page.dart';
 import 'package:teqtop_team/views/pages/edit_profile/edit_profile_page.dart';
+import 'package:teqtop_team/views/pages/employee_assigned_projects_hours/employee_assigned_projects_hours_page.dart';
 import 'package:teqtop_team/views/pages/employee_daily_reports/employee_daily_reports_page.dart';
 import 'package:teqtop_team/views/pages/employee_detail/employee_detail_page.dart';
 import 'package:teqtop_team/views/pages/employees_listing/employees_listing_page.dart';
 import 'package:teqtop_team/views/pages/folder_detail/folder_detail_page.dart';
+import 'package:teqtop_team/views/pages/gallery/gallery_page.dart';
 import 'package:teqtop_team/views/pages/global_search/global_search_page.dart';
 import 'package:teqtop_team/views/pages/leaves_listing/leaves_listing_page.dart';
 import 'package:teqtop_team/views/pages/login/login_page.dart';
@@ -160,6 +163,14 @@ class MyApp extends StatelessWidget {
                 GetPage(
                   name: AppRoutes.routeAssignHoursListing,
                   page: () => AssignHoursListingPage(),
+                ),
+                GetPage(
+                  name: AppRoutes.routeEmployeeAssignedProjectsHours,
+                  page: () => EmployeeAssignedProjectsHoursPage(),
+                ),
+                GetPage(
+                  name: AppRoutes.routeGallery,
+                  page: () => GalleryPage(),
                 ),
               ],
               navigatorObservers: [AppRouteObserver()],

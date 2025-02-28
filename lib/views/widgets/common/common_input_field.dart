@@ -28,6 +28,9 @@ class CommonInputField extends StatelessWidget {
   final Color? borderColor;
   final Widget? trailing;
   final bool? blurField;
+  final bool? showLabel;
+  final TextStyle? textStyle;
+  final TextStyle? hintStyle;
 
   const CommonInputField({
     super.key,
@@ -54,6 +57,9 @@ class CommonInputField extends StatelessWidget {
     this.trailing,
     this.onTapFirstArg,
     this.blurField,
+    this.showLabel = true,
+    this.textStyle,
+    this.hintStyle,
   });
 
   @override
@@ -73,15 +79,18 @@ class CommonInputField extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label.tr.toUpperCase(),
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(fontSize: AppConsts.commonFontSizeFactor * 14),
-        ),
-        const SizedBox(
-          height: 8,
+        Visibility(
+          visible: showLabel ?? true,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              label.tr.toUpperCase(),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(fontSize: AppConsts.commonFontSizeFactor * 14),
+            ),
+          ),
         ),
         Stack(
           children: [
@@ -94,7 +103,7 @@ class CommonInputField extends StatelessWidget {
                 enabled: isEnable ?? true,
                 controller: controller,
                 maxLines: maxLines ?? 1,
-                style: Theme.of(context).textTheme.bodyLarge,
+                style: textStyle ?? Theme.of(context).textTheme.bodyLarge,
                 keyboardType: inputType ?? TextInputType.name,
                 cursorColor: Colors.black,
                 textCapitalization:
@@ -102,10 +111,11 @@ class CommonInputField extends StatelessWidget {
                 decoration: InputDecoration(
                     hintText: (showFloatingLabel ?? false) ? '' : hint.tr,
                     enabled: isEnable ?? true,
-                    hintStyle: Theme.of(context)
-                        .textTheme
-                        .bodyLarge
-                        ?.copyWith(color: AppColors.colorA9A9A9),
+                    hintStyle: hintStyle ??
+                        Theme.of(context)
+                            .textTheme
+                            .bodyLarge
+                            ?.copyWith(color: AppColors.colorA9A9A9),
                     suffixIcon: trailing,
                     fillColor: fillColor ?? Colors.white,
                     filled: true,

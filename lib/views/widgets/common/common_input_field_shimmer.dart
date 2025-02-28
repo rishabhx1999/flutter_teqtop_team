@@ -5,11 +5,13 @@ import 'package:teqtop_team/config/app_colors.dart';
 class CommonInputFieldShimmer extends StatelessWidget {
   final double? labelShimmerBorderRadius;
   final double? textFieldShimmerHeight;
+  final bool? showLabelShimmer;
 
   const CommonInputFieldShimmer({
     super.key,
     this.labelShimmerBorderRadius,
     this.textFieldShimmerHeight,
+    this.showLabelShimmer,
   });
 
   @override
@@ -18,20 +20,21 @@ class CommonInputFieldShimmer extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Shimmer.fromColors(
-            baseColor: AppColors.shimmerBaseColor,
-            highlightColor: AppColors.shimmerHighlightColor,
-            child: Container(
-              height: 20,
-              width: 60,
-              decoration: BoxDecoration(
-                borderRadius:
-                    BorderRadius.circular(labelShimmerBorderRadius ?? 3),
-                color: AppColors.shimmerBaseColor,
-              ),
-            )),
-        const SizedBox(
-          height: 8,
+        Visibility(
+          visible: showLabelShimmer ?? true,
+          child: Shimmer.fromColors(
+              baseColor: AppColors.shimmerBaseColor,
+              highlightColor: AppColors.shimmerHighlightColor,
+              child: Container(
+                height: 20,
+                width: 60,
+                margin: EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  borderRadius:
+                      BorderRadius.circular(labelShimmerBorderRadius ?? 3),
+                  color: AppColors.shimmerBaseColor,
+                ),
+              )),
         ),
         Shimmer.fromColors(
             baseColor: AppColors.shimmerBaseColor,

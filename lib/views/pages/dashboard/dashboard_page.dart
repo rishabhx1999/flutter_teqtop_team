@@ -10,7 +10,6 @@ import 'package:teqtop_team/controllers/dashboard/dashboard_controller.dart';
 import 'package:teqtop_team/model/dashboard/comment_list.dart';
 import 'package:teqtop_team/views/bottom_sheets/post_comments_bottom_sheet.dart';
 import 'package:teqtop_team/views/widgets/common/common_multimedia_content_create_widget.dart';
-import 'package:teqtop_team/views/pages/dashboard/components/create_post_widget.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/menu_drawer_widget.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/post_widget.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/post_widget_shimmer.dart';
@@ -178,35 +177,34 @@ class DashboardPage extends StatelessWidget {
                     const SizedBox(
                       height: 16,
                     ),
-                    CreatePostWidget(
-                      textFieldController:
+                    CommonMultimediaContentCreateWidget(
+                      textController:
                           dashboardController.createPostTextController,
-                      onTextChange:
-                          dashboardController.handleCreatePostTextChange,
-                      isPostButtonEnable:
-                          dashboardController.isPostButtonEnable,
-                      onCameraTap: dashboardController.clickImage,
-                      selectedImages: dashboardController.selectedImages,
-                      removeSelectedImage:
-                          dashboardController.removeSelectedImage,
-                      onImageTap: dashboardController.pickImages,
-                      selectedDocuments: dashboardController.selectedDocuments,
-                      onDocumentTap: dashboardController.pickDocuments,
-                      removeSelectedDocument:
-                          dashboardController.removeSelectedDocument,
-                      createPost: dashboardController.createPost,
-                      isPostCreating: dashboardController.isPostCreating,
-                      editPostPreviousDocuments:
-                          dashboardController.editPostPreviousDocuments,
-                      editPostPreviousImages:
-                          dashboardController.editPostPreviousImages,
-                      isEditPost: dashboardController.isEditPost,
-                      removeEditPostPreviousImage:
-                          dashboardController.removeEditPostPreviousImage,
-                      removeEditPostPreviousDocument:
-                          dashboardController.removeEditPostPreviousDocument,
-                      editPost: dashboardController.editPost,
-                      isPostEditing: dashboardController.isPostEditing,
+                      hint: 'enter_text'.tr,
+                      createComment: dashboardController.createPost,
+                      isEditingComment: dashboardController.isEditPost,
+                      editComment: dashboardController.editPost,
+                      isTextFieldEmpty:
+                          dashboardController.isPostFieldTextEmpty,
+                      onTextChanged: dashboardController.onPostFieldTextChange,
+                      contentItems: dashboardController.postFieldContent,
+                      clickImage: dashboardController.clickImage,
+                      pickImages: dashboardController.pickImages,
+                      addText: dashboardController.addTextInPostContent,
+                      removeContentItem:
+                          dashboardController.removePostContentItem,
+                      addContentAfter: dashboardController
+                          .initializeAddingInBetweenPostContent,
+                      pickFiles: dashboardController.pickDocuments,
+                      editText: dashboardController.editPostContentText,
+                      showCreateEditButton: true,
+                      showShadow: true,
+                      borderRadius: BorderRadius.circular(10),
+                      backgroundColor: Colors.white,
+                      textFieldBackgroundColor:
+                          Colors.grey.withValues(alpha: 0.1),
+                      isCreateOrEditLoading:
+                          dashboardController.isPostCreateEditLoading,
                     ),
                     Obx(
                       () => ListView.separated(
@@ -217,6 +215,8 @@ class DashboardPage extends StatelessWidget {
                             return dashboardController.arePostsLoading.value
                                 ? PostWidgetShimmer()
                                 : PostWidget(
+                                    handleImageOnTap:
+                                        dashboardController.onTapPostImage,
                                     commentOnTap: () {
                                       dashboardController
                                           .currentCommentsPostID = null;
@@ -247,18 +247,33 @@ class DashboardPage extends StatelessWidget {
                                             : 0;
                                       }
                                       dashboardController
-                                          .singlePostCommentsPage = 1;
-                                      dashboardController
                                               .commentFieldContentItemsInsertAfterIndex =
                                           null;
                                       dashboardController
                                           .commentFieldContentEditIndex = null;
                                       dashboardController.commentFieldContent
                                           .clear();
+                                      if (dashboardController
+                                              .commentFieldTextFocusNode !=
+                                          null) {
+                                        dashboardController
+                                            .commentFieldTextFocusNode!
+                                            .dispose();
+                                        dashboardController
+                                            .commentFieldTextFocusNode = null;
+                                      }
+                                      dashboardController
+                                              .commentFieldTextFocusNode =
+                                          FocusNode();
+                                      dashboardController
+                                          .showCreateCommentWidget
+                                          .value = false;
                                       PostCommentsBottomSheet.show(
                                         context: context,
                                         createCommentWidget:
                                             CommonMultimediaContentCreateWidget(
+                                          focusNode: dashboardController
+                                              .commentFieldTextFocusNode,
                                           textController: dashboardController
                                               .commentFieldTextController,
                                           hint: 'enter_text'.tr,
@@ -309,31 +324,30 @@ class DashboardPage extends StatelessWidget {
                                         handleCommentOnDelete:
                                             dashboardController
                                                 .handleCommentOnDelete,
-                                        extractCommentItems: dashboardController
-                                            .convertHTMLToCommentContent,
+                                        createCommentTextFieldFocusNode:
+                                            dashboardController
+                                                .commentFieldTextFocusNode!,
+                                        showCreateCommentWidget:
+                                            dashboardController
+                                                .showCreateCommentWidget,
+                                        handleCommentImageOnTap:
+                                            dashboardController
+                                                .onTapCommentImage,
                                       );
                                     },
                                     postData:
                                         dashboardController.posts[index] ??
                                             FeedModel(),
                                     toggleLike: dashboardController.toggleLike,
-                                    images:
-                                        dashboardController.posts[index] != null
-                                            ? dashboardController.getPostImages(
-                                                dashboardController
-                                                    .posts[index]!.id)
-                                            : null,
-                                    documents:
-                                        dashboardController.posts[index] != null
-                                            ? dashboardController
-                                                .getPostDocuments(
-                                                    dashboardController
-                                                        .posts[index]!.id)
-                                            : null,
                                     handleOnTapDelete:
                                         dashboardController.onTapPostDelete,
                                     handleOnTapEdit:
                                         dashboardController.onTapPostEdit,
+                                    postItems:
+                                        dashboardController.posts[index] == null
+                                            ? []
+                                            : dashboardController
+                                                .posts[index]!.feedItems,
                                   );
                           },
                           separatorBuilder: (context, index) {
@@ -344,6 +358,25 @@ class DashboardPage extends StatelessWidget {
                           itemCount: dashboardController.arePostsLoading.value
                               ? 5
                               : dashboardController.posts.length),
+                    ),
+                    Obx(
+                      () => Visibility(
+                        visible: dashboardController.posts.isNotEmpty &&
+                            dashboardController.areMorePostsLoading.value,
+                        child: ListView.separated(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              return PostWidgetShimmer();
+                            },
+                            separatorBuilder: (context, index) {
+                              return const SizedBox(
+                                height: 16,
+                              );
+                            },
+                            itemCount: 5),
+                      ),
                     )
                   ],
                 ),

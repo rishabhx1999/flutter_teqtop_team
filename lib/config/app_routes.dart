@@ -23,8 +23,12 @@ class AppRoutes {
   static const String routeLeavesListing = "/route_leaves_listing";
   static const String routeLogsListing = "/route_logs_listing";
   static const String routeFolderDetail = "/route_folder_detail";
+  static const String routeGallery= "/route_gallery";
   static const String routeEditEmployeeInformation =
       "/route_edit_employee_information";
-  static const String routeAssignHoursListing =
-      "/route_assign_hours_listing";
+  static const String routeAssignHoursListing = "/route_assign_hours_listing";
+  static const String routeEmployeeAssignedProjectsHours =
+      "/route_employee_assigned_projects_hours";
+  static const String routeCreateEditEmployeeAssignedProjectsHours =
+      "/route_create_edit_employee_assigned_projects_hours";
 }

@@ -79,6 +79,7 @@ class LocalStrings extends Translations {
           'current_week': 'Current week',
           'current_month': 'Current month',
           'last_month': 'Last month',
+          'select_date': 'Select date',
           'total_hours': 'Total hours',
           'search_projects': 'Search projects',
           'create_a_project': 'Create a project',
@@ -124,6 +125,7 @@ class LocalStrings extends Translations {
           'observers': 'Observers',
           'choose_observers': 'Choose observers',
           'mm_dd_yy': 'mm/dd/yy',
+          'yyyy_mm_dd': 'yyyy-mm-dd',
           'start_date': 'Start Date',
           'end_date': 'End Date',
           'created_by': 'Created by',
@@ -148,18 +150,31 @@ class LocalStrings extends Translations {
           'text': 'text...',
           'enter_text': 'Enter text',
           'assign_hours': 'Assign Hours',
+          'reset': 'Reset',
+          'filter': 'Filter',
+          'assigned_detail': 'Assigned Detail',
+          'modified': 'Modified',
+          'create_comment': 'Create comment',
+          'assigned_hours': 'Assigned hours',
+          'weekly_hours': 'Weekly hours',
+          'edit_hours': 'Edit Hours',
+          'add_remove_projects': 'Add/remove project(s)',
+          'update': 'Update',
 
           //
           'error': 'Error',
           'success': 'Success',
           'message_adding_content_in_between': 'Adding in between',
           'message_enter_email': 'Please enter your email address',
+          'message_enter_assign_hours': 'Please enter assign hours',
           'message_enter_folder_name': 'Please enter your folder name',
           'message_enter_role': 'Please enter role',
           'message_enter_position': 'Please enter position',
           'message_enter_employee_id': 'Please enter employee ID',
           'message_enter_password': 'Please enter your password',
           'message_server_error': 'Getting server error. Please try again!',
+          'message_assign_project': 'Please assign project(s)',
+          'message_select_user': 'Please select user',
           'go_to_settings':
               'Please go to settings to allow permissions manually',
           'message_delete_post_take_confirmation':
@@ -170,6 +185,8 @@ class LocalStrings extends Translations {
               'Are you sure you want to delete this comment?',
           'message_task_delete_confirmation':
               'Are you sure you want to delete this task?',
+          'message_delete_confirmation':
+              'Are you sure you want to delete this?',
           'message_project_delete_confirmation':
               'Are you sure you want to delete this project?',
           'message_enter_name': 'Please enter your name',
@@ -209,6 +226,7 @@ class LocalStrings extends Translations {
           'message_enter_start_date': 'Please enter start date',
           'message_enter_end_date': 'Please enter end date',
           'message_logout': 'Are you sure you want to log Out?',
+          'message_pause_project': 'Are you want to pause this project',
         }
       };
 }

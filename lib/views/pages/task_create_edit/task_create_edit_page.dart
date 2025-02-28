@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -953,7 +951,7 @@ class TaskCreateEditPage extends StatelessWidget {
                             taskCreateEditController.areEmployeesLoading.value
                         ? CommonInputFieldShimmer(
                             labelShimmerBorderRadius: 0,
-                            textFieldShimmerHeight: 250,
+                            textFieldShimmerHeight: 300,
                           )
                         : CommonMultimediaContentCreateWidget(
                             textController: taskCreateEditController
@@ -1334,24 +1332,34 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController
-                                .areEmployeesLoading.value ||
-                            taskCreateEditController.isLoading.value
+                            taskCreateEditController.areEmployeesLoading.value
                         ? CommonButtonShimmer(
                             borderRadius: 0,
                           )
-                        : CommonButton(
-                            text: taskCreateEditController.fromTaskDetail.value
-                                ? 'save'
-                                : 'create_task',
-                            onClick: () {
-                              if (taskCreateEditController
-                                  .fromTaskDetail.value) {
-                                taskCreateEditController.editTask();
-                              } else {
-                                taskCreateEditController.createTask();
-                              }
-                            }),
+                        : taskCreateEditController.isLoading.value
+                            ? Center(
+                                child: Container(
+                                  height: 51,
+                                  width: 51,
+                                  padding: EdgeInsets.all(8),
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.kPrimaryColor,
+                                  ),
+                                ),
+                              )
+                            : CommonButton(
+                                text: taskCreateEditController
+                                        .fromTaskDetail.value
+                                    ? 'save'
+                                    : 'create_task',
+                                onClick: () {
+                                  if (taskCreateEditController
+                                      .fromTaskDetail.value) {
+                                    taskCreateEditController.editTask();
+                                  } else {
+                                    taskCreateEditController.createTask();
+                                  }
+                                }),
                   ),
                   const SizedBox(
                     height: 44,

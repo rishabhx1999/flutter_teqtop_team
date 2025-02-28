@@ -28,6 +28,7 @@ class AppIcons {
   static const String icDownload = "assets/icons/ic_download.svg";
   static const String icDropdown = "assets/icons/ic_dropdown.svg";
   static const String icDropdown2 = "assets/icons/ic_dropdown_2.svg";
+  static const String icDropdownWhite = "assets/icons/ic_dropdown_white.svg";
   static const String icEdit = "assets/icons/ic_edit.svg";
   static const String icTask = "assets/icons/ic_task.svg";
   static const String icDrive = "assets/icons/ic_drive.svg";

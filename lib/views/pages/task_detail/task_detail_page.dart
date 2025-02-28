@@ -15,6 +15,7 @@ import '../../../config/app_routes.dart';
 import '../../../consts/app_icons.dart';
 import '../../bottom_sheets/task_comments_bottom_sheet.dart';
 import '../../widgets/common/common_button.dart';
+import '../../widgets/common/common_button_shimmer.dart';
 import '../../widgets/common/common_multimedia_content_create_widget.dart';
 
 class TaskDetailPage extends StatelessWidget {
@@ -22,16 +23,11 @@ class TaskDetailPage extends StatelessWidget {
 
   TaskDetailPage({super.key});
 
-  void openComments(BuildContext context) async {}
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.white));
-
-    Future.delayed(const Duration(milliseconds: 800), () {
-      // openComments(context);
-    });
+    taskDetailController.taskDetailPageContext = context;
 
     return Scaffold(
       key: taskDetailController.scaffoldKey,
@@ -179,7 +175,7 @@ class TaskDetailPage extends StatelessWidget {
             padding: const EdgeInsets.only(right: 8),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () {},
+              onTap: taskDetailController.handleKeyOnTap,
               child: Container(
                 height: 28,
                 width: 28,
@@ -397,16 +393,182 @@ class TaskDetailPage extends StatelessWidget {
                                       color: AppColors.shimmerBaseColor,
                                     ),
                                   ))
-                              : Text(
-                                  taskDetailController.taskDetail.value != null
-                                      ? Helpers.formatHtmlParagraphs(
-                                          taskDetailController.taskDetail.value!
-                                                  .description ??
-                                              "")
-                                      : "",
-                                  textAlign: TextAlign.start,
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
+                              : ListView.separated(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, index) {
+                                    return taskDetailController
+                                                .descriptionItems[index].text !=
+                                            null
+                                        ? SelectableText(
+                                            taskDetailController
+                                                .descriptionItems[index].text!,
+                                            textAlign: TextAlign.start,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium,
+                                          )
+                                        : taskDetailController
+                                                        .descriptionItems[index]
+                                                        .imageString !=
+                                                    null &&
+                                                taskDetailController
+                                                        .descriptionItems[index]
+                                                        .downloadedImage !=
+                                                    null
+                                            ? GestureDetector(
+                                                behavior:
+                                                    HitTestBehavior.opaque,
+                                                onTap: () {
+                                                  taskDetailController
+                                                      .onTapDescriptionImage(
+                                                          index);
+                                                },
+                                                child: Image.file(
+                                                  taskDetailController
+                                                      .descriptionItems[index]
+                                                      .downloadedImage!,
+                                                  height: 250,
+                                                  fit: BoxFit.contain,
+                                                ),
+                                              )
+                                            : taskDetailController
+                                                        .descriptionItems[index]
+                                                        .fileString !=
+                                                    null
+                                                ? GestureDetector(
+                                                    behavior:
+                                                        HitTestBehavior.opaque,
+                                                    onTap: () async {
+                                                      if (taskDetailController
+                                                          .descriptionItems[
+                                                              index]
+                                                          .fileString!
+                                                          .isNotEmpty) {
+                                                        taskDetailController
+                                                            .descriptionItems[
+                                                                index]
+                                                            .isFileLoading
+                                                            .value = true;
+                                                        taskDetailController
+                                                            .descriptionItems[
+                                                                index]
+                                                            .isFileLoading
+                                                            .refresh();
+                                                        await Helpers.openFile(
+                                                            path: taskDetailController
+                                                                .descriptionItems[
+                                                                    index]
+                                                                .fileString!,
+                                                            fileName:
+                                                                taskDetailController
+                                                                    .descriptionItems[
+                                                                        index]
+                                                                    .fileString!
+                                                                    .split("/")
+                                                                    .last);
+                                                        taskDetailController
+                                                            .descriptionItems[
+                                                                index]
+                                                            .isFileLoading
+                                                            .value = false;
+                                                        taskDetailController
+                                                            .descriptionItems[
+                                                                index]
+                                                            .isFileLoading
+                                                            .refresh();
+                                                      }
+                                                    },
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.fromLTRB(
+                                                              14, 10, 10, 10),
+                                                      width: double.infinity,
+                                                      decoration: BoxDecoration(
+                                                          color: AppColors
+                                                              .kPrimaryColor
+                                                              .withValues(
+                                                                  alpha: 0.1)),
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.max,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Expanded(
+                                                            child: Text(
+                                                              taskDetailController
+                                                                  .descriptionItems[
+                                                                      index]
+                                                                  .fileString!
+                                                                  .split("/")
+                                                                  .last,
+                                                              style: Theme.of(
+                                                                      context)
+                                                                  .textTheme
+                                                                  .bodySmall
+                                                                  ?.copyWith(
+                                                                    color: AppColors
+                                                                        .kPrimaryColor,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 12,
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(4.0),
+                                                            child: Obx(() =>
+                                                                taskDetailController
+                                                                        .descriptionItems[
+                                                                            index]
+                                                                        .isFileLoading
+                                                                        .value
+                                                                    ? Container(
+                                                                        height:
+                                                                            24,
+                                                                        width:
+                                                                            24,
+                                                                        padding:
+                                                                            EdgeInsets.all(4),
+                                                                        child:
+                                                                            CircularProgressIndicator(
+                                                                          strokeWidth:
+                                                                              2,
+                                                                          color:
+                                                                              AppColors.kPrimaryColor,
+                                                                        ),
+                                                                      )
+                                                                    : SvgPicture
+                                                                        .asset(
+                                                                        AppIcons
+                                                                            .icDownload,
+                                                                        width:
+                                                                            24,
+                                                                        colorFilter: ColorFilter.mode(
+                                                                            AppColors.kPrimaryColor,
+                                                                            BlendMode.srcIn),
+                                                                      )),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  )
+                                                : const SizedBox();
+                                  },
+                                  separatorBuilder: (context, index) {
+                                    return const SizedBox(
+                                      height: 10,
+                                    );
+                                  },
+                                  itemCount: taskDetailController
+                                      .descriptionItems.length),
                         )
                       ],
                     ),
@@ -418,66 +580,114 @@ class TaskDetailPage extends StatelessWidget {
           Container(
               color: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              child: CommonButton(
-                  text: "comments",
-                  onClick: () async {
-                    taskDetailController.editCommentPreviousValue = null;
-                    taskDetailController.isEditingComment.value = false;
-                    taskDetailController.editCommentIndex = null;
-                    taskDetailController.commentFieldTextController.clear();
-                    taskDetailController.isCommentFieldTextEmpty.value = true;
-                    taskDetailController
-                        .commentFieldContentItemsInsertAfterIndex = null;
-                    taskDetailController.commentFieldContentEditIndex = null;
-                    taskDetailController.commentFieldContent.clear();
-                    taskDetailController.commentsPage = 1;
-                    await taskDetailController.getComments();
-                    TaskCommentsBottomSheet.show(
-                      context: context,
-                      createCommentWidget: CommonMultimediaContentCreateWidget(
-                        textController:
-                            taskDetailController.commentFieldTextController,
-                        hint: 'enter_text'.tr,
-                        createComment: taskDetailController.createComment,
-                        isEditingComment: taskDetailController.isEditingComment,
-                        editComment: taskDetailController.editComment,
-                        isTextFieldEmpty:
-                            taskDetailController.isCommentFieldTextEmpty,
-                        onTextChanged:
-                            taskDetailController.onCommentFieldTextChange,
-                        contentItems: taskDetailController.commentFieldContent,
-                        clickImage: taskDetailController.clickImage,
-                        pickImages: taskDetailController.pickImages,
-                        addText: taskDetailController.addTextInCommentContent,
-                        removeContentItem:
-                            taskDetailController.removeCommentContentItem,
-                        addContentAfter: taskDetailController
-                            .initializeAddingInBetweenCommentContent,
-                        pickFiles: taskDetailController.pickDocuments,
-                        editText: taskDetailController.editCommentContentText,
-                        showCreateEditButton: true,
-                        showShadow: true,
-                        borderRadius: BorderRadius.circular(10),
-                        backgroundColor: Colors.white,
-                        textFieldBackgroundColor:
-                            Colors.grey.withValues(alpha: 0.1),
-                        isCreateOrEditLoading:
-                            taskDetailController.isCommentCreateEditLoading,
-                      ),
-                      comments: taskDetailController.comments,
-                      commentCount: taskDetailController.commentsLength,
-                      areCommentsLoading:
-                          taskDetailController.areCommentsLoading,
-                      scrollController:
-                          taskDetailController.commentsSheetScrollController,
-                      handleCommentOnEdit:
-                          taskDetailController.handleCommentOnEdit,
-                      handleCommentOnDelete:
-                          taskDetailController.handleCommentOnDelete,
-                      extractCommentItems:
-                          taskDetailController.convertHTMLToCommentContent,
-                    );
-                  }))
+              child: Obx(
+                () => taskDetailController.isLoading.value
+                    ? CommonButtonShimmer(
+                        borderRadius: 0,
+                      )
+                    : taskDetailController.areCommentsLoading.value
+                        ? Center(
+                            child: Container(
+                              height: 51,
+                              width: 51,
+                              padding: EdgeInsets.all(8),
+                              child: CircularProgressIndicator(
+                                color: AppColors.kPrimaryColor,
+                              ),
+                            ),
+                          )
+                        : CommonButton(
+                            text: "comments",
+                            onClick: () async {
+                              taskDetailController.editCommentPreviousValue =
+                                  null;
+                              taskDetailController.isEditingComment.value =
+                                  false;
+                              taskDetailController.editCommentIndex = null;
+                              taskDetailController.commentFieldTextController
+                                  .clear();
+                              taskDetailController
+                                  .isCommentFieldTextEmpty.value = true;
+                              taskDetailController
+                                      .commentFieldContentItemsInsertAfterIndex =
+                                  null;
+                              taskDetailController
+                                  .commentFieldContentEditIndex = null;
+                              taskDetailController.commentFieldContent.clear();
+                              taskDetailController
+                                  .showCreateCommentWidget.value = false;
+                              if (taskDetailController
+                                      .commentFieldTextFocusNode !=
+                                  null) {
+                                taskDetailController.commentFieldTextFocusNode!
+                                    .dispose();
+                                taskDetailController.commentFieldTextFocusNode =
+                                    null;
+                              }
+                              taskDetailController.commentFieldTextFocusNode =
+                                  FocusNode();
+                              await taskDetailController.getComments();
+                              TaskCommentsBottomSheet.show(
+                                context: context,
+                                createCommentWidget:
+                                    CommonMultimediaContentCreateWidget(
+                                  textController: taskDetailController
+                                      .commentFieldTextController,
+                                  hint: 'enter_text'.tr,
+                                  createComment:
+                                      taskDetailController.createComment,
+                                  isEditingComment:
+                                      taskDetailController.isEditingComment,
+                                  editComment: taskDetailController.editComment,
+                                  isTextFieldEmpty: taskDetailController
+                                      .isCommentFieldTextEmpty,
+                                  onTextChanged: taskDetailController
+                                      .onCommentFieldTextChange,
+                                  contentItems:
+                                      taskDetailController.commentFieldContent,
+                                  clickImage: taskDetailController.clickImage,
+                                  pickImages: taskDetailController.pickImages,
+                                  addText: taskDetailController
+                                      .addTextInCommentContent,
+                                  removeContentItem: taskDetailController
+                                      .removeCommentContentItem,
+                                  addContentAfter: taskDetailController
+                                      .initializeAddingInBetweenCommentContent,
+                                  pickFiles: taskDetailController.pickDocuments,
+                                  editText: taskDetailController
+                                      .editCommentContentText,
+                                  showCreateEditButton: true,
+                                  showShadow: true,
+                                  borderRadius: BorderRadius.circular(10),
+                                  backgroundColor: Colors.white,
+                                  textFieldBackgroundColor:
+                                      Colors.grey.withValues(alpha: 0.1),
+                                  isCreateOrEditLoading: taskDetailController
+                                      .isCommentCreateEditLoading,
+                                  focusNode: taskDetailController
+                                      .commentFieldTextFocusNode,
+                                ),
+                                comments: taskDetailController.comments,
+                                commentCount:
+                                    taskDetailController.commentsLength,
+                                areCommentsLoading:
+                                    taskDetailController.areCommentsLoading,
+                                scrollController: taskDetailController
+                                    .commentsSheetScrollController,
+                                handleCommentOnEdit:
+                                    taskDetailController.handleCommentOnEdit,
+                                handleCommentOnDelete:
+                                    taskDetailController.handleCommentOnDelete,
+                                createCommentTextFieldFocusNode:
+                                    taskDetailController
+                                        .commentFieldTextFocusNode!,
+                                showCreateCommentWidget: taskDetailController
+                                    .showCreateCommentWidget,
+                                handleCommentImageOnTap:
+                                    taskDetailController.onTapCommentImage,
+                              );
+                            }),
+              ))
         ],
       ),
     );

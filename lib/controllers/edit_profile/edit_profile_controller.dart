@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:teqtop_team/controllers/profile_detail/profile_detail_controller.dart';
-import 'package:teqtop_team/utils/helpers.dart';
 
 import '../../network/post_requests.dart';
 import '../../utils/permission_handler.dart';
@@ -99,9 +98,9 @@ class EditProfileController extends GetxController {
     if (date != null && date.isNotEmpty) {
       selectedDOB = DateTime.parse(date);
       DOBController.text = DateFormat("dd/MM/yyyy").format(selectedDOB!);
-      Helpers.printLog(
-          description: "EDIT_PROFILE_CONTROLLER_GET_LOGGED_IN_USER_DATA",
-          message: "SELECTED_DOB = ${selectedDOB.toString()}");
+      // Helpers.printLog(
+      //     description: "EDIT_PROFILE_CONTROLLER_GET_LOGGED_IN_USER_DATA",
+      //     message: "SELECTED_DOB = ${selectedDOB.toString()}");
     }
   }
 

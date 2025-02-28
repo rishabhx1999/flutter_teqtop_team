@@ -21,10 +21,10 @@ class SplashPage extends StatelessWidget {
             ? AppRoutes.routeDashboard
             : AppRoutes.routeLogin;
     Get.offNamed(nextScreen);
-    Helpers.printLog(
-        description: "SPLASH_PAGE_MOVE_TO_NEXT_SCREEN",
-        message:
-            "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
+    // Helpers.printLog(
+    //     description: "SPLASH_PAGE_MOVE_TO_NEXT_SCREEN",
+    //     message:
+    //         "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
   }
 
   bool isTokenExpired() {

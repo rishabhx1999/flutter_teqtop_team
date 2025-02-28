@@ -3,9 +3,7 @@ import 'package:get/get.dart';
 import 'package:teqtop_team/network/post_requests.dart';
 import 'package:teqtop_team/utils/preference_manager.dart';
 
-import '../../config/app_route_observer.dart';
 import '../../config/app_routes.dart';
-import '../../utils/helpers.dart';
 
 class LoginController extends GetxController {
   final GlobalKey<FormState> formKey = GlobalKey();
@@ -83,9 +81,9 @@ class LoginController extends GetxController {
 
   void moveToDashboard() {
     Get.offNamed(AppRoutes.routeDashboard);
-    Helpers.printLog(
-        description: "LOGIN_CONTROLLER_MOVE_TO_DASHBOARD",
-        message:
-            "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
+    // Helpers.printLog(
+    //     description: "LOGIN_CONTROLLER_MOVE_TO_DASHBOARD",
+    //     message:
+    //         "ROUTE_STACK_LIST :- ${AppRouteObserver.routeStack}\nROUTE_STACK_LIST :- ${AppRouteObserver.routeStack.length}");
   }
 }

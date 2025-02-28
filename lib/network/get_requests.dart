@@ -1,12 +1,15 @@
+import 'package:teqtop_team/model/assign_hours_listing/assign_hours_list_res_model.dart';
 import 'package:teqtop_team/model/daily_reports_listing/daily_reports_res_model.dart';
 import 'package:teqtop_team/model/dashboard/feed_res_model.dart';
 import 'package:teqtop_team/model/dashboard/notifications_res_model.dart';
 import 'package:teqtop_team/model/dashboard/user_res_model.dart';
 import 'package:teqtop_team/model/drive_detail/drive_detail_res_model.dart';
+import 'package:teqtop_team/model/employee_assigned_projects_hours/delete_employee_assigned_projects_hours_res_model.dart';
 import 'package:teqtop_team/model/employee_detail/leaves_res_model.dart';
 import 'package:teqtop_team/model/employees_listing/employee_model.dart';
 import 'package:teqtop_team/model/employees_listing/employees_res_model.dart';
 import 'package:teqtop_team/model/logs_listing/logs_res_model.dart';
+import 'package:teqtop_team/model/notifications/read_notifications_res_model.dart';
 import 'package:teqtop_team/model/project_create_edit/project_categories_and_proposals_res_model.dart';
 import 'package:teqtop_team/model/project_detail/project_detail_res_model.dart';
 import 'package:teqtop_team/model/projects_listing/projects_res_model.dart';
@@ -22,7 +25,7 @@ class GetRequests {
   GetRequests._();
 
   static Future<FeedResModel?> getPosts() async {
-    Helpers.printLog(description: "GET_REQUESTS_GET_POSTS_REACHED");
+    // Helpers.printLog(description: "GET_REQUESTS_GET_POSTS_REACHED");
     var apiResponse = await RemoteService.simpleGet(ApiUrls.feeds, headers: {
       "Accept": "application/json",
       "Content-Type": "application/json;charset=utf-8"
@@ -36,8 +39,8 @@ class GetRequests {
   }
 
   static Future<UserResModel?> getLoggedInUserData() async {
-    Helpers.printLog(
-        description: "GET_REQUESTS_GET_LOGGED_IN_USER_DATA_REACHED");
+    // Helpers.printLog(
+    //     description: "GET_REQUESTS_GET_LOGGED_IN_USER_DATA_REACHED");
     var apiResponse = await RemoteService.simpleGet(ApiUrls.user, headers: {
       "Accept": "application/json",
       "Content-Type": "application/json;charset=utf-8"
@@ -52,7 +55,7 @@ class GetRequests {
 
   static Future<EmployeesResModel?> getEmployees(
       Map<String, String> requestBody) async {
-    Helpers.printLog(description: "GET_REQUESTS_GET_EMPLOYEES_REACHED");
+    // Helpers.printLog(description: "GET_REQUESTS_GET_EMPLOYEES_REACHED");
     var apiResponse = await RemoteService.getWithQueries(ApiUrls.users,
         headers: {
           "Accept": "application/json",
@@ -68,7 +71,7 @@ class GetRequests {
   }
 
   static Future<EmployeeModel?> getEmployeeDetails(int id) async {
-    Helpers.printLog(description: "GET_REQUESTS_GET_EMPLOYEE_DETAILS_REACHED");
+    // Helpers.printLog(description: "GET_REQUESTS_GET_EMPLOYEE_DETAILS_REACHED");
     var apiResponse = await RemoteService.simpleGet("${ApiUrls.users}/$id/edit",
         headers: {
           "Accept": "application/json",
@@ -82,9 +85,41 @@ class GetRequests {
     }
   }
 
+  static Future<DeleteEmployeeAssignedProjectsHoursResModel?>
+      deleteEmployeeAssignedProjectsHours(int id) async {
+    var apiResponse = await RemoteService.simpleGet(
+        "${ApiUrls.weeklyHoursDelete}/$id",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json;charset=utf-8"
+        });
+
+    if (apiResponse != null) {
+      return deleteEmployeeAssignedProjectsHoursResModelFromJson(
+          apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<ReadNotificationsResModel?> readNotifications() async {
+    var apiResponse = await RemoteService.simpleGet(
+        ApiUrls.notificationsUpdateUncheck,
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json;charset=utf-8"
+        });
+
+    if (apiResponse != null) {
+      return readNotificationsResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
   static Future<LeavesResModel?> getLeaves(
       Map<String, String> requestBody) async {
-    Helpers.printLog(description: "GET_REQUESTS_GET_EMPLOYEE_LEAVES_REACHED");
+    // Helpers.printLog(description: "GET_REQUESTS_GET_EMPLOYEE_LEAVES_REACHED");
     var apiResponse = await RemoteService.getWithQueries(ApiUrls.leaves,
         headers: {
           "Accept": "application/json",
@@ -115,9 +150,25 @@ class GetRequests {
     }
   }
 
+  static Future<AssignHoursListResModel?> getAssignHoursList(
+      Map<String, String> requestBody) async {
+    var apiResponse = await RemoteService.getWithQueries(ApiUrls.weeklyHours,
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json;charset=utf-8"
+        },
+        requestBody: requestBody);
+
+    if (apiResponse != null) {
+      return assignHoursListResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
   static Future<ProjectsResModel?> getProjects(
       Map<String, String> requestBody) async {
-    Helpers.printLog(description: "GET_REQUESTS_GET_PROJECTS_REACHED");
+    // Helpers.printLog(description: "GET_REQUESTS_GET_PROJECTS_REACHED");
     var apiResponse = await RemoteService.getWithQueries(ApiUrls.projects,
         headers: {
           "Accept": "application/json",
@@ -134,7 +185,7 @@ class GetRequests {
 
   static Future<TasksResModel?> getTasks(
       Map<String, String> requestBody) async {
-    Helpers.printLog(description: "GET_REQUESTS_GET_TASKS_REACHED");
+    // Helpers.printLog(description: "GET_REQUESTS_GET_TASKS_REACHED");
     var apiResponse = await RemoteService.getWithQueries(ApiUrls.tasks,
         headers: {
           "Accept": "application/json",
@@ -150,7 +201,7 @@ class GetRequests {
   }
 
   static Future<NotificationsResModel?> getNotifications() async {
-    Helpers.printLog(description: "GET_REQUESTS_GET_NOTIFICATIONS_REACHED");
+    // Helpers.printLog(description: "GET_REQUESTS_GET_NOTIFICATIONS_REACHED");
     var apiResponse = await RemoteService.getWithQueries(
       ApiUrls.notifications,
       headers: {
@@ -167,7 +218,7 @@ class GetRequests {
   }
 
   static Future<ProjectDetailResModel?> getProjectDetail(int projectId) async {
-    Helpers.printLog(description: "GET_REQUESTS_GET_PROJECT_DETAIL_REACHED");
+    // Helpers.printLog(description: "GET_REQUESTS_GET_PROJECT_DETAIL_REACHED");
     var apiResponse = await RemoteService.getWithQueries(
       "${ApiUrls.projects}/$projectId",
       headers: {
@@ -184,7 +235,7 @@ class GetRequests {
   }
 
   static Future<TaskDetailResModel?> getTaskDetail(int taskId) async {
-    Helpers.printLog(description: "GET_REQUESTS_GET_TASK_DETAIL_REACHED");
+    // Helpers.printLog(description: "GET_REQUESTS_GET_TASK_DETAIL_REACHED");
     var apiResponse = await RemoteService.getWithQueries(
       "${ApiUrls.tasksView}/$taskId",
       headers: {
@@ -202,9 +253,9 @@ class GetRequests {
 
   static Future<ProjectCategoriesAndProposalsResModel?>
       getProjectCategoriesAndProposals() async {
-    Helpers.printLog(
-        description:
-            "GET_REQUESTS_GET_PROJECT_CATEGORIES_AND_PROPOSALS_REACHED");
+    // Helpers.printLog(
+    //     description:
+    //         "GET_REQUESTS_GET_PROJECT_CATEGORIES_AND_PROPOSALS_REACHED");
     var apiResponse =
         await RemoteService.simpleGet(ApiUrls.projectsSalesProposals, headers: {
       "Accept": "application/json",
@@ -220,7 +271,7 @@ class GetRequests {
   }
 
   static Future<LogsResModel?> getLogs(Map<String, String> requestBody) async {
-    Helpers.printLog(description: "GET_REQUESTS_GET_LOGS_REACHED");
+    // Helpers.printLog(description: "GET_REQUESTS_GET_LOGS_REACHED");
     var apiResponse = await RemoteService.getWithQueries(ApiUrls.logs,
         headers: {
           "Accept": "application/json",
@@ -236,7 +287,7 @@ class GetRequests {
   }
 
   static Future<DriveDetailResModel?> getDriveDetail(String driveURL) async {
-    Helpers.printLog(description: "GET_REQUESTS_GET_DRIVE_DETAIL_REACHED");
+    // Helpers.printLog(description: "GET_REQUESTS_GET_DRIVE_DETAIL_REACHED");
     var apiResponse = await RemoteService.simpleGet(driveURL, headers: {
       "Accept": "application/json",
       "Content-Type": "application/json;charset=utf-8"

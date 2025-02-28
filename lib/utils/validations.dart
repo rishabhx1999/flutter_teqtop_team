@@ -208,4 +208,12 @@ class Validations {
     }
     return null;
   }
+
+  static String? checkAssignHoursValidations(String? value) {
+    var enteredValue = value?.trim() ?? '';
+    if (enteredValue.isEmpty) {
+      return "message_enter_assign_hours".tr;
+    }
+    return null;
+  }
 }

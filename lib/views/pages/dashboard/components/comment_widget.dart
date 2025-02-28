@@ -14,8 +14,8 @@ class CommentWidget extends StatelessWidget {
   final CommentList commentData;
   final Function(int)? onTapEdit;
   final Function(int) onTapDelete;
-  final Future<List<MediaContentModel>> Function(String) extractCommentItems;
-  final RxList<MediaContentModel> commentItems = <MediaContentModel>[].obs;
+  final List<MediaContentModel> commentItems;
+  final Function(int, int) handleImageOnTap;
 
   // final RxBool? isEditLoading;
 
@@ -29,26 +29,12 @@ class CommentWidget extends StatelessWidget {
     this.onTapEdit,
     // this.isEditLoading,
     required this.onTapDelete,
-    required this.extractCommentItems,
+    required this.commentItems,
+    required this.handleImageOnTap,
   });
-
-  Future<void> getCommentItems() async {
-    String? html = commentData.comment;
-    if (commentData.comment != null && commentData.comment!.isNotEmpty) {
-      var items = await extractCommentItems(html!);
-      commentItems.assignAll(items);
-      for (var item in commentItems) {
-        Helpers.printLog(
-            description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
-            message: "ITEM = ${item.toString()}");
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    getCommentItems();
-
     return SizedBox(
       width: double.infinity,
       child: Column(
@@ -212,108 +198,118 @@ class CommentWidget extends StatelessWidget {
           //           ),
           //         )
           //       :
-          Obx(
-            () => ListView.separated(
-                padding: const EdgeInsets.only(left: 38),
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return commentItems[index].text != null
-                      ? SelectableText(
-                          commentItems[index].text!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                  fontSize:
-                                      AppConsts.commonFontSizeFactor * 14),
-                        )
-                      : commentItems[index].imageString != null
-                          ? FadeInImage.assetNetwork(
-                              placeholder: AppImages.imgPlaceholder,
-                              image: AppConsts.imgInitialUrl +
-                                  commentItems[index].imageString!,
-                              imageErrorBuilder: (BuildContext context,
-                                  Object error, StackTrace? stackTrace) {
-                                return Image.asset(
-                                  AppImages.imgPlaceholder,
-                                  height: 250,
-                                  fit: BoxFit.contain,
-                                );
-                              },
+          ListView.separated(
+              padding: const EdgeInsets.only(left: 38),
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                return commentItems[index].text != null
+                    ? SelectableText(
+                        commentItems[index].text!,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontSize: AppConsts.commonFontSizeFactor * 14),
+                      )
+                    : commentItems[index].imageString != null &&
+                            commentItems[index].downloadedImage != null
+                        ? GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              if (commentData.id != null) {
+                                handleImageOnTap(commentData.id!, index);
+                              }
+                            },
+                            child: Image.file(
+                              commentItems[index].downloadedImage!,
                               height: 250,
                               fit: BoxFit.contain,
-                            )
-                          : commentItems[index].fileString != null
-                              ? GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () {
-                                    if (commentItems[index]
-                                        .fileString!
-                                        .isNotEmpty) {
-                                      Helpers.openFile(
-                                          path: commentItems[index].fileString!,
-                                          fileName: commentItems[index]
+                            ))
+                        : commentItems[index].fileString != null
+                            ? GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () async {
+                                  if (commentItems[index]
+                                      .fileString!
+                                      .isNotEmpty) {
+                                    commentItems[index].isFileLoading.value =
+                                        true;
+                                    commentItems[index].isFileLoading.refresh();
+                                    await Helpers.openFile(
+                                        path: commentItems[index].fileString!,
+                                        fileName: commentItems[index]
+                                            .fileString!
+                                            .split("/")
+                                            .last);
+                                    commentItems[index].isFileLoading.value =
+                                        false;
+                                    commentItems[index].isFileLoading.refresh();
+                                  }
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.fromLTRB(14, 10, 10, 10),
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                      color: AppColors.kPrimaryColor
+                                          .withValues(alpha: 0.1)),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          commentItems[index]
                                               .fileString!
                                               .split("/")
-                                              .last);
-                                    }
-                                  },
-                                  child: Container(
-                                    padding:
-                                        EdgeInsets.fromLTRB(14, 10, 10, 10),
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                        color: AppColors.kPrimaryColor
-                                            .withValues(alpha: 0.1)),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            commentItems[index]
-                                                .fileString!
-                                                .split("/")
-                                                .last,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall
-                                                ?.copyWith(
+                                              .last,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: AppColors.kPrimaryColor,
+                                              ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 12,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Obx(() => commentItems[index]
+                                                .isFileLoading
+                                                .value
+                                            ? Container(
+                                                height: 24,
+                                                width: 24,
+                                                padding: EdgeInsets.all(4),
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2,
                                                   color:
                                                       AppColors.kPrimaryColor,
                                                 ),
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 12,
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: SvgPicture.asset(
-                                            AppIcons.icDownload,
-                                            width: 24,
-                                            colorFilter: ColorFilter.mode(
-                                                AppColors.kPrimaryColor,
-                                                BlendMode.srcIn),
-                                          ),
-                                        )
-                                      ],
-                                    ),
+                                              )
+                                            : SvgPicture.asset(
+                                                AppIcons.icDownload,
+                                                width: 24,
+                                                colorFilter: ColorFilter.mode(
+                                                    AppColors.kPrimaryColor,
+                                                    BlendMode.srcIn),
+                                              )),
+                                      ),
+                                    ],
                                   ),
-                                )
-                              : const SizedBox();
-                },
-                separatorBuilder: (context, index) {
-                  return const SizedBox(
-                    height: 10,
-                  );
-                },
-                itemCount: commentItems.length),
-          ),
+                                ),
+                              )
+                            : const SizedBox();
+              },
+              separatorBuilder: (context, index) {
+                return const SizedBox(
+                  height: 10,
+                );
+              },
+              itemCount: commentItems.length),
+
           // )
         ],
       ),

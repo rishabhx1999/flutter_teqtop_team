@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:teqtop_team/model/media_content_model.dart';
 
 class CommentList {
   //Don't delete these variables
@@ -20,6 +21,7 @@ class CommentList {
   DateTime? updatedAt;
   String? userName;
   String? profile;
+  List<MediaContentModel> commentItems = [];
 
   CommentList({
     this.id,

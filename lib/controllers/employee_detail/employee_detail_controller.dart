@@ -103,10 +103,10 @@ class EmployeeDetailController extends GetxController
   }
 
   Future<void> extractEmployeeDocuments() async {
-    Helpers.printLog(
-        description: "EMPLOYEE_DETAIL_CONTROLLER_EXTRACT_EMPLOYEE_DOCUMENTS",
-        message:
-            "OTHER_DOCS = ${Helpers.extractFilesURLs(employeeDetail.value!.otherDocs ?? "")}");
+    // Helpers.printLog(
+    //     description: "EMPLOYEE_DETAIL_CONTROLLER_EXTRACT_EMPLOYEE_DOCUMENTS",
+    //     message:
+    //         "OTHER_DOCS = ${Helpers.extractFilesURLs(employeeDetail.value!.otherDocs ?? "")}");
     aadharCardDocs =
         Helpers.extractFilesURLs(employeeDetail.value!.adharCard ?? "");
     panCardDocs = Helpers.extractFilesURLs(employeeDetail.value!.panCard ?? "");

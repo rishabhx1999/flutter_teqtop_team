@@ -24,6 +24,7 @@ class DailyReportsListingController extends GetxController {
     ValueTime(time: "current_week".tr),
     ValueTime(time: "current_month".tr),
     ValueTime(time: "last_month".tr),
+    ValueTime(time: "select_date".tr),
   ];
   Rx<ValueTime?> selectedTime = Rx<ValueTime?>(null);
   RxBool areUsersLoading = false.obs;
@@ -158,7 +159,6 @@ class DailyReportsListingController extends GetxController {
   }
 
   Future<void> getDailyReports() async {
-    dailyReports.value = <DailyReport>[];
     Map<String, String> requestBody = {
       'order%5B0%5D%5Bcolumn%5D': '0',
       'order%5B0%5D%5Bdir%5D': 'DESC',
