@@ -122,10 +122,10 @@ class RemoteService {
       }
 
       var url = "$_baseUrl$endUrl?token=${getToken()}";
-      Helpers.printLog(
-          description: 'REMOTE_SERVICE_SIMPLE_GET',
-          message:
-              "REQUEST_URL = $url ===== REQUEST_HEADERS = ${json.encode(headers)}");
+      // Helpers.printLog(
+      //     description: 'REMOTE_SERVICE_SIMPLE_GET',
+      //     message:
+      //         "REQUEST_URL = $url ===== REQUEST_HEADERS = ${json.encode(headers)}");
 
       final response = await http.get(Uri.parse(url), headers: headers);
 
@@ -166,10 +166,10 @@ class RemoteService {
           url += "&$key=$value";
         });
       }
-      Helpers.printLog(
-          description: 'REMOTE_SERVICE_GET_WITH_QUERIES',
-          message:
-              "REQUEST_URL = $url ===== REQUEST_HEADERS = $headers ===== REQUEST_BODY = $requestBody");
+      // Helpers.printLog(
+      //     description: 'REMOTE_SERVICE_GET_WITH_QUERIES',
+      //     message:
+      //         "REQUEST_URL = $url ===== REQUEST_HEADERS = $headers ===== REQUEST_BODY = $requestBody");
 
       final response = await http.get(Uri.parse(url), headers: headers);
 
@@ -415,10 +415,6 @@ class RemoteService {
     if (isTokenExpired() == false || isLogin == true) {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
-        // Helpers.printLog(
-        //     description:
-        //         "REMOTE_SERVICE_SIMPLE_POST_WITH_SINGLE_MEDIA_AND_QUERIES",
-        //     message: "NO_INTERNET");
         return null;
       }
 
@@ -428,6 +424,10 @@ class RemoteService {
           url += "&$key=$value";
         });
       }
+      Helpers.printLog(
+          description: 'REMOTE_SERVICES_SIMPLE_POST_WITH_QUERIES',
+          message:
+              "REQUEST_URL = $url ===== REQUEST_HEADERS = ${json.encode(headers)}");
 
       final http.Response response;
 
@@ -435,18 +435,6 @@ class RemoteService {
         Uri.parse(url),
         headers: headers,
       );
-
-      // Helpers.printLog(
-      //     description:
-      //         'REMOTE_SERVICE_SIMPLE_POST_WITH_SINGLE_MEDIA_AND_QUERIES',
-      //     message:
-      //         "REQUEST_URL = $url ===== REQUEST_HEADERS = ${json.encode(headers)}");
-
-      // Helpers.printLog(
-      //     description:
-      //         'REMOTE_SERVICE_SIMPLE_POST_WITH_SINGLE_MEDIA_AND_QUERIES',
-      //     message:
-      //         "RESPONSE = ${response.body} ===== REQUEST_URL = $url ===== REQUEST_HEADERS = ${json.encode(headers)}");
 
       var responseCode = response.statusCode;
       if (Helpers.isResponseSuccessful(responseCode)) {

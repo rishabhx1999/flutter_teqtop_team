@@ -8,7 +8,6 @@ import 'package:teqtop_team/model/project_create_edit/project_category_model.dar
 import 'package:teqtop_team/model/project_create_edit/proposal_model.dart';
 import 'package:teqtop_team/views/widgets/common/common_input_field_shimmer.dart';
 
-import '../../../config/app_routes.dart';
 import '../../../consts/app_consts.dart';
 import '../../../consts/app_icons.dart';
 import '../../../controllers/project_create_edit/project_create_edit_controller.dart';

@@ -101,39 +101,44 @@ class DailyReportsListingPage extends StatelessWidget {
                     Positioned(
                         left: 12,
                         top: 0,
-                        child: Container(
-                          height: 12,
-                          width: dailyReportsListingController
+                        child: Visibility(
+                            visible: dailyReportsListingController
+                                    .notificationsCount.value >
+                                0,
+                            child: Container(
+                              height: 12,
+                              width: dailyReportsListingController
+                                          .notificationsCount.value
+                                          .toString()
+                                          .length >
+                                      1
+                                  ? (12 +
+                                          ((dailyReportsListingController
+                                                      .notificationsCount.value
+                                                      .toString()
+                                                      .length -
+                                                  1) *
+                                              4))
+                                      .toDouble()
+                                  : 12,
+                              decoration: BoxDecoration(
+                                  color: AppColors.colorFFB400,
+                                  borderRadius: BorderRadius.circular(50)),
+                              child: Center(
+                                child: Text(
+                                  dailyReportsListingController
                                       .notificationsCount.value
-                                      .toString()
-                                      .length >
-                                  1
-                              ? (12 +
-                                      ((dailyReportsListingController
-                                                  .notificationsCount.value
-                                                  .toString()
-                                                  .length -
-                                              1) *
-                                          4))
-                                  .toDouble()
-                              : 12,
-                          decoration: BoxDecoration(
-                              color: AppColors.colorFFB400,
-                              borderRadius: BorderRadius.circular(50)),
-                          child: Center(
-                            child: Text(
-                              dailyReportsListingController
-                                  .notificationsCount.value
-                                  .toString(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(
-                                      fontSize:
-                                          AppConsts.commonFontSizeFactor * 8),
-                            ),
-                          ),
-                        ))
+                                      .toString(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.copyWith(
+                                          fontSize:
+                                              AppConsts.commonFontSizeFactor *
+                                                  8),
+                                ),
+                              ),
+                            )))
                   ],
                 ),
               ),

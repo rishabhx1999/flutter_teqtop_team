@@ -87,7 +87,7 @@ class EditProfilePage extends StatelessWidget {
                   () => Stack(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top: 4, right: 18),
+                        padding: const EdgeInsets.only(top: 4, right: 16),
                         child: Image.asset(
                           AppIcons.icBell,
                           width: 24,
@@ -96,7 +96,11 @@ class EditProfilePage extends StatelessWidget {
                       Positioned(
                           left: 12,
                           top: 0,
-                          child: Container(
+                          child: Visibility(
+                              visible: editProfileController
+                                  .notificationsCount.value >
+                                  0,
+                              child:Container(
                             height: 12,
                             width: editProfileController
                                         .notificationsCount.value
@@ -127,7 +131,7 @@ class EditProfilePage extends StatelessWidget {
                                             AppConsts.commonFontSizeFactor * 8),
                               ),
                             ),
-                          ))
+                          )))
                     ],
                   ),
                 ),

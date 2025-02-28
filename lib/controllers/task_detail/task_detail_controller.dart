@@ -54,6 +54,7 @@ class TaskDetailController extends GetxController {
   BuildContext? taskDetailPageContext;
   RxBool showCreateCommentWidget = false.obs;
   bool shouldCommentsSheetScrollerJumpToPrevious = true;
+  FocusNode wholePageFocus = FocusNode();
 
   @override
   void onInit() {
@@ -78,6 +79,7 @@ class TaskDetailController extends GetxController {
     disposeTextEditingController();
     disposeScrollController();
     disposeCommentFieldTextFocusNode();
+    wholePageFocus.dispose();
     super.onClose();
   }
 

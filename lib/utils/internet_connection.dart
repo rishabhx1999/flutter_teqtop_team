@@ -1,5 +1,4 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:teqtop_team/utils/helpers.dart';
 
 class InternetConnection {
   static Future<bool> isConnected() async {

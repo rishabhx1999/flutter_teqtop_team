@@ -107,7 +107,7 @@ class EmployeesListingPage extends StatelessWidget {
                       () => Stack(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(top: 4, right: 18),
+                            padding: const EdgeInsets.only(top: 4, right: 16),
                             child: Image.asset(
                               AppIcons.icBell,
                               width: 24,
@@ -116,7 +116,11 @@ class EmployeesListingPage extends StatelessWidget {
                           Positioned(
                               left: 12,
                               top: 0,
-                              child: Container(
+                              child: Visibility(
+                                  visible: employeesListingController
+                                      .notificationsCount.value >
+                                      0,
+                                  child:Container(
                                 height: 12,
                                 width: employeesListingController
                                             .notificationsCount.value
@@ -150,7 +154,7 @@ class EmployeesListingPage extends StatelessWidget {
                                                     8),
                                   ),
                                 ),
-                              ))
+                              )))
                         ],
                       ),
                     ),

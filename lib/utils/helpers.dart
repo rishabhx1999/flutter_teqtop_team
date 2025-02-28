@@ -14,6 +14,7 @@ import 'dart:typed_data' as typed_data;
 import 'package:html/parser.dart' as html_parser;
 import 'package:http/http.dart' as http;
 import 'package:teqtop_team/utils/preference_manager.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../model/media_content_model.dart';
 import '../network/post_requests.dart';
@@ -257,6 +258,40 @@ class Helpers {
       default:
         return 'application/octet-stream';
     }
+  }
+
+  static void openLink(String url) async {
+    // Helpers.printLog(description: 'HELPERS_OPEN_LINK', message: 'URL = $url');
+
+    Uri? uri = _getValidUri(url);
+    if (uri == null) {
+      Get.snackbar("error".tr, "message_invalid_url".tr);
+      throw 'Invalid URL: $url';
+    }
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      Get.snackbar("error".tr, "message_invalid_url".tr);
+      throw 'Could not launch $url';
+    }
+  }
+
+  static Uri? _getValidUri(String url) {
+    if (!url.contains("://")) {
+      Uri httpsUri = Uri.parse("https://$url");
+      if (Uri.tryParse(httpsUri.toString()) != null) {
+        return httpsUri;
+      }
+
+      Uri httpUri = Uri.parse("http://$url");
+      if (Uri.tryParse(httpUri.toString()) != null) {
+        return httpUri;
+      }
+    } else {
+      return Uri.tryParse(url);
+    }
+    return null;
   }
 
   static Future<String> convertImageToDataUrl(XFile file) async {

@@ -88,7 +88,7 @@ class DashboardPage extends StatelessWidget {
                   () => Stack(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top: 4, right: 18),
+                        padding: const EdgeInsets.only(top: 4, right: 16),
                         child: Image.asset(
                           AppIcons.icBell,
                           width: 24,
@@ -97,34 +97,41 @@ class DashboardPage extends StatelessWidget {
                       Positioned(
                           left: 12,
                           top: 0,
-                          child: Container(
-                            height: 12,
-                            width: dashboardController.notificationsCount.value
-                                        .toString()
-                                        .length >
-                                    1
-                                ? (12 +
-                                        ((dashboardController
-                                                    .notificationsCount.value
-                                                    .toString()
-                                                    .length -
-                                                1) *
-                                            4))
-                                    .toDouble()
-                                : 12,
-                            decoration: BoxDecoration(
-                                color: AppColors.colorFFB400,
-                                borderRadius: BorderRadius.circular(50)),
-                            child: Center(
-                              child: Text(
-                                dashboardController.notificationsCount.value
-                                    .toString(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(
-                                        fontSize:
-                                            AppConsts.commonFontSizeFactor * 8),
+                          child: Visibility(
+                            visible:
+                                dashboardController.notificationsCount.value >
+                                    0,
+                            child: Container(
+                              height: 12,
+                              width: dashboardController
+                                          .notificationsCount.value
+                                          .toString()
+                                          .length >
+                                      1
+                                  ? (12 +
+                                          ((dashboardController
+                                                      .notificationsCount.value
+                                                      .toString()
+                                                      .length -
+                                                  1) *
+                                              4))
+                                      .toDouble()
+                                  : 12,
+                              decoration: BoxDecoration(
+                                  color: AppColors.colorFFB400,
+                                  borderRadius: BorderRadius.circular(50)),
+                              child: Center(
+                                child: Text(
+                                  dashboardController.notificationsCount.value
+                                      .toString(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.copyWith(
+                                          fontSize:
+                                              AppConsts.commonFontSizeFactor *
+                                                  8),
+                                ),
                               ),
                             ),
                           ))

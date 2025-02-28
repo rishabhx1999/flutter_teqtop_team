@@ -12,7 +12,6 @@ import '../../../config/app_colors.dart';
 import '../../../config/app_routes.dart';
 import '../../../consts/app_consts.dart';
 import '../../../consts/app_icons.dart';
-import '../../widgets/common/common_button.dart';
 
 class ProjectDetailPage extends StatelessWidget {
   final projectDetailController = Get.put(ProjectDetailController());
@@ -23,199 +22,212 @@ class ProjectDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.white));
+    final inputBorder = OutlineInputBorder(
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide(color: Colors.transparent));
 
-    return Scaffold(
-      appBar: AppBar(
-        scrolledUnderElevation: 0,
-        bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(1),
-            child: Container(
-              color: Colors.black.withValues(alpha: 0.05),
-              height: 1,
-            )),
-        leading: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              Get.back();
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16),
-              child: SvgPicture.asset(
-                AppIcons.icBack,
-                colorFilter:
-                    const ColorFilter.mode(Colors.black, BlendMode.srcIn),
-              ),
-            )),
-        leadingWidth: 40,
-        backgroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-        titleSpacing: 0,
-        elevation: 0,
-        actions: [
-          // Padding(
-          //   padding: const EdgeInsets.only(right: 8),
-          //   child: GestureDetector(
-          //     behavior: HitTestBehavior.opaque,
-          //     onTap: () {
-          //       Get.toNamed(AppRoutes.routeProjectCreateEdit);
-          //     },
-          //     child: Container(
-          //       width: 68,
-          //       height: 28,
-          //       decoration: BoxDecoration(
-          //           color: AppColors.colorF9F9F9,
-          //           border: Border.all(
-          //               color: Colors.black.withValues(alpha: 0.1),
-          //               width: 0.5)),
-          //       child: Row(
-          //         mainAxisSize: MainAxisSize.min,
-          //         mainAxisAlignment: MainAxisAlignment.center,
-          //         crossAxisAlignment: CrossAxisAlignment.center,
-          //         children: [
-          //           SvgPicture.asset(
-          //             AppIcons.icEdit,
-          //             width: 24,
-          //           ),
-          //           const SizedBox(
-          //             width: 4,
-          //           ),
-          //           Text(
-          //             "edit".tr,
-          //             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          //                 fontSize: AppConsts.commonFontSizeFactor * 14),
-          //           )
-          //         ],
-          //       ),
-          //     ),
-          //   ),
-          // ),
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: projectDetailController.handleDriveOnTap,
-              child: Container(
-                width: 68,
-                height: 28,
-                decoration: BoxDecoration(
-                    color: AppColors.colorF9F9F9,
-                    border: Border.all(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        width: 0.5)),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      AppImages.imgDrive,
-                      width: 18,
-                    ),
-                    const SizedBox(
-                      width: 4,
-                    ),
-                    Text(
-                      "drive".tr,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: AppConsts.commonFontSizeFactor * 14),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                projectDetailController.handleTaskOnTap();
-              },
-              child: Container(
-                width: 68,
-                height: 28,
-                decoration: BoxDecoration(
-                    color: AppColors.colorF9F9F9,
-                    border: Border.all(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        width: 0.5)),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      AppIcons.icTask,
-                      width: 24,
-                    ),
-                    const SizedBox(
-                      width: 4,
-                    ),
-                    Text(
-                      "task".tr,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: AppConsts.commonFontSizeFactor * 14),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-          PopupMenuButton(
-              padding: EdgeInsets.only(right: 16),
-              menuPadding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-              style:
-                  IconButton.styleFrom(splashFactory: NoSplash.splashFactory),
-              icon: SvgPicture.asset(
-                AppIcons.icMoreHorizontal,
-                width: 24,
-              ),
-              onSelected: (value) {
-                if (value == "delete".tr) {
-                  projectDetailController.handleOnDelete();
-                }
-                if (value == "edit".tr) {
-                  Get.toNamed(AppRoutes.routeProjectCreateEdit);
-                }
-              },
-              itemBuilder: (context) => [
-                    PopupMenuItem(
-                        value: "edit".tr,
-                        padding: EdgeInsets.only(left: 16),
-                        child: Text(
-                          "edit".tr,
+    return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          projectDetailController.wholePageFocus.unfocus();
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            scrolledUnderElevation: 0,
+            bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(1),
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  height: 1,
+                )),
+            leading: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  Get.back();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  child: SvgPicture.asset(
+                    AppIcons.icBack,
+                    colorFilter:
+                        const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  ),
+                )),
+            leadingWidth: 40,
+            backgroundColor: Colors.white,
+            automaticallyImplyLeading: false,
+            titleSpacing: 0,
+            elevation: 0,
+            actions: [
+              // Padding(
+              //   padding: const EdgeInsets.only(right: 8),
+              //   child: GestureDetector(
+              //     behavior: HitTestBehavior.opaque,
+              //     onTap: () {
+              //       Get.toNamed(AppRoutes.routeProjectCreateEdit);
+              //     },
+              //     child: Container(
+              //       width: 68,
+              //       height: 28,
+              //       decoration: BoxDecoration(
+              //           color: AppColors.colorF9F9F9,
+              //           border: Border.all(
+              //               color: Colors.black.withValues(alpha: 0.1),
+              //               width: 0.5)),
+              //       child: Row(
+              //         mainAxisSize: MainAxisSize.min,
+              //         mainAxisAlignment: MainAxisAlignment.center,
+              //         crossAxisAlignment: CrossAxisAlignment.center,
+              //         children: [
+              //           SvgPicture.asset(
+              //             AppIcons.icEdit,
+              //             width: 24,
+              //           ),
+              //           const SizedBox(
+              //             width: 4,
+              //           ),
+              //           Text(
+              //             "edit".tr,
+              //             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              //                 fontSize: AppConsts.commonFontSizeFactor * 14),
+              //           )
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: projectDetailController.handleDriveOnTap,
+                  child: Container(
+                    width: 68,
+                    height: 28,
+                    decoration: BoxDecoration(
+                        color: AppColors.colorF9F9F9,
+                        border: Border.all(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            width: 0.5)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          AppImages.imgDrive,
+                          width: 18,
+                        ),
+                        const SizedBox(
+                          width: 4,
+                        ),
+                        Text(
+                          "drive".tr,
                           style: Theme.of(context)
                               .textTheme
-                              .bodyLarge
+                              .bodyMedium
                               ?.copyWith(
                                   fontSize:
                                       AppConsts.commonFontSizeFactor * 14),
-                        )),
-                    PopupMenuItem(
-                        value: "delete".tr,
-                        padding: EdgeInsets.only(left: 16),
-                        child: Text(
-                          "delete".tr,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    projectDetailController.handleTaskOnTap();
+                  },
+                  child: Container(
+                    width: 68,
+                    height: 28,
+                    decoration: BoxDecoration(
+                        color: AppColors.colorF9F9F9,
+                        border: Border.all(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            width: 0.5)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          AppIcons.icTask,
+                          width: 24,
+                        ),
+                        const SizedBox(
+                          width: 4,
+                        ),
+                        Text(
+                          "task".tr,
                           style: Theme.of(context)
                               .textTheme
-                              .bodyLarge
+                              .bodyMedium
                               ?.copyWith(
                                   fontSize:
                                       AppConsts.commonFontSizeFactor * 14),
-                        ))
-                  ])
-        ],
-      ),
-      backgroundColor: Colors.white,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              PopupMenuButton(
+                  padding: EdgeInsets.only(right: 16),
+                  menuPadding: EdgeInsets.zero,
+                  shape:
+                      RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  style: IconButton.styleFrom(
+                      splashFactory: NoSplash.splashFactory),
+                  icon: SvgPicture.asset(
+                    AppIcons.icMoreHorizontal,
+                    width: 24,
+                  ),
+                  onSelected: (value) {
+                    if (value == "delete".tr) {
+                      projectDetailController.handleOnDelete();
+                    }
+                    if (value == "edit".tr) {
+                      Get.toNamed(AppRoutes.routeProjectCreateEdit);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                        PopupMenuItem(
+                            value: "edit".tr,
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text(
+                              "edit".tr,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 14),
+                            )),
+                        PopupMenuItem(
+                            value: "delete".tr,
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text(
+                              "delete".tr,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 14),
+                            ))
+                      ])
+            ],
+          ),
+          backgroundColor: Colors.white,
+          body: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Focus(
+              focusNode: projectDetailController.wholePageFocus,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -273,7 +285,7 @@ class ProjectDetailPage extends StatelessWidget {
                                         ))
                                   ],
                                 )
-                              : Text(
+                              : SelectableText(
                                   projectDetailController.projectDetail.value !=
                                           null
                                       ? projectDetailController
@@ -308,21 +320,74 @@ class ProjectDetailPage extends StatelessWidget {
                                         ),
                                       )),
                                 )
-                              : Text(
-                                  projectDetailController.projectDetail.value !=
-                                          null
-                                      ? projectDetailController
-                                              .projectDetail.value!.url ??
-                                          ""
-                                      : "",
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                          fontSize:
-                                              AppConsts.commonFontSizeFactor *
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SelectableText(
+                                      projectDetailController
+                                                  .projectDetail.value !=
+                                              null
+                                          ? projectDetailController
+                                                  .projectDetail.value!.url ??
+                                              ""
+                                          : "",
+                                      textAlign: TextAlign.center,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                              fontSize: AppConsts
+                                                      .commonFontSizeFactor *
                                                   18),
+                                    ),
+                                    Visibility(
+                                      visible:
+                                          projectDetailController
+                                                      .projectDetail.value !=
+                                                  null &&
+                                              projectDetailController
+                                                      .projectDetail
+                                                      .value!
+                                                      .url !=
+                                                  null &&
+                                              projectDetailController
+                                                  .projectDetail
+                                                  .value!
+                                                  .url!
+                                                  .isNotEmpty,
+                                      child: GestureDetector(
+                                          onTap: () {
+                                            // Helpers.printLog(
+                                            //     description:
+                                            //         'PROJECT_DETAIL_PAGE_URL_ON_TAP');
+                                            if (projectDetailController.projectDetail
+                                                        .value !=
+                                                    null &&
+                                                projectDetailController
+                                                        .projectDetail
+                                                        .value!
+                                                        .url !=
+                                                    null &&
+                                                projectDetailController
+                                                    .projectDetail
+                                                    .value!
+                                                    .url!
+                                                    .isNotEmpty) {
+                                              Helpers.openLink(
+                                                  projectDetailController
+                                                      .projectDetail
+                                                      .value!
+                                                      .url!);
+                                            }
+                                          },
+                                          behavior: HitTestBehavior.opaque,
+                                          child: Icon(
+                                            Icons.open_in_browser_rounded,
+                                            color: Colors.black,
+                                          )),
+                                    )
+                                  ],
                                 ),
                         ),
                         const SizedBox(
@@ -369,9 +434,55 @@ class ProjectDetailPage extends StatelessWidget {
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      "access_detail".tr.toUpperCase(),
-                      style: Theme.of(context).textTheme.bodyLarge,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "access_detail".tr.toUpperCase(),
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                        Obx(
+                          () => Visibility(
+                            visible: projectDetailController.isLoading.value ==
+                                false,
+                            child: projectDetailController
+                                    .isAccessDetailEditLoading.value
+                                ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.black,
+                                    ))
+                                : GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () {
+                                      if (projectDetailController
+                                          .accessDetailEditing.value) {
+                                        projectDetailController
+                                            .editAccessDetails();
+                                      } else {
+                                        projectDetailController
+                                            .onTapAccessDetailEdit();
+                                      }
+                                    },
+                                    child: projectDetailController
+                                            .accessDetailEditing.value
+                                        ? Text(
+                                            'save'.tr,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium,
+                                          )
+                                        : SvgPicture.asset(
+                                            AppIcons.icEdit,
+                                            width: 20,
+                                          ),
+                                  ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
                   const SizedBox(
@@ -393,17 +504,51 @@ class ProjectDetailPage extends StatelessWidget {
                         )
                       : Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                            projectDetailController.projectDetail.value !=
-                                        null &&
-                                    projectDetailController.projectDetail.value!
-                                        .accessDetail is String
-                                ? Helpers.formatHtmlParagraphs(
-                                    projectDetailController
-                                        .projectDetail.value!.accessDetail)
-                                : "",
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
+                          child: projectDetailController
+                                  .accessDetailEditing.value
+                              ? TextField(
+                                  controller: projectDetailController
+                                      .accessDetailController,
+                                  maxLines: 5,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  keyboardType: TextInputType.multiline,
+                                  cursorColor: Colors.black,
+                                  textInputAction: TextInputAction.newline,
+                                  decoration: InputDecoration(
+                                    hintText: 'enter_access_details'.tr,
+                                    enabled: true,
+                                    hintStyle: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Colors.black
+                                              .withValues(alpha: 0.3),
+                                        ),
+                                    fillColor:
+                                        Colors.grey.withValues(alpha: 0.1),
+                                    filled: true,
+                                    border: inputBorder,
+                                    errorBorder: inputBorder,
+                                    enabledBorder: inputBorder,
+                                    disabledBorder: inputBorder,
+                                    focusedBorder: inputBorder,
+                                    focusedErrorBorder: inputBorder,
+                                    contentPadding: const EdgeInsets.all(10),
+                                  ),
+                                  focusNode: projectDetailController
+                                      .accessDetailFocusNode,
+                                )
+                              : SelectableText(
+                                  projectDetailController.projectDetail.value !=
+                                              null &&
+                                          projectDetailController.projectDetail
+                                              .value!.accessDetail is String
+                                      ? Helpers.formatHtmlParagraphs(
+                                          projectDetailController.projectDetail
+                                              .value!.accessDetail)
+                                      : "",
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
                         )),
                   const SizedBox(
                     height: 16,
@@ -412,12 +557,6 @@ class ProjectDetailPage extends StatelessWidget {
               ),
             ),
           ),
-          // Container(
-          //     color: Colors.white,
-          //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          //     child: CommonButton(text: "delete", onClick: () async {}))
-        ],
-      ),
-    );
+        ));
   }
 }

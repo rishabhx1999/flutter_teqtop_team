@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:teqtop_team/controllers/global_search/global_search_controller.dart';
 import 'package:teqtop_team/controllers/projects_listing/projects_listing_controller.dart';
@@ -13,8 +14,13 @@ import '../../views/dialogs/common/common_alert_dialog.dart';
 class ProjectDetailController extends GetxController {
   int? projectId;
   RxBool isLoading = false.obs;
+  RxBool isAccessDetailEditLoading = false.obs;
+  RxBool accessDetailEditing = false.obs;
   Rx<ProjectDetailResModel?> projectDetail = Rx<ProjectDetailResModel?>(null);
   bool shouldClearPreviousRoutes = false;
+  final TextEditingController accessDetailController = TextEditingController();
+  final accessDetailFocusNode = FocusNode();
+  FocusNode wholePageFocus = FocusNode();
 
   @override
   void onInit() {
@@ -32,7 +38,9 @@ class ProjectDetailController extends GetxController {
 
   @override
   void onClose() {
-    // TODO: implement onClose
+    accessDetailController.dispose();
+    accessDetailFocusNode.dispose();
+    wholePageFocus.dispose();
     super.onClose();
   }
 
@@ -43,6 +51,16 @@ class ProjectDetailController extends GetxController {
         previousRoute == AppRoutes.routeTaskDetail) {
       shouldClearPreviousRoutes = true;
     }
+  }
+
+  void onTapAccessDetailEdit() {
+    accessDetailEditing.value = true;
+    if (projectDetail.value != null &&
+        projectDetail.value!.accessDetail is String) {
+      accessDetailController.text =
+          Helpers.formatHtmlParagraphs(projectDetail.value!.accessDetail);
+    }
+    accessDetailFocusNode.requestFocus();
   }
 
   void getProjectId() {
@@ -94,6 +112,39 @@ class ProjectDetailController extends GetxController {
       // Helpers.printLog(
       //     description: "PROJECT_DETAIL_CONTROLLER_HANDLE_DRIVE_ON_TAP",
       //     message: "DATA_NOT_NULL");
+    }
+  }
+
+  Future<void> editAccessDetails() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (projectId != null) {
+      isAccessDetailEditLoading.value = true;
+
+      try {
+        Map<String, dynamic> requestBody = {
+          'access_detail':
+              Helpers.convertToHTMLParagraphs(accessDetailController.text),
+          'id': projectId
+        };
+        var response = await PostRequests.editProjectAccessDetails(
+            projectId!, requestBody);
+        if (response != null) {
+          if (response.accessDetail != null &&
+              response.accessDetail!.isNotEmpty) {
+            if (projectDetail.value != null) {
+              projectDetail.value!.accessDetail = response.accessDetail;
+            }
+            accessDetailEditing.value = false;
+            accessDetailController.clear();
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
+          }
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
+        }
+      } finally {
+        isAccessDetailEditLoading.value = false;
+      }
     }
   }
 

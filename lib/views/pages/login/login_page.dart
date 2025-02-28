@@ -17,10 +17,18 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.white));
 
     return Scaffold(
+      appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(0),
+          child: AppBar(
+            systemOverlayStyle: SystemUiOverlayStyle.dark
+                .copyWith(statusBarColor: Colors.white),
+            titleSpacing: 0,
+            backgroundColor: Colors.transparent,
+            automaticallyImplyLeading: false,
+            surfaceTintColor: Colors.transparent,
+          )),
       backgroundColor: Colors.white,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,

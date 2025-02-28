@@ -20,6 +20,7 @@ class ProjectCreateEditController extends GetxController {
   late TextEditingController portalController;
   late TextEditingController profileController;
   late TextEditingController descriptionController;
+  dynamic accessDetail;
   RxBool isLoading = false.obs;
   RxBool areProjectCategoriesAndProposalLoading = false.obs;
   RxList<ProjectCategoryModel> projectCategories = <ProjectCategoryModel>[].obs;
@@ -75,9 +76,10 @@ class ProjectCreateEditController extends GetxController {
       }
       clientController.text = editProjectDetail.value!.client ?? "";
       urlController.text = editProjectDetail.value!.url ?? "";
-          portalController.text = editProjectDetail.value!.portal ?? "";
+      portalController.text = editProjectDetail.value!.portal ?? "";
       profileController.text = editProjectDetail.value!.profile ?? "";
       descriptionController.text = editProjectDetail.value!.description ?? "";
+      accessDetail = editProjectDetail.value!.accessDetail;
       var proposal = proposals.firstWhereOrNull((proposal) =>
           proposal.id != null &&
           proposal.id.toString() == editProjectDetail.value!.proposalId);
@@ -172,6 +174,7 @@ class ProjectCreateEditController extends GetxController {
         'profile': profileController.text.toString().trim(),
         'proposal_id': selectedProposal.value!.id,
         'url': urlController.text.toString().trim(),
+        'access_detail': accessDetail,
       };
 
       isLoading.value = true;

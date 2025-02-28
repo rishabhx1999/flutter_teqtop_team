@@ -14,6 +14,7 @@ import 'package:teqtop_team/model/employee_assigned_projects_hours/play_pause_pr
 import 'package:teqtop_team/model/login/login_res_model.dart';
 import 'package:teqtop_team/model/project_create_edit/create_project_res_model.dart';
 import 'package:teqtop_team/model/project_detail/delete_project_res_model.dart';
+import 'package:teqtop_team/model/project_detail/edit_access_details_res_model.dart';
 import 'package:teqtop_team/model/task_create_edit/create_task_res_model.dart';
 import 'package:teqtop_team/model/task_create_edit/edit_task_res_model.dart';
 import 'package:teqtop_team/model/task_detail/create_task_comment_res_model.dart';
@@ -267,6 +268,24 @@ class PostRequests {
 
     if (apiResponse != null) {
       return editTaskResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<EditAccessDetailsResModel?> editProjectAccessDetails(
+      int projectId, Map<String, dynamic> requestBody) async {
+    var apiResponse = await RemoteService.simplePostWithQueries(
+      '${ApiUrls.projects}/$projectId/${ApiUrls.accessDetail}',
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=utf-8"
+      },
+      requestBody: requestBody,
+    );
+
+    if (apiResponse != null) {
+      return editAccessDetailsResModelFromJson(apiResponse.response!);
     } else {
       return null;
     }

@@ -169,6 +169,10 @@ class MyApp extends StatelessWidget {
                   page: () => EmployeeAssignedProjectsHoursPage(),
                 ),
                 GetPage(
+                  name: AppRoutes.routeCreateEditEmployeeAssignedProjectsHours,
+                  page: () => CreateEditEmployeeAssignedProjectsHoursPage(),
+                ),
+                GetPage(
                   name: AppRoutes.routeGallery,
                   page: () => GalleryPage(),
                 ),

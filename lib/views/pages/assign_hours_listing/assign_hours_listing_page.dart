@@ -107,39 +107,44 @@ class AssignHoursListingPage extends StatelessWidget {
                     Positioned(
                         left: 12,
                         top: 0,
-                        child: Container(
-                          height: 12,
-                          width: assignHoursListingController
+                        child: Visibility(
+                            visible: assignHoursListingController
+                                    .notificationsCount.value >
+                                0,
+                            child: Container(
+                              height: 12,
+                              width: assignHoursListingController
+                                          .notificationsCount.value
+                                          .toString()
+                                          .length >
+                                      1
+                                  ? (12 +
+                                          ((assignHoursListingController
+                                                      .notificationsCount.value
+                                                      .toString()
+                                                      .length -
+                                                  1) *
+                                              4))
+                                      .toDouble()
+                                  : 12,
+                              decoration: BoxDecoration(
+                                  color: AppColors.colorFFB400,
+                                  borderRadius: BorderRadius.circular(50)),
+                              child: Center(
+                                child: Text(
+                                  assignHoursListingController
                                       .notificationsCount.value
-                                      .toString()
-                                      .length >
-                                  1
-                              ? (12 +
-                                      ((assignHoursListingController
-                                                  .notificationsCount.value
-                                                  .toString()
-                                                  .length -
-                                              1) *
-                                          4))
-                                  .toDouble()
-                              : 12,
-                          decoration: BoxDecoration(
-                              color: AppColors.colorFFB400,
-                              borderRadius: BorderRadius.circular(50)),
-                          child: Center(
-                            child: Text(
-                              assignHoursListingController
-                                  .notificationsCount.value
-                                  .toString(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(
-                                      fontSize:
-                                          AppConsts.commonFontSizeFactor * 8),
-                            ),
-                          ),
-                        ))
+                                      .toString(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.copyWith(
+                                          fontSize:
+                                              AppConsts.commonFontSizeFactor *
+                                                  8),
+                                ),
+                              ),
+                            )))
                   ],
                 ),
               ),

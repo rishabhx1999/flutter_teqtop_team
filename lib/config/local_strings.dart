@@ -160,6 +160,7 @@ class LocalStrings extends Translations {
           'edit_hours': 'Edit Hours',
           'add_remove_projects': 'Add/remove project(s)',
           'update': 'Update',
+          'enter_access_details': 'Enter access details',
 
           //
           'error': 'Error',
@@ -198,6 +199,7 @@ class LocalStrings extends Translations {
           'message_enter_valid_url': 'Please enter a valid URL',
           'message_enter_valid_portal': 'Please enter a valid portal',
           'message_enter_contact_number': 'Please enter your contact number',
+          'message_invalid_url': 'The url is not valid',
           'message_enter_alternate_number':
               'Please enter your alternate number',
           'message_enter_valid_contact_number':
@@ -227,6 +229,7 @@ class LocalStrings extends Translations {
           'message_enter_end_date': 'Please enter end date',
           'message_logout': 'Are you sure you want to log Out?',
           'message_pause_project': 'Are you want to pause this project',
+          'message_enter_something': 'Please enter something',
         }
       };
 }
