@@ -23,9 +23,9 @@ import 'package:teqtop_team/model/task_detail/edit_task_comment_res_model.dart';
 import 'package:teqtop_team/model/task_detail/task_comments_res_model.dart';
 import 'package:teqtop_team/network/api_urls.dart';
 import 'package:teqtop_team/network/remote_services.dart';
-import 'package:teqtop_team/utils/helpers.dart';
 import 'package:http/http.dart' as http;
 
+import '../model/drive_detail/drive_detail_res_model.dart';
 import '../model/global_search/global_search_res_model.dart';
 
 class PostRequests {
@@ -273,6 +273,25 @@ class PostRequests {
     }
   }
 
+  static Future<DriveDetailResModel?> deleteDriveFolder(
+      Map<String, dynamic> requestBody) async {
+    // Helpers.printLog(description: "POST_REQUESTS_EDIT_TASK_REACHED");
+    var apiResponse = await RemoteService.simplePostWithQueries(
+      ApiUrls.drivesFolderDelete,
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=utf-8"
+      },
+      requestBody: requestBody,
+    );
+
+    if (apiResponse != null) {
+      return driveDetailResModelFromJson(apiResponse.response!);
+    } else {
+      return null;
+    }
+  }
+
   static Future<EditAccessDetailsResModel?> editProjectAccessDetails(
       int projectId, Map<String, dynamic> requestBody) async {
     var apiResponse = await RemoteService.simplePostWithQueries(
@@ -292,16 +311,17 @@ class PostRequests {
   }
 
   static Future<EditTaskCommentResModel?> editTaskComment(
-      Map<String, dynamic> requestBody) async {
+      Map<String, dynamic> requestBody,
+      Map<String, dynamic> requestBody2) async {
     // Helpers.printLog(description: "POST_REQUESTS_EDIT_TASK_COMMENT_REACHED");
-    var apiResponse = await RemoteService.simplePostWithQueries(
-      ApiUrls.commentUpdate,
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json;charset=utf-8"
-      },
-      requestBody: requestBody,
-    );
+    var apiResponse = await RemoteService.simplePostWithQueriesAndBody(
+        ApiUrls.commentUpdate,
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json;charset=utf-8"
+        },
+        requestBody: requestBody,
+        requestBody2: requestBody2);
 
     if (apiResponse != null) {
       return editTaskCommentResModelFromJson(apiResponse.response!);

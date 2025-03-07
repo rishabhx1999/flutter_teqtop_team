@@ -155,7 +155,7 @@ class EmployeeModel {
       );
 
   Map<String, dynamic> toJson() => {
-        "DT_RowAttr": dtRowAttr == null ? null : dtRowAttr!.toJson(),
+        "DT_RowAttr": dtRowAttr?.toJson(),
         "userId": userId,
         "id": id,
         "you": you,
@@ -167,12 +167,12 @@ class EmployeeModel {
         "api_token": apiToken,
         "device_token": deviceToken,
         "mobile_token": mobileToken,
-        "registered": registered == null ? null : registered!.toIso8601String(),
+        "registered": registered?.toIso8601String(),
         "roles": roles,
         "is_active": isActive,
         "is_logged": isLogged,
         "assignees": assignees,
-        "created_at": createdAt == null ? null : createdAt!.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
         "updated_at":
             updatedAt == null ? updatedAt : updatedAt!.toIso8601String(),
         "deleted_at": deletedAt,

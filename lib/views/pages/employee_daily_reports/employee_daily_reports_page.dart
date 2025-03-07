@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -42,10 +42,9 @@ class EmployeeDailyReportsPage extends StatelessWidget {
             },
             child: Padding(
               padding: const EdgeInsets.only(left: 16, right: 16),
-              child: SvgPicture.asset(
+              child: Image.asset(
                 AppIcons.icBack,
-                colorFilter:
-                    const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                color: Colors.black,
               ),
             )),
         leadingWidth: 40,
@@ -61,11 +60,10 @@ class EmployeeDailyReportsPage extends StatelessWidget {
                 onTap: () {
                   Get.toNamed(AppRoutes.routeGlobalSearch);
                 },
-                child: SvgPicture.asset(
+                child: Image.asset(
                   AppIcons.icSearch,
                   width: 24,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color: Colors.black,
                 )),
           ),
           GestureDetector(
@@ -162,14 +160,14 @@ class EmployeeDailyReportsPage extends StatelessWidget {
                           child: CircleAvatar(
                             radius: 36,
                             backgroundImage:
-                                AssetImage(AppImages.imgPersonPlaceholder),
+                                const AssetImage(AppImages.imgPersonPlaceholder),
                             foregroundImage: employeeDailyReportsController
                                         .employeeProfilePhoto !=
                                     null
                                 ? NetworkImage(AppConsts.imgInitialUrl +
                                     employeeDailyReportsController
                                         .employeeProfilePhoto!)
-                                : AssetImage(AppImages.imgPersonPlaceholder),
+                                : const AssetImage(AppImages.imgPersonPlaceholder),
                           ),
                         ),
                       ),
@@ -265,7 +263,7 @@ class EmployeeDailyReportsPage extends StatelessWidget {
           Obx(
             () => TableCalendar(
               currentDay: DateTime.now(),
-              calendarStyle: CalendarStyle(
+              calendarStyle: const CalendarStyle(
                 isTodayHighlighted: false,
               ),
               firstDay: employeeDailyReportsController.calendarFirstDay,
@@ -371,7 +369,7 @@ class EmployeeDailyReportsPage extends StatelessWidget {
               child: Stack(
                 children: [
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: SfCalendar(
                       controller:
                           employeeDailyReportsController.sfCalendarController,
@@ -404,7 +402,7 @@ class EmployeeDailyReportsPage extends StatelessWidget {
                                   width: 5,
                                   height: double.infinity,
                                   decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.only(
+                                      borderRadius: const BorderRadius.only(
                                         topLeft: Radius.circular(10),
                                         bottomLeft: Radius.circular(10),
                                       ),
@@ -415,7 +413,7 @@ class EmployeeDailyReportsPage extends StatelessWidget {
                                 ),
                                 Expanded(
                                   child: Padding(
-                                    padding: EdgeInsets.only(
+                                    padding: const EdgeInsets.only(
                                         top: 10, bottom: 10, right: 14),
                                     child: RichText(
                                         overflow: TextOverflow.clip,
@@ -473,7 +471,7 @@ class EmployeeDailyReportsPage extends StatelessWidget {
                               employeeDailyReportsController.startHour.value,
                           endHour: employeeDailyReportsController.endHour.value,
                           timeFormat: "HH:mm",
-                          timeInterval: Duration(hours: 1)),
+                          timeInterval: const Duration(hours: 1)),
                       showNavigationArrow: false,
                       showDatePickerButton: false,
                       allowViewNavigation: true,
@@ -502,7 +500,7 @@ class EmployeeDailyReportsPage extends StatelessWidget {
                       child: Container(
                         height: 51,
                         width: 51,
-                        padding: EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(8),
                         child: CircularProgressIndicator(
                           color: AppColors.kPrimaryColor,
                         ),

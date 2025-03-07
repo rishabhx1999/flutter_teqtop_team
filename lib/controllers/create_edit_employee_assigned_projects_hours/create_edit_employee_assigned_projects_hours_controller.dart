@@ -468,7 +468,7 @@ class CreateEditEmployeeAssignedProjectsHoursController extends GetxController {
         .map((item) {
       return {
         "id": item.projectId,
-        "hourId": item.id ?? null,
+        "hourId": item.id,
         "assignedHours": item.assignHoursEditingController?.text ?? "",
         "paused": item.isPaused.value ? "1" : "0",
         "timeout": "0"

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:get/get.dart';
 import 'package:teqtop_team/controllers/notifications/notifications_controller.dart';
 import 'package:teqtop_team/model/dashboard/notification_model.dart';
@@ -44,10 +44,9 @@ class NotificationsPage extends StatelessWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16),
-                child: SvgPicture.asset(
+                child: Image.asset(
                   AppIcons.icBack,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color: Colors.black,
                 ),
               )),
           leadingWidth: 40,
@@ -64,11 +63,10 @@ class NotificationsPage extends StatelessWidget {
                   onTap: () {
                     Get.toNamed(AppRoutes.routeGlobalSearch);
                   },
-                  child: SvgPicture.asset(
+                  child: Image.asset(
                     AppIcons.icSearch,
                     width: 24,
-                    colorFilter:
-                        const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    color: Colors.black,
                   )),
             ),
           ],

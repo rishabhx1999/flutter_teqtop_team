@@ -1,14 +1,18 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:teqtop_team/controllers/tasks_listing/tasks_listing_controller.dart';
+import 'package:teqtop_team/model/drive_detail/file_model.dart';
 import 'package:teqtop_team/model/employees_listing/employee_model.dart';
 import 'package:teqtop_team/model/global_search/task_model.dart';
 import 'package:teqtop_team/model/media_content_model.dart';
 import 'package:teqtop_team/utils/helpers.dart';
 import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' as html_parser;
 
 import '../../config/app_routes.dart';
 import '../../consts/app_consts.dart';
@@ -25,7 +29,12 @@ import '../global_search/global_search_controller.dart';
 class TaskDetailController extends GetxController {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   int? taskId;
-  late TextEditingController commentFieldTextController;
+  List<String> taskImages = [];
+  List<FileModel> taskDocuments = [];
+  late HtmlEditorController commentFieldHtmlEditorController;
+  late RxString commentFieldHtmlEditorContent = "<p></p>".obs;
+  late RxList<String> commentFieldAttachedImages = <String>[].obs;
+  late RxList<String> commentFieldAttachedDocuments = <String>[].obs;
   RxBool areCommentsLoading = false.obs;
   RxBool isCommentCreateEditLoading = false.obs;
   RxBool isLoading = false.obs;
@@ -53,12 +62,14 @@ class TaskDetailController extends GetxController {
   RxList<MediaContentModel> descriptionItems = <MediaContentModel>[].obs;
   BuildContext? taskDetailPageContext;
   RxBool showCreateCommentWidget = false.obs;
+  RxBool areCommentFieldFilesLoading = false.obs;
   bool shouldCommentsSheetScrollerJumpToPrevious = true;
   FocusNode wholePageFocus = FocusNode();
+  Timer? commentFieldContentTimer;
 
   @override
   void onInit() {
-    initializeTextEditingController();
+    initializeHtmlEditorController();
     initializeCommentFieldTextFocusNode();
     getTaskId();
     addListenerToScrollController();
@@ -80,24 +91,34 @@ class TaskDetailController extends GetxController {
     disposeScrollController();
     disposeCommentFieldTextFocusNode();
     wholePageFocus.dispose();
+    if (commentFieldContentTimer != null) {
+      commentFieldContentTimer!.cancel();
+    }
     super.onClose();
   }
 
+  void commentFieldHtmlEditorOnInit() {
+    commentFieldHtmlEditorController
+        .insertHtml(commentFieldHtmlEditorContent.value);
+    // commentFieldContentTimer = Timer.periodic(
+    //     const Duration(milliseconds: 500),
+    //     (Timer t) async => commentFieldHtmlEditorContent.value =
+    //         await commentFieldHtmlEditorController.getText());
+  }
+
+  void commentFieldHtmlEditorControllerOnChange(String? value) {
+    if (value != null) {
+      commentFieldHtmlEditorContent.value = value;
+    }
+  }
+
   Future<void> onTapDescriptionImage(int itemIndex) async {
-    List<String> images = [];
-    for (var item in descriptionItems) {
-      if (item.imageString != null && item.downloadedImage != null) {
-        images.add(item.imageString!);
-      }
-    }
-    String? tappedImageString = descriptionItems[itemIndex].imageString;
-    int? imageIndex;
-    if (tappedImageString != null) {
-      imageIndex = images.indexOf(tappedImageString);
-    }
+    List<String> images =
+        taskImages.map((image) => AppConsts.imgInitialUrl + image).toList();
+
     Get.toNamed(AppRoutes.routeGallery, arguments: {
       AppConsts.keyImagesURLS: images,
-      AppConsts.keyIndex: imageIndex,
+      AppConsts.keyIndex: itemIndex,
     });
   }
 
@@ -133,7 +154,6 @@ class TaskDetailController extends GetxController {
           commentsSheetScrollController.position.maxScrollExtent) {
         getComments();
       }
-      showCreateCommentWidget.value = false;
     });
   }
 
@@ -142,7 +162,13 @@ class TaskDetailController extends GetxController {
     if (havePermission) {
       // Helpers.printLog(description: "TASK_DETAIL_CONTROLLER_CLICK_IMAGE");
       var image = await _imagePicker.pickImage(source: ImageSource.camera);
+      areCommentFieldFilesLoading.value = true;
       if (image != null) {
+        String? imageUrl = await uploadFile(image.path, null);
+        if (imageUrl != null && imageUrl.isNotEmpty) {
+          commentFieldAttachedImages.add(imageUrl);
+          commentFieldAttachedImages.refresh();
+        }
         // Helpers.printLog(
         //     description: "TASK_DETAIL_CONTROLLER_CLICK_IMAGE",
         //     message: "IMAGE_NOT_NULL");
@@ -155,6 +181,7 @@ class TaskDetailController extends GetxController {
         }
         commentFieldContentItemsInsertAfterIndex = null;
       }
+      areCommentFieldFilesLoading.value = false;
       // handlePostButtonEnable();
     }
   }
@@ -162,7 +189,13 @@ class TaskDetailController extends GetxController {
   void pickImages() async {
     var images = await _imagePicker.pickMultiImage();
     if (images.isNotEmpty) {
+      areCommentFieldFilesLoading.value = true;
       for (var image in images) {
+        String? imageUrl = await uploadFile(image.path, null);
+        if (imageUrl != null && imageUrl.isNotEmpty) {
+          commentFieldAttachedImages.add(imageUrl);
+          commentFieldAttachedImages.refresh();
+        }
         if (commentFieldContentItemsInsertAfterIndex == null) {
           commentFieldContent.add(MediaContentModel(image: image));
         } else {
@@ -173,6 +206,7 @@ class TaskDetailController extends GetxController {
               commentFieldContentItemsInsertAfterIndex! + 1;
         }
       }
+      areCommentFieldFilesLoading.value = false;
       commentFieldContentItemsInsertAfterIndex = null;
     }
     // handlePostButtonEnable();
@@ -182,9 +216,14 @@ class TaskDetailController extends GetxController {
     var files = await _filePicker.pickFiles(allowMultiple: true);
     if (files == null) return;
 
+    areCommentFieldFilesLoading.value = true;
     for (var file in files.files) {
       if (file.path == null) continue;
-
+      String? fileUrl = await uploadFile(file.path!, file.extension);
+      if (fileUrl != null && fileUrl.isNotEmpty) {
+        commentFieldAttachedDocuments.add(fileUrl);
+        commentFieldAttachedDocuments.refresh();
+      }
       var mediaContent = (file.extension != null &&
               ['jpg', 'jpeg', 'png'].contains(file.extension!.toLowerCase()))
           ? MediaContentModel(image: XFile(file.path!))
@@ -199,6 +238,7 @@ class TaskDetailController extends GetxController {
             commentFieldContentItemsInsertAfterIndex!, mediaContent);
       }
     }
+    areCommentFieldFilesLoading.value = false;
     commentFieldContentItemsInsertAfterIndex = null;
   }
 
@@ -206,12 +246,12 @@ class TaskDetailController extends GetxController {
     commentsSheetScrollController.dispose();
   }
 
-  void initializeTextEditingController() {
-    commentFieldTextController = TextEditingController();
+  void initializeHtmlEditorController() {
+    commentFieldHtmlEditorController = HtmlEditorController();
   }
 
   void disposeTextEditingController() {
-    commentFieldTextController.dispose();
+    // commentFieldTextController.dispose();
   }
 
   void getTaskId() {
@@ -228,33 +268,51 @@ class TaskDetailController extends GetxController {
     if (taskId != null) {
       isLoading.value = true;
       try {
-        var response = await GetRequests.getTaskDetail(taskId!);
+        Map<String, String> requestBody = {};
+        var response = await GetRequests.getTaskDetail(taskId!, requestBody);
         if (response != null) {
           if (response.task != null) {
-            taskDetail.value = response.task;
-            String? html = response.task!.description;
-            if (html != null && html.isNotEmpty) {
-              var items = await Helpers.convertHTMLToMultimediaContent(html);
-              descriptionItems.assignAll(items);
-              for (var item in descriptionItems) {
-                if (item.imageString != null && item.imageString!.isNotEmpty) {
-                  // Helpers.printLog(
-                  //     description: "TASK_DETAIL_CONTROLLER_GET_TASK_DETAIL",
-                  //     message: "IMAGE_STRING = ${item.imageString}");
-                  if (Helpers.isBase64DataUrl(item.imageString!)) {
-                    item.downloadedImage =
-                        await Helpers.convertDataUrlToFile(item.imageString!);
+            if (response.task!.description != null) {
+              response.task!.description =
+                  Helpers.updateHtmlAttributes(response.task!.description!);
+            }
+            if (response.task!.files != null &&
+                response.task!.files!.isNotEmpty) {
+              var decode = json.decode(response.task!.files!);
+              if (decode != null) {
+                var files = List<String>.from(decode);
+                for (var file in files) {
+                  if (Helpers.isImage(file)) {
+                    taskImages.add(file);
                   } else {
-                    item.downloadedImage = await Helpers.downloadFile(
-                        AppConsts.imgInitialUrl + item.imageString!,
-                        item.imageString!.split("/").last);
+                    taskDocuments.add(FileModel(file: file));
                   }
                 }
-                // Helpers.printLog(
-                //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
-                //     message: "ITEM = ${item.toString()}");
               }
             }
+            taskDetail.value = response.task;
+            // if (html != null && html.isNotEmpty) {
+            //   var items = await Helpers.convertHTMLToMultimediaContent(html);
+            //   descriptionItems.assignAll(items);
+            //   for (var item in descriptionItems) {
+            //     if (item.imageString != null && item.imageString!.isNotEmpty) {
+            //       // Helpers.printLog(
+            //       //     description: "TASK_DETAIL_CONTROLLER_GET_TASK_DETAIL",
+            //       //     message: "IMAGE_STRING = ${item.imageString}");
+            //       if (Helpers.isBase64DataUrl(item.imageString!)) {
+            //         item.downloadedImage =
+            //             await Helpers.convertDataUrlToFile(item.imageString!);
+            //       } else {
+            //         item.downloadedImage = await Helpers.downloadFile(
+            //             AppConsts.imgInitialUrl + item.imageString!,
+            //             item.imageString!.split("/").last);
+            //       }
+            //     }
+            //     // Helpers.printLog(
+            //     //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
+            //     //     message: "ITEM = ${item.toString()}");
+            //   }
+            // }
             getEmployees();
             commentsLength.value = taskDetail.value!.commentsCount ?? 0;
             openComments();
@@ -292,7 +350,7 @@ class TaskDetailController extends GetxController {
             as String?,
         'component_id': taskId,
         'component': 'task',
-        'pager': commentsPage
+        'pager': commentsPage,
       };
 
       areCommentsLoading.value = true;
@@ -300,13 +358,6 @@ class TaskDetailController extends GetxController {
         var response = await PostRequests.getTaskComments(requestBody);
         if (response != null) {
           if (response.comments != null) {
-            for (var comment in comments) {
-              if (comment != null && comment.editController != null) {
-                comment.editController!.dispose();
-                comment.editController = null;
-              }
-            }
-
             Set<int?> existingCommentIds = comments.map((c) => c?.id).toSet();
 
             List newComments = response.comments!
@@ -314,35 +365,35 @@ class TaskDetailController extends GetxController {
                 .toList();
 
             comments.addAll(newComments as Iterable<CommentList?>);
-            for (var comment in comments) {
-              if (comment != null && comment.commentItems.isEmpty) {
-                String? html = comment.comment;
-                if (html != null && html.isNotEmpty) {
-                  var items =
-                      await Helpers.convertHTMLToMultimediaContent(html);
-                  comment.commentItems.assignAll(items);
-                  for (var item in comment.commentItems) {
-                    if (item.imageString != null &&
-                        item.imageString!.isNotEmpty) {
-                      item.downloadedImage = await Helpers.downloadFile(
-                          AppConsts.imgInitialUrl + item.imageString!,
-                          item.imageString!.split("/").last);
-                    }
-                    // Helpers.printLog(
-                    //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
-                    //     message: "ITEM = ${item.toString()}");
-                  }
-                }
-              }
-            }
+            // for (var comment in comments) {
+            //   if (comment != null && comment.commentItems.isEmpty) {
+            //     String? html = comment.comment;
+            //     if (html != null && html.isNotEmpty) {
+            //       var items =
+            //           await Helpers.convertHTMLToMultimediaContent(html);
+            //       comment.commentItems.assignAll(items);
+            //       for (var item in comment.commentItems) {
+            //         if (item.imageString != null &&
+            //             item.imageString!.isNotEmpty) {
+            //           item.downloadedImage = await Helpers.downloadFile(
+            //               AppConsts.imgInitialUrl + item.imageString!,
+            //               item.imageString!.split("/").last);
+            //         }
+            //         // Helpers.printLog(
+            //         //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
+            //         //     message: "ITEM = ${item.toString()}");
+            //       }
+            //     }
+            //   }
+            // }
 
             if (editCommentPreviousValue != null && editCommentIndex != null) {
               comments.removeAt(editCommentIndex!);
             }
 
-            for (var comment in newComments) {
-              comment.editController = TextEditingController();
-            }
+            // for (var comment in newComments) {
+            //   comment.editController = TextEditingController();
+            // }
             if (previousOffset != null &&
                 shouldCommentsSheetScrollerJumpToPrevious == true) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -371,28 +422,35 @@ class TaskDetailController extends GetxController {
     //     comment.isEditing.value = false;
     //   }
     // }
-    if (commentFieldContent.isNotEmpty) {
-      isCommentCreateEditLoading.value = true;
-      String htmlComment =
-          await Helpers.convertMultimediaContentToHTML(commentFieldContent);
-      // Helpers.printLog(
-      //     description: "TASK_DETAIL_CONTROLLER_CREATE_COMMENT",
-      //     message: "CONVERTED_COMMENT = $htmlComment");
-      try {
-        if (htmlComment.isNotEmpty && taskId != null) {
+    isCommentCreateEditLoading.value = true;
+    // Helpers.printLog(
+    //     description: "TASK_DETAIL_CONTROLLER_CREATE_COMMENT",
+    //     message: "CONVERTED_COMMENT = $htmlComment");
+    try {
+      if (taskId != null) {
+        String? comment = await commentFieldHtmlEditorController.getText();
+        comment = comment.replaceAll('"', r'\"');
+        if (comment.isNotEmpty) {
+          String quotedComment = '"$comment"';
           Map<String, dynamic> requestBody = {
             'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
                 as String?,
             'component_id': taskId,
             'component': 'task',
-            'comment': '"$htmlComment"'
+            'comment': quotedComment,
+            'files': [
+              ...commentFieldAttachedImages,
+              ...commentFieldAttachedDocuments
+            ]
           };
           var response = await PostRequests.createTaskComment(requestBody);
           if (response != null) {
             if (response.latestComment != null) {
-              response.latestComment!.editController = TextEditingController();
               comments.add(response.latestComment);
-              commentFieldTextController.clear();
+              commentFieldHtmlEditorContent.value = "<p></p>";
+              commentFieldAttachedImages.clear();
+              commentFieldAttachedDocuments.clear();
+              showCreateCommentWidget.value = false;
               commentFieldContent.clear();
               isCommentFieldTextEmpty.value = true;
               commentsLength.value += 1;
@@ -404,7 +462,7 @@ class TaskDetailController extends GetxController {
               await getComments();
               commentsSheetScrollController.animateTo(
                 0.0,
-                duration: Duration(milliseconds: 500),
+                duration: const Duration(milliseconds: 500),
                 curve: Curves.easeInOut,
               );
             } else {
@@ -414,28 +472,42 @@ class TaskDetailController extends GetxController {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         }
-      } finally {
-        isCommentCreateEditLoading.value = false;
-        shouldCommentsSheetScrollerJumpToPrevious = true;
       }
+    } finally {
+      isCommentCreateEditLoading.value = false;
+      shouldCommentsSheetScrollerJumpToPrevious = true;
     }
   }
 
-  Future<void> onTapCommentImage(int commentId, int itemIndex) async {
+  Future<void> onTapCommentImage(int commentId, String? tappedImage) async {
     var comment = comments.firstWhereOrNull(
         (comment) => comment != null && comment.id == commentId);
     if (comment == null) return;
     List<String> images = [];
-    for (var item in comment.commentItems) {
-      if (item.imageString != null && item.downloadedImage != null) {
-        images.add(item.imageString!);
+    if (comment.files is String && comment.files.isNotEmpty) {
+      var decode = json.decode(comment.files);
+      if (decode != null) {
+        var files = List<String>.from(decode);
+        for (var file in files) {
+          if (Helpers.isImage(file)) {
+            images.add(file);
+          }
+        }
+      }
+    } else if (comment.files is List && comment.files.isNotEmpty) {
+      var files = comment.files;
+      for (var file in files) {
+        if (Helpers.isImage(file)) {
+          images.add(file);
+        }
       }
     }
-    String? tappedImageString = comment.commentItems[itemIndex].imageString;
     int? imageIndex;
-    if (tappedImageString != null) {
-      imageIndex = images.indexOf(tappedImageString);
+    if (tappedImage != null) {
+      imageIndex = images.indexOf(tappedImage);
     }
+    images = images.map((image) => AppConsts.imgInitialUrl + image).toList();
+
     Get.toNamed(AppRoutes.routeGallery, arguments: {
       AppConsts.keyImagesURLS: images,
       AppConsts.keyIndex: imageIndex,
@@ -447,39 +519,50 @@ class TaskDetailController extends GetxController {
     if (taskId != null &&
         editCommentPreviousValue != null &&
         editCommentPreviousValue!.id != null &&
-        editCommentIndex != null &&
-        commentFieldContent.isNotEmpty) {
+        editCommentIndex != null) {
       isCommentCreateEditLoading.value = true;
       try {
-        String htmlComment =
-            await Helpers.convertMultimediaContentToHTML(commentFieldContent);
-        if (htmlComment.isNotEmpty) {
+        String? comment = await commentFieldHtmlEditorController.getText();
+        comment = comment.replaceAll('"', r'\"');
+        if (comment.isNotEmpty) {
+          String quotedComment = '"$comment"';
           Map<String, dynamic> requestBody = {
             'component_id': taskId,
             'component': 'task',
-            'comment': htmlComment,
-            'id': editCommentPreviousValue!.id
+            'comment': quotedComment,
+            'id': editCommentPreviousValue!.id,
           };
-          var response = await PostRequests.editTaskComment(requestBody);
+          Map<String, dynamic> requestBody2 = {
+            'files': [
+              ...commentFieldAttachedImages,
+              ...commentFieldAttachedDocuments
+            ]
+          };
+          var response =
+              await PostRequests.editTaskComment(requestBody, requestBody2);
           if (response != null) {
             if (response.status == "true") {
-              editCommentPreviousValue!.comment = htmlComment;
-              String? html = editCommentPreviousValue!.comment;
-              if (html != null && html.isNotEmpty) {
-                var items = await Helpers.convertHTMLToMultimediaContent(html);
-                editCommentPreviousValue!.commentItems.assignAll(items);
-                for (var item in editCommentPreviousValue!.commentItems) {
-                  if (item.imageString != null &&
-                      item.imageString!.isNotEmpty) {
-                    item.downloadedImage = await Helpers.downloadFile(
-                        AppConsts.imgInitialUrl + item.imageString!,
-                        item.imageString!.split("/").last);
-                  }
-                  // Helpers.printLog(
-                  //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
-                  //     message: "ITEM = ${item.toString()}");
-                }
-              }
+              editCommentPreviousValue!.comment =
+                  await commentFieldHtmlEditorController.getText();
+              editCommentPreviousValue!.files = json.encode([
+                ...commentFieldAttachedImages,
+                ...commentFieldAttachedDocuments
+              ]);
+              // if (html != null && html.isNotEmpty) {
+              //   var items = await Helpers.convertHTMLToMultimediaContent(html);
+              //   editCommentPreviousValue!.commentItems.assignAll(items);
+              //   for (var item in editCommentPreviousValue!.commentItems) {
+              //     if (item.imageString != null &&
+              //         item.imageString!.isNotEmpty) {
+              //       item.downloadedImage = await Helpers.downloadFile(
+              //           AppConsts.imgInitialUrl + item.imageString!,
+              //           item.imageString!.split("/").last);
+              //     }
+              //     // Helpers.printLog(
+              //     //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
+              //     //     message: "ITEM = ${item.toString()}");
+              //   }
+              // }
             } else {
               Get.snackbar("error".tr, "message_server_error".tr);
             }
@@ -496,7 +579,10 @@ class TaskDetailController extends GetxController {
         editCommentIndex = null;
         // editComment.isEditing.value = false;
         comments.refresh();
-        commentFieldTextController.clear();
+        commentFieldHtmlEditorContent.value = "<p></p>";
+        commentFieldAttachedImages.clear();
+        commentFieldAttachedDocuments.clear();
+        showCreateCommentWidget.value = false;
         isCommentFieldTextEmpty.value = true;
       }
     }
@@ -666,47 +752,91 @@ class TaskDetailController extends GetxController {
     }
   }
 
+  void cancelCommentEditing() {
+    if (editCommentPreviousValue != null && editCommentIndex != null) {
+      comments.insert(editCommentIndex!, editCommentPreviousValue);
+      comments.refresh();
+    }
+    commentFieldHtmlEditorContent.value = "<p></p>";
+    commentFieldAttachedImages.clear();
+    commentFieldAttachedDocuments.clear();
+    showCreateCommentWidget.value = false;
+    isEditingComment.value = false;
+    if (commentFieldContentTimer != null) {
+      commentFieldContentTimer!.cancel();
+    }
+  }
+
   Future<void> handleCommentOnEdit(int commentId) async {
     // for (var comment in comments) {
     //   if (comment != null) {
     //     comment.isEditing.value = false;
     //   }
     // }
-    if (editCommentPreviousValue != null && editCommentIndex != null) {
-      comments.insert(editCommentIndex!, editCommentPreviousValue);
-      comments.refresh();
-    }
-    var editComment = comments.firstWhereOrNull(
-        (comment) => comment != null && comment.id == commentId);
-    editCommentPreviousValue = editComment;
-    isEditingComment.value = true;
-    editCommentIndex = comments.indexOf(editComment);
-    comments.remove(editComment);
-    if (editComment != null) {
-      // editComment.isEditing.value = true;
-      commentFieldContent.clear();
-      commentFieldTextController.clear();
-      isCommentFieldTextEmpty.value = true;
-      commentFieldContentItemsInsertAfterIndex = null;
-      commentFieldContentEditIndex = null;
-      if (editComment.comment != null) {
-        // Helpers.printLog(
-        //     description: "TASK_DETAIL_CONTROLLER_HANDLE_COMMENT_ON_EDIT",
-        //     message: "CURRENT_COMMENT = ${editComment.comment}");
-        var editCommentItems =
-            await Helpers.convertHTMLToMultimediaContent(editComment.comment!);
-        commentFieldContent.assignAll(editCommentItems);
-        showCreateCommentWidget.value = true;
-        // commentFieldTextController.text =
-        //     Helpers.cleanHtml(editComment.comment ?? "").substring(
-        //         1, Helpers.cleanHtml(editComment.comment ?? "").length - 1);
-        // if (editComment.editController!.text.isNotEmpty) {
-        //   editComment.showTextFieldSuffix.value = true;
-        // } else {
-        //   editComment.showTextFieldSuffix.value = false;
-        // }
-        // editComment.focusNode.requestFocus();
-        commentFieldTextFocusNode!.requestFocus();
+    if (isEditingComment.value == false &&
+        commentFieldHtmlEditorContent.value == "<p></p>" &&
+        commentFieldAttachedImages.isEmpty &&
+        commentFieldAttachedDocuments.isEmpty) {
+      Helpers.printLog(
+          description: "TASK_DETAIL_CONTROLLER_HANDLE_COMMENT_ON_EDIT");
+      showCreateCommentWidget.value = false;
+      var editComment = comments.firstWhereOrNull(
+          (comment) => comment != null && comment.id == commentId);
+      editCommentPreviousValue = editComment;
+      isEditingComment.value = true;
+      editCommentIndex = comments.indexOf(editComment);
+      comments.remove(editComment);
+      if (editComment != null) {
+        // editComment.isEditing.value = true;
+        commentFieldContent.clear();
+        commentFieldHtmlEditorContent.value = "<p></p>";
+        commentFieldAttachedImages.clear();
+        commentFieldAttachedDocuments.clear();
+        isCommentFieldTextEmpty.value = true;
+        commentFieldContentItemsInsertAfterIndex = null;
+        commentFieldContentEditIndex = null;
+        if (editComment.comment != null) {
+          // Helpers.printLog(
+          //     description: "TASK_DETAIL_CONTROLLER_HANDLE_COMMENT_ON_EDIT",
+          //     message: "CURRENT_COMMENT = ${editComment.comment}");
+          var editCommentItems = await Helpers.convertHTMLToMultimediaContent(
+              editComment.comment!);
+          commentFieldContent.assignAll(editCommentItems);
+          commentFieldHtmlEditorContent.value = editComment.comment!;
+          if (editComment.files is String? &&
+              editComment.files != null &&
+              editComment.files.isNotEmpty) {
+            var decode = json.decode(editComment.files);
+            Helpers.printLog(
+                description: "TASK_DETAIL_CONTROLLER_HANDLE_COMMENT_ON_EDIT",
+                message: "EXISTING_COMMENT_FILES = ${decode.toString()}");
+            if (decode != null) {
+              var files = List<String>.from(decode);
+              for (var file in files) {
+                if (Helpers.isImage(file)) {
+                  commentFieldAttachedImages.add(file);
+                } else {
+                  commentFieldAttachedDocuments.add(file);
+                }
+              }
+            }
+          }
+          commentFieldHtmlEditorContent.refresh();
+          Future.delayed(const Duration(milliseconds: 500), () {
+            showCreateCommentWidget.value = true;
+          });
+
+          // commentFieldTextController.text =
+          //     Helpers.cleanHtml(editComment.comment ?? "").substring(
+          //         1, Helpers.cleanHtml(editComment.comment ?? "").length - 1);
+          // if (editComment.editController!.text.isNotEmpty) {
+          //   editComment.showTextFieldSuffix.value = true;
+          // } else {
+          //   editComment.showTextFieldSuffix.value = false;
+          // }
+          // editComment.focusNode.requestFocus();
+          commentFieldTextFocusNode!.requestFocus();
+        }
       }
     }
   }
@@ -724,12 +854,6 @@ class TaskDetailController extends GetxController {
         var response = await PostRequests.deleteTaskComment(requestBody);
         if (response != null) {
           if (response.status == "success") {
-            var deleteComment = comments.firstWhereOrNull(
-                (comment) => comment != null && comment.id == commentId);
-            if (deleteComment != null && deleteComment.editController != null) {
-              deleteComment.editController!.dispose();
-              deleteComment.editController = null;
-            }
             commentsLength.value -= 1;
             commentsLength.refresh();
             commentsRefreshNeeded = true;
@@ -757,6 +881,7 @@ class TaskDetailController extends GetxController {
       //     message: "COULD_NOT_FIND_TASKS_LISTING_CONTROLLER");
     }
     if (tasksListingController != null) {
+      tasksListingController.tasks.clear();
       tasksListingController.getTasks();
     }
 
@@ -801,11 +926,6 @@ class TaskDetailController extends GetxController {
 
   void handleCommentOnDelete(int commentId) {
     FocusManager.instance.primaryFocus?.unfocus();
-    for (var comment in comments) {
-      if (comment != null) {
-        comment.isEditing.value = false;
-      }
-    }
     CommonAlertDialog.showDialog(
       message: "message_comment_delete_confirmation",
       positiveText: "yes",
@@ -830,22 +950,22 @@ class TaskDetailController extends GetxController {
   }
 
   void addTextInCommentContent() {
-    if (commentFieldTextController.text.isEmpty) return;
-
-    final newItem = MediaContentModel(text: commentFieldTextController.text);
-
-    if (commentFieldContentEditIndex != null) {
-      commentFieldContent.insert(commentFieldContentEditIndex!, newItem);
-    } else {
-      final insertIndex = (commentFieldContentItemsInsertAfterIndex != null)
-          ? commentFieldContentItemsInsertAfterIndex! + 1
-          : commentFieldContent.length;
-      commentFieldContent.insert(insertIndex, newItem);
-    }
-    commentFieldContentEditIndex = null;
-    commentFieldContentItemsInsertAfterIndex = null;
-    commentFieldTextController.clear();
-    isCommentFieldTextEmpty.value = true;
+    // if (commentFieldTextController.text.isEmpty) return;
+    //
+    // final newItem = MediaContentModel(text: commentFieldTextController.text);
+    //
+    // if (commentFieldContentEditIndex != null) {
+    //   commentFieldContent.insert(commentFieldContentEditIndex!, newItem);
+    // } else {
+    //   final insertIndex = (commentFieldContentItemsInsertAfterIndex != null)
+    //       ? commentFieldContentItemsInsertAfterIndex! + 1
+    //       : commentFieldContent.length;
+    //   commentFieldContent.insert(insertIndex, newItem);
+    // }
+    // commentFieldContentEditIndex = null;
+    // commentFieldContentItemsInsertAfterIndex = null;
+    // commentFieldTextController.clear();
+    // isCommentFieldTextEmpty.value = true;
   }
 
   void removeCommentContentItem(MediaContentModel item) {
@@ -857,14 +977,24 @@ class TaskDetailController extends GetxController {
     Get.snackbar("Success", "Adding in between");
   }
 
+  void removeCommentFieldAttachedDocument(String document) {
+    commentFieldAttachedDocuments.remove(document);
+    commentFieldAttachedDocuments.refresh();
+  }
+
+  void removeCommentFieldAttachedImage(String image) {
+    commentFieldAttachedImages.remove(image);
+    commentFieldAttachedImages.refresh();
+  }
+
   void editCommentContentText(int index) {
-    if (commentFieldContent[index].text != null &&
-        commentFieldContent[index].text!.isNotEmpty) {
-      commentFieldTextController.clear();
-      commentFieldTextController.text = commentFieldContent[index].text!;
-      commentFieldContent.removeAt(index);
-      commentFieldContentEditIndex = index;
-    }
+    // if (commentFieldContent[index].text != null &&
+    //     commentFieldContent[index].text!.isNotEmpty) {
+    //   commentFieldTextController.clear();
+    //   commentFieldTextController.text = commentFieldContent[index].text!;
+    //   commentFieldContent.removeAt(index);
+    //   commentFieldContentEditIndex = index;
+    // }
   }
 
   void openComments() async {
@@ -872,11 +1002,15 @@ class TaskDetailController extends GetxController {
       editCommentPreviousValue = null;
       isEditingComment.value = false;
       editCommentIndex = null;
-      commentFieldTextController.clear();
+      commentFieldHtmlEditorContent.value = "<p></p>";
+      commentFieldAttachedImages.clear();
+      commentFieldAttachedDocuments.clear();
       isCommentFieldTextEmpty.value = true;
       commentFieldContentItemsInsertAfterIndex = null;
       commentFieldContentEditIndex = null;
       commentFieldContent.clear();
+      commentFieldAttachedDocuments.clear();
+      commentFieldAttachedImages.clear();
       if (commentFieldTextFocusNode != null) {
         commentFieldTextFocusNode!.dispose();
         commentFieldTextFocusNode = null;
@@ -887,7 +1021,9 @@ class TaskDetailController extends GetxController {
       TaskCommentsBottomSheet.show(
         context: taskDetailPageContext!,
         createCommentWidget: CommonMultimediaContentCreateWidget(
-          textController: commentFieldTextController,
+          cancelEditing: cancelCommentEditing,
+          htmlEditorController: commentFieldHtmlEditorController,
+          htmlEditorOnInit: commentFieldHtmlEditorOnInit,
           hint: 'enter_text'.tr,
           createComment: createComment,
           isEditingComment: isEditingComment,
@@ -909,6 +1045,12 @@ class TaskDetailController extends GetxController {
           textFieldBackgroundColor: Colors.grey.withValues(alpha: 0.1),
           isCreateOrEditLoading: isCommentCreateEditLoading,
           focusNode: commentFieldTextFocusNode,
+          htmlEditorOnChange: commentFieldHtmlEditorControllerOnChange,
+          attachedImages: commentFieldAttachedImages,
+          attachedDocuments: commentFieldAttachedDocuments,
+          removeAttachedImage: removeCommentFieldAttachedImage,
+          removeAttachedDocument: removeCommentFieldAttachedDocument,
+          areAttachedFilesLoading: areCommentFieldFilesLoading,
         ),
         comments: comments,
         commentCount: commentsLength,

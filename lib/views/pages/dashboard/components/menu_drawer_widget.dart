@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:teqtop_team/config/app_route_observer.dart';
 import 'package:teqtop_team/config/app_routes.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
@@ -11,7 +10,6 @@ import 'package:teqtop_team/views/dialogs/common/common_alert_dialog.dart';
 import 'package:teqtop_team/views/pages/dashboard/components/drawer_menu_list_tile.dart';
 
 import '../../../../config/app_colors.dart';
-import '../../../../utils/helpers.dart';
 
 class MenuDrawerWidget extends StatelessWidget {
   const MenuDrawerWidget({super.key});

@@ -1,6 +1,6 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:get/get.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
 
@@ -41,14 +41,12 @@ class CommonDropdownWidget extends StatelessWidget {
             isExpanded: true,
             iconStyleData: IconStyleData(
                 icon: Padding(
-                  padding: EdgeInsets.fromLTRB(8, 8, 16, 8),
-                  child: SvgPicture.asset(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
+                  child: Image.asset(
                     trailingIcon ?? AppIcons.icDropdown,
                     width: 16,
-                    colorFilter: ColorFilter.mode(
-                        trailingIconColor ??
-                            Colors.black.withValues(alpha: 0.5),
-                        BlendMode.srcIn),
+                    color: trailingIconColor ??
+                        Colors.black.withValues(alpha: 0.5),
                   ),
                 ),
                 iconSize: 40),

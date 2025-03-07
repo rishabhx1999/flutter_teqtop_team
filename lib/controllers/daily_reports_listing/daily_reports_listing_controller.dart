@@ -31,14 +31,21 @@ class DailyReportsListingController extends GetxController {
   RxBool areDailyReportsLoading = false.obs;
   RxList<DailyReport?> dailyReports = <DailyReport>[].obs;
   RxInt notificationsCount = 0.obs;
+  late TextEditingController startDateController;
+  late TextEditingController endDateController;
+  DateTime? selectedStartDate;
+  DateTime? selectedEndDate;
+  final ScrollController scrollController = ScrollController();
 
   @override
   void onInit() {
+    initializeTextEditingControllers();
     getProfilePhoto();
     getEmployees();
     initializeSelectedTime();
     getDailyReports();
     getNotificationsCount();
+    addListenerToScrollController();
 
     super.onInit();
   }
@@ -51,8 +58,47 @@ class DailyReportsListingController extends GetxController {
 
   @override
   void onClose() {
-    // TODO: implement onClose
+    disposeTextEditingControllers();
+    scrollController.dispose();
     super.onClose();
+  }
+
+  void initializeTextEditingControllers() {
+    startDateController = TextEditingController();
+    endDateController = TextEditingController();
+  }
+
+  void disposeTextEditingControllers() {
+    startDateController.dispose();
+    endDateController.dispose();
+  }
+
+  Future<void> handleStartDateFieldOnTap(dynamic context) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    selectedStartDate = await showDatePicker(
+      initialDate: selectedStartDate,
+      firstDate: DateTime(2013),
+      lastDate: selectedEndDate ?? DateTime.now(),
+      context: context,
+    );
+    if (selectedStartDate != null) {
+      startDateController.text =
+          DateFormat('yyyy-MM-dd').format(selectedStartDate!);
+    }
+  }
+
+  Future<void> handleEndDateFieldOnTap(dynamic context) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    selectedEndDate = await showDatePicker(
+      initialDate: selectedEndDate,
+      firstDate: selectedStartDate ?? DateTime(2013),
+      lastDate: DateTime.now(),
+      context: context,
+    );
+    if (selectedEndDate != null) {
+      endDateController.text =
+          DateFormat('yyyy-MM-dd').format(selectedEndDate!);
+    }
   }
 
   void initializeSelectedTime() {
@@ -162,11 +208,12 @@ class DailyReportsListingController extends GetxController {
     Map<String, String> requestBody = {
       'order%5B0%5D%5Bcolumn%5D': '0',
       'order%5B0%5D%5Bdir%5D': 'DESC',
-      'start': '0',
-      'length': '-1',
+      'length': '10',
       'search%5Bvalue%5D': '',
       'search%5Bregex%5D': 'false'
     };
+    int startValue = (dailyReports.length ~/ 10) * 10;
+    requestBody['start'] = startValue.toString();
 
     if (selectedUser.value != null &&
         selectedUser.value!.name != "select_user".tr) {
@@ -189,7 +236,7 @@ class DailyReportsListingController extends GetxController {
             selectedTime.value!.time == "yesterday".tr,
             'date',
             DateFormat('y-M-d')
-                .format(DateTime.now().subtract(Duration(days: 1))));
+                .format(DateTime.now().subtract(const Duration(days: 1))));
       }
 
       if (selectedTime.value!.time == "current_week".tr) {
@@ -216,6 +263,15 @@ class DailyReportsListingController extends GetxController {
         requestBody.addIf(selectedTime.value!.time == "last_month".tr, '_end',
             DateFormat('y-M-d').format(Helpers.getLastDayOfLastMonth()));
       }
+
+      if (selectedTime.value!.time == "select_date".tr &&
+          selectedStartDate != null &&
+          selectedEndDate != null) {
+        requestBody.addIf(selectedTime.value!.time == "select_date".tr,
+            '_begin', DateFormat('y-M-d').format(selectedStartDate!));
+        requestBody.addIf(selectedTime.value!.time == "select_date".tr, '_end',
+            DateFormat('y-M-d').format(selectedEndDate!));
+      }
     }
 
     areDailyReportsLoading.value = true;
@@ -223,7 +279,14 @@ class DailyReportsListingController extends GetxController {
       var response = await GetRequests.getDailyReports(requestBody);
       if (response != null) {
         if (response.data != null) {
-          dailyReports.assignAll(response.data as Iterable<DailyReport?>);
+          for (var existingReport in dailyReports) {
+            response.data!.removeWhere((report) =>
+                report != null &&
+                existingReport != null &&
+                report.id == existingReport.id);
+          }
+
+          dailyReports.addAll(response.data as Iterable<DailyReport?>);
         }
       } else {
         Get.snackbar("error".tr, "message_server_error".tr);
@@ -231,6 +294,16 @@ class DailyReportsListingController extends GetxController {
     } finally {
       areDailyReportsLoading.value = false;
     }
+  }
+
+  void addListenerToScrollController() {
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        areDailyReportsLoading.value = true;
+        getDailyReports();
+      }
+    });
   }
 
   void handleDailyReportOnTap(int dailyReportIndex) {

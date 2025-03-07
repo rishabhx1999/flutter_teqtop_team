@@ -1,7 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:get/get.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/controllers/folder_detail/folder_detail_controller.dart';
@@ -42,10 +42,9 @@ class FolderDetailPage extends StatelessWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16),
-                child: SvgPicture.asset(
+                child: Image.asset(
                   AppIcons.icBack,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color: Colors.black,
                 ),
               )),
           leadingWidth: 40,
@@ -74,11 +73,11 @@ class FolderDetailPage extends StatelessWidget {
                   child: DottedBorder(
                     color: Colors.black.withValues(alpha: 0.2),
                     padding: EdgeInsets.zero,
-                    dashPattern: [4],
+                    dashPattern: const [4],
                     strokeWidth: 1,
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 34),
+                      padding: const EdgeInsets.symmetric(vertical: 34),
                       color: AppColors.colorF7F7F7,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -120,62 +119,154 @@ class FolderDetailPage extends StatelessWidget {
                 () => ListView.separated(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 22),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
                     itemBuilder: (context, index) {
                       return folderDetailController.isLoading.value
-                          ? FileOrFolderWidgetShimmer()
+                          ? const FileOrFolderWidgetShimmer()
                           : GestureDetector(
-                              onTap: () {
-                                Helpers.openFile(
-                                    path: folderDetailController.files[index],
-                                    fileName: folderDetailController
-                                        .files[index]
-                                        .split("/")
-                                        .last);
+                              onTap: () async {
+                                if (Helpers.isImage(
+                                    folderDetailController.files[index].file)) {
+                                  folderDetailController.onTapImage(index);
+                                } else {
+                                  folderDetailController
+                                      .files[index].isLoading.value = true;
+                                  await Helpers.openFile(
+                                      path: folderDetailController
+                                          .files[index].file,
+                                      fileName: folderDetailController
+                                          .files[index].file
+                                          .split("/")
+                                          .last);
+                                  folderDetailController
+                                      .files[index].isLoading.value = false;
+                                }
                               },
                               behavior: HitTestBehavior.opaque,
                               child: Helpers.isImage(
-                                      folderDetailController.files[index])
-                                  ? FadeInImage.assetNetwork(
-                                      width: double.infinity,
-                                      height: 144,
-                                      placeholder: AppImages.imgPlaceholder,
-                                      image: AppConsts.imgInitialUrl +
-                                          folderDetailController.files[index],
-                                      imageErrorBuilder: (BuildContext context,
-                                          Object error,
-                                          StackTrace? stackTrace) {
-                                        return Image.asset(
-                                          AppImages.imgPlaceholder,
-                                          width: double.infinity,
-                                          height: 144,
-                                          fit: BoxFit.cover,
-                                        );
-                                      },
-                                      fit: BoxFit.cover,
-                                    )
+                                      folderDetailController.files[index].file)
+                                  ? Stack(children: [
+                                      FadeInImage.assetNetwork(
+                                        width: double.infinity,
+                                        height: 144,
+                                        placeholder: AppImages.imgPlaceholder,
+                                        image: AppConsts.imgInitialUrl +
+                                            folderDetailController
+                                                .files[index].file,
+                                        imageErrorBuilder:
+                                            (BuildContext context, Object error,
+                                                StackTrace? stackTrace) {
+                                          return Image.asset(
+                                            AppImages.imgPlaceholder,
+                                            width: double.infinity,
+                                            height: 144,
+                                            fit: BoxFit.cover,
+                                          );
+                                        },
+                                        fit: BoxFit.cover,
+                                      ),
+                                      Positioned(
+                                          right: 0,
+                                          top: 0,
+                                          child: GestureDetector(
+                                              onTap: () {
+                                                folderDetailController
+                                                    .onTapFileCross(index);
+                                              },
+                                              behavior: HitTestBehavior.opaque,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8),
+                                                child: Container(
+                                                  width: 20,
+                                                  height: 20,
+                                                  decoration: BoxDecoration(
+                                                      color: AppColors
+                                                          .kPrimaryColor,
+                                                      shape: BoxShape.circle),
+                                                  child: const Center(
+                                                    child: Icon(
+                                                      Icons.close_rounded,
+                                                      color: Colors.white,
+                                                      size: 12,
+                                                    ),
+                                                  ),
+                                                ),
+                                              )))
+                                    ])
                                   : folderDetailController
-                                          .files[index].isNotEmpty
-                                      ? Container(
-                                          width: double.infinity,
-                                          height: 144,
-                                          padding: const EdgeInsets.all(16),
-                                          color: AppColors.kPrimaryColor,
-                                          child: Center(
-                                            child: Text(
-                                              folderDetailController
-                                                  .files[index]
-                                                  .split("/")
-                                                  .last,
-                                              maxLines: 3,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                      color: Colors.white),
+                                          .files[index].file.isNotEmpty
+                                      ? Stack(
+                                          children: [
+                                            Obx(
+                                              () => Container(
+                                                width: double.infinity,
+                                                height: 144,
+                                                padding: folderDetailController
+                                                        .files[index]
+                                                        .isLoading
+                                                        .value
+                                                    ? const EdgeInsets.all(16)
+                                                    : const EdgeInsets.only(
+                                                        left: 16,
+                                                        top: 24,
+                                                        right: 32,
+                                                        bottom: 16),
+                                                color: AppColors.kPrimaryColor,
+                                                child: folderDetailController
+                                                        .files[index]
+                                                        .isLoading
+                                                        .value
+                                                    ? const Center(
+                                                        child: SizedBox(
+                                                            width: 32,
+                                                            height: 32,
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                              color:
+                                                                  Colors.white,
+                                                              strokeWidth: 2,
+                                                            )),
+                                                      )
+                                                    : Text(
+                                                        folderDetailController
+                                                            .files[index].file
+                                                            .split("/")
+                                                            .last,
+                                                        maxLines: 3,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .bodyMedium
+                                                            ?.copyWith(
+                                                                color: Colors
+                                                                    .white),
+                                                      ),
+                                              ),
                                             ),
-                                          ),
+                                            Positioned(
+                                                right: 0,
+                                                top: 0,
+                                                child: GestureDetector(
+                                                    onTap: () {
+                                                      folderDetailController
+                                                          .onTapFileCross(
+                                                              index);
+                                                    },
+                                                    behavior:
+                                                        HitTestBehavior.opaque,
+                                                    child: const Padding(
+                                                      padding:
+                                                          EdgeInsets.all(
+                                                              8),
+                                                      child: Icon(
+                                                        Icons.close_rounded,
+                                                        color: Colors.white,
+                                                        size: 20,
+                                                      ),
+                                                    )))
+                                          ],
                                         )
                                       : const SizedBox(),
                             );

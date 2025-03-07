@@ -6,7 +6,9 @@ class AppConsts {
   static const String appName = 'Teqtop Team';
   static const double tabFontFactor = 1.5;
   static const double mobileFontFactor = 1.0;
-  static const String imgInitialUrl = "https://dev.team.teqtop.com";
+  // static const String imgInitialUrl = "https://dev.team.teqtop.com";
+  static const String imgInitialUrl = "https://new.teqtop.com";
+  // static const String imgInitialUrl = "https://updateteamportal.teqtop.com";
 
   // false on release
   static const bool isDebug = true;

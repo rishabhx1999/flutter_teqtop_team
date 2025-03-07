@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_html/flutter_html.dart';
+
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
@@ -56,10 +57,9 @@ class TaskDetailPage extends StatelessWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16),
-                child: SvgPicture.asset(
+                child: Image.asset(
                   AppIcons.icBack,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color: Colors.black,
                 ),
               )),
           leadingWidth: 40,
@@ -87,7 +87,7 @@ class TaskDetailPage extends StatelessWidget {
             //         mainAxisAlignment: MainAxisAlignment.center,
             //         crossAxisAlignment: CrossAxisAlignment.center,
             //         children: [
-            //           SvgPicture.asset(
+            //           Image.asset(
             //             AppIcons.icEdit,
             //             width: 24,
             //           ),
@@ -124,7 +124,7 @@ class TaskDetailPage extends StatelessWidget {
             //         mainAxisAlignment: MainAxisAlignment.center,
             //         crossAxisAlignment: CrossAxisAlignment.center,
             //         children: [
-            //           SvgPicture.asset(
+            //           Image.asset(
             //             AppIcons.icEdit,
             //             width: 24,
             //           ),
@@ -215,7 +215,7 @@ class TaskDetailPage extends StatelessWidget {
                           color: Colors.black.withValues(alpha: 0.1),
                           width: 0.5)),
                   child: Center(
-                    child: SvgPicture.asset(
+                    child: Image.asset(
                       AppIcons.icPerson,
                       width: 24,
                     ),
@@ -224,12 +224,13 @@ class TaskDetailPage extends StatelessWidget {
               ),
             ),
             PopupMenuButton(
-                padding: EdgeInsets.only(right: 16),
+                padding: const EdgeInsets.only(right: 16),
                 menuPadding: EdgeInsets.zero,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero),
                 style:
                     IconButton.styleFrom(splashFactory: NoSplash.splashFactory),
-                icon: SvgPicture.asset(
+                icon: Image.asset(
                   AppIcons.icMoreHorizontal,
                   width: 24,
                 ),
@@ -244,7 +245,7 @@ class TaskDetailPage extends StatelessWidget {
                 itemBuilder: (context) => [
                       PopupMenuItem(
                           value: "edit".tr,
-                          padding: EdgeInsets.only(left: 16),
+                          padding: const EdgeInsets.only(left: 16),
                           child: Text(
                             "edit".tr,
                             style: Theme.of(context)
@@ -256,7 +257,7 @@ class TaskDetailPage extends StatelessWidget {
                           )),
                       PopupMenuItem(
                           value: "delete".tr,
-                          padding: EdgeInsets.only(left: 16),
+                          padding: const EdgeInsets.only(left: 16),
                           child: Text(
                             "delete".tr,
                             style: Theme.of(context)
@@ -290,8 +291,8 @@ class TaskDetailPage extends StatelessWidget {
                       ),
                       Container(
                         width: double.infinity,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
                         decoration: BoxDecoration(
                             color: AppColors.colorF9F9F9,
                             borderRadius: BorderRadius.zero),
@@ -306,7 +307,8 @@ class TaskDetailPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 24),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 24),
                                   child: Obx(
                                     () => taskDetailController.isLoading.value
                                         ? Shimmer.fromColors(
@@ -408,192 +410,432 @@ class TaskDetailPage extends StatelessWidget {
                                           color: AppColors.shimmerBaseColor,
                                         ),
                                       ))
-                                  : ListView.separated(
-                                      physics: NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemBuilder: (context, index) {
-                                        return taskDetailController
-                                                    .descriptionItems[index]
-                                                    .text !=
-                                                null
-                                            ? SelectableText(
+                                  : Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        taskDetailController
+                                                        .taskDetail.value !=
+                                                    null &&
+                                                taskDetailController.taskDetail
+                                                        .value!.description !=
+                                                    null &&
                                                 taskDetailController
-                                                    .descriptionItems[index]
-                                                    .text!,
-                                                textAlign: TextAlign.start,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium,
+                                                    .taskDetail
+                                                    .value!
+                                                    .description!
+                                                    .isNotEmpty
+                                            ? Html(
+                                                data: taskDetailController
+                                                            .taskDetail.value !=
+                                                        null
+                                                    ? taskDetailController
+                                                            .taskDetail
+                                                            .value!
+                                                            .description ??
+                                                        ""
+                                                    : "",
+                                                onLinkTap:
+                                                    (url, attributes, element) {
+                                                  if (url != null) {
+                                                    Helpers.openLink(url);
+                                                  }
+                                                },
                                               )
-                                            : taskDetailController
-                                                            .descriptionItems[
-                                                                index]
-                                                            .imageString !=
-                                                        null &&
-                                                    taskDetailController
-                                                            .descriptionItems[
-                                                                index]
-                                                            .downloadedImage !=
-                                                        null
-                                                ? GestureDetector(
-                                                    behavior:
-                                                        HitTestBehavior.opaque,
-                                                    onTap: () {
-                                                      taskDetailController
-                                                          .onTapDescriptionImage(
-                                                              index);
-                                                    },
-                                                    child: Image.file(
-                                                      taskDetailController
-                                                          .descriptionItems[
-                                                              index]
-                                                          .downloadedImage!,
-                                                      height: 250,
-                                                      fit: BoxFit.contain,
-                                                    ),
-                                                  )
-                                                : taskDetailController
-                                                            .descriptionItems[
-                                                                index]
-                                                            .fileString !=
-                                                        null
-                                                    ? GestureDetector(
+                                            : const SizedBox(),
+                                        Visibility(
+                                          visible: taskDetailController
+                                                  .taskImages.isNotEmpty ||
+                                              taskDetailController
+                                                  .taskDocuments.isNotEmpty,
+                                          child: Container(
+                                            margin: const EdgeInsets.only(
+                                                top: 10, left: 10),
+                                            height: 2,
+                                            width: 120,
+                                            color: Colors.black
+                                                .withValues(alpha: 0.1),
+                                          ),
+                                        ),
+                                        Visibility(
+                                            visible: taskDetailController
+                                                .taskImages.isNotEmpty,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
+                                              child: SizedBox(
+                                                height: 100,
+                                                child: ListView.separated(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 10),
+                                                    physics:
+                                                        const BouncingScrollPhysics(),
+                                                    shrinkWrap: true,
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      return GestureDetector(
                                                         behavior:
                                                             HitTestBehavior
                                                                 .opaque,
-                                                        onTap: () async {
-                                                          if (taskDetailController
-                                                              .descriptionItems[
-                                                                  index]
-                                                              .fileString!
-                                                              .isNotEmpty) {
-                                                            taskDetailController
-                                                                .descriptionItems[
-                                                                    index]
-                                                                .isFileLoading
-                                                                .value = true;
-                                                            taskDetailController
-                                                                .descriptionItems[
-                                                                    index]
-                                                                .isFileLoading
-                                                                .refresh();
-                                                            await Helpers.openFile(
-                                                                path: taskDetailController
-                                                                    .descriptionItems[
-                                                                        index]
-                                                                    .fileString!,
-                                                                fileName: taskDetailController
-                                                                    .descriptionItems[
-                                                                        index]
-                                                                    .fileString!
-                                                                    .split("/")
-                                                                    .last);
-                                                            taskDetailController
-                                                                .descriptionItems[
-                                                                    index]
-                                                                .isFileLoading
-                                                                .value = false;
-                                                            taskDetailController
-                                                                .descriptionItems[
-                                                                    index]
-                                                                .isFileLoading
-                                                                .refresh();
-                                                          }
+                                                        onTap: () {
+                                                          taskDetailController
+                                                              .onTapDescriptionImage(
+                                                                  index);
                                                         },
-                                                        child: Container(
-                                                          padding: EdgeInsets
-                                                              .fromLTRB(14, 10,
-                                                                  10, 10),
-                                                          width:
-                                                              double.infinity,
-                                                          decoration: BoxDecoration(
-                                                              color: AppColors
-                                                                  .kPrimaryColor
-                                                                  .withValues(
-                                                                      alpha:
-                                                                          0.1)),
-                                                          child: Row(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .max,
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Expanded(
-                                                                child: Text(
-                                                                  taskDetailController
-                                                                      .descriptionItems[
+                                                        child: FadeInImage
+                                                            .assetNetwork(
+                                                          width: 90,
+                                                          height: 90,
+                                                          placeholder: AppImages
+                                                              .imgPlaceholder,
+                                                          image: AppConsts
+                                                                  .imgInitialUrl +
+                                                              taskDetailController
+                                                                      .taskImages[
+                                                                  index],
+                                                          imageErrorBuilder:
+                                                              (BuildContext
+                                                                      context,
+                                                                  Object error,
+                                                                  StackTrace?
+                                                                      stackTrace) {
+                                                            return Image.asset(
+                                                              AppImages
+                                                                  .imgPlaceholder,
+                                                              width: 90,
+                                                              height: 90,
+                                                              fit: BoxFit.cover,
+                                                            );
+                                                          },
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      );
+                                                    },
+                                                    separatorBuilder:
+                                                        (context, index) {
+                                                      return const SizedBox(
+                                                        width: 10,
+                                                      );
+                                                    },
+                                                    itemCount:
+                                                        taskDetailController
+                                                            .taskImages.length),
+                                              ),
+                                            )),
+                                        Visibility(
+                                            visible: taskDetailController
+                                                .taskDocuments.isNotEmpty,
+                                            child: ListView.separated(
+                                                physics:
+                                                    const NeverScrollableScrollPhysics(),
+                                                shrinkWrap: true,
+                                                padding: const EdgeInsets.only(
+                                                    left: 10,
+                                                    right: 10,
+                                                    top: 10),
+                                                itemBuilder: (context, index) {
+                                                  return GestureDetector(
+                                                    behavior:
+                                                        HitTestBehavior.opaque,
+                                                    onTap: () async {
+                                                      taskDetailController
+                                                          .taskDocuments[index]
+                                                          .isLoading
+                                                          .value = true;
+                                                      await Helpers.openFile(
+                                                          path:
+                                                              taskDetailController
+                                                                  .taskDocuments[
+                                                                      index]
+                                                                  .file,
+                                                          fileName:
+                                                              taskDetailController
+                                                                  .taskDocuments[
+                                                                      index]
+                                                                  .file
+                                                                  .split("/")
+                                                                  .last);
+                                                      taskDetailController
+                                                          .taskDocuments[index]
+                                                          .isLoading
+                                                          .value = false;
+                                                    },
+                                                    child: Container(
+                                                      width: double.infinity,
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 10,
+                                                              right: 10,
+                                                              top: 10,
+                                                              bottom: 10),
+                                                      decoration: BoxDecoration(
+                                                          color: AppColors
+                                                              .kPrimaryColor
+                                                              .withValues(
+                                                                  alpha: 0.1)),
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.max,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Expanded(
+                                                            child: Text(
+                                                              taskDetailController
+                                                                  .taskDocuments[
+                                                                      index]
+                                                                  .file
+                                                                  .split("/")
+                                                                  .last,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              maxLines: 2,
+                                                              style: Theme.of(
+                                                                      context)
+                                                                  .textTheme
+                                                                  .bodySmall
+                                                                  ?.copyWith(
+                                                                    color: AppColors
+                                                                        .kPrimaryColor,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Obx(() =>
+                                                              taskDetailController
+                                                                      .taskDocuments[
                                                                           index]
-                                                                      .fileString!
-                                                                      .split(
-                                                                          "/")
-                                                                      .last,
-                                                                  style: Theme.of(
-                                                                          context)
-                                                                      .textTheme
-                                                                      .bodySmall
-                                                                      ?.copyWith(
-                                                                        color: AppColors
-                                                                            .kPrimaryColor,
-                                                                      ),
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 12,
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .all(
-                                                                        4.0),
-                                                                child: Obx(() => taskDetailController
-                                                                        .descriptionItems[
-                                                                            index]
-                                                                        .isFileLoading
-                                                                        .value
-                                                                    ? Container(
-                                                                        height:
-                                                                            24,
-                                                                        width:
-                                                                            24,
-                                                                        padding:
-                                                                            EdgeInsets.all(4),
-                                                                        child:
-                                                                            CircularProgressIndicator(
+                                                                      .isLoading
+                                                                      .value
+                                                                  ? SizedBox(
+                                                                      width: 20,
+                                                                      height:
+                                                                          20,
+                                                                      child: CircularProgressIndicator(
                                                                           strokeWidth:
                                                                               2,
                                                                           color:
-                                                                              AppColors.kPrimaryColor,
-                                                                        ),
-                                                                      )
-                                                                    : SvgPicture
-                                                                        .asset(
-                                                                        AppIcons
-                                                                            .icDownload,
-                                                                        width:
-                                                                            24,
-                                                                        colorFilter: ColorFilter.mode(
-                                                                            AppColors.kPrimaryColor,
-                                                                            BlendMode.srcIn),
-                                                                      )),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      )
-                                                    : const SizedBox();
-                                      },
-                                      separatorBuilder: (context, index) {
-                                        return const SizedBox(
-                                          height: 10,
-                                        );
-                                      },
-                                      itemCount: taskDetailController
-                                          .descriptionItems.length),
+                                                                              AppColors.kPrimaryColor),
+                                                                    )
+                                                                  : Image.asset(
+                                                                      AppIcons
+                                                                          .icDownload,
+                                                                      width: 20,
+                                                                    ))
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                separatorBuilder:
+                                                    (context, index) {
+                                                  return const SizedBox(
+                                                    height: 10,
+                                                  );
+                                                },
+                                                itemCount: taskDetailController
+                                                    .taskDocuments.length)),
+                                      ],
+                                    )
+                              // ListView.separated(
+                              //         physics: NeverScrollableScrollPhysics(),
+                              //         shrinkWrap: true,
+                              //         itemBuilder: (context, index) {
+                              //           return taskDetailController
+                              //                       .descriptionItems[index]
+                              //                       .text !=
+                              //                   null
+                              //               ? SelectableText(
+                              //                   taskDetailController
+                              //                       .descriptionItems[index]
+                              //                       .text!,
+                              //                   textAlign: TextAlign.start,
+                              //                   style: Theme.of(context)
+                              //                       .textTheme
+                              //                       .bodyMedium,
+                              //                 )
+                              //               : taskDetailController
+                              //                               .descriptionItems[
+                              //                                   index]
+                              //                               .imageString !=
+                              //                           null &&
+                              //                       taskDetailController
+                              //                               .descriptionItems[
+                              //                                   index]
+                              //                               .downloadedImage !=
+                              //                           null
+                              //                   ? GestureDetector(
+                              //                       behavior:
+                              //                           HitTestBehavior.opaque,
+                              //                       onTap: () {
+                              //                         taskDetailController
+                              //                             .onTapDescriptionImage(
+                              //                                 index);
+                              //                       },
+                              //                       child: Image.file(
+                              //                         taskDetailController
+                              //                             .descriptionItems[
+                              //                                 index]
+                              //                             .downloadedImage!,
+                              //                         height: 250,
+                              //                         fit: BoxFit.contain,
+                              //                       ),
+                              //                     )
+                              //                   : taskDetailController
+                              //                               .descriptionItems[
+                              //                                   index]
+                              //                               .fileString !=
+                              //                           null
+                              //                       ? GestureDetector(
+                              //                           behavior:
+                              //                               HitTestBehavior
+                              //                                   .opaque,
+                              //                           onTap: () async {
+                              //                             if (taskDetailController
+                              //                                 .descriptionItems[
+                              //                                     index]
+                              //                                 .fileString!
+                              //                                 .isNotEmpty) {
+                              //                               taskDetailController
+                              //                                   .descriptionItems[
+                              //                                       index]
+                              //                                   .isFileLoading
+                              //                                   .value = true;
+                              //                               taskDetailController
+                              //                                   .descriptionItems[
+                              //                                       index]
+                              //                                   .isFileLoading
+                              //                                   .refresh();
+                              //                               await Helpers.openFile(
+                              //                                   path: taskDetailController
+                              //                                       .descriptionItems[
+                              //                                           index]
+                              //                                       .fileString!,
+                              //                                   fileName: taskDetailController
+                              //                                       .descriptionItems[
+                              //                                           index]
+                              //                                       .fileString!
+                              //                                       .split("/")
+                              //                                       .last);
+                              //                               taskDetailController
+                              //                                   .descriptionItems[
+                              //                                       index]
+                              //                                   .isFileLoading
+                              //                                   .value = false;
+                              //                               taskDetailController
+                              //                                   .descriptionItems[
+                              //                                       index]
+                              //                                   .isFileLoading
+                              //                                   .refresh();
+                              //                             }
+                              //                           },
+                              //                           child: Container(
+                              //                             padding: EdgeInsets
+                              //                                 .fromLTRB(14, 10,
+                              //                                     10, 10),
+                              //                             width:
+                              //                                 double.infinity,
+                              //                             decoration: BoxDecoration(
+                              //                                 color: AppColors
+                              //                                     .kPrimaryColor
+                              //                                     .withValues(
+                              //                                         alpha:
+                              //                                             0.1)),
+                              //                             child: Row(
+                              //                               mainAxisSize:
+                              //                                   MainAxisSize
+                              //                                       .max,
+                              //                               mainAxisAlignment:
+                              //                                   MainAxisAlignment
+                              //                                       .start,
+                              //                               crossAxisAlignment:
+                              //                                   CrossAxisAlignment
+                              //                                       .center,
+                              //                               children: [
+                              //                                 Expanded(
+                              //                                   child: Text(
+                              //                                     taskDetailController
+                              //                                         .descriptionItems[
+                              //                                             index]
+                              //                                         .fileString!
+                              //                                         .split(
+                              //                                             "/")
+                              //                                         .last,
+                              //                                     style: Theme.of(
+                              //                                             context)
+                              //                                         .textTheme
+                              //                                         .bodySmall
+                              //                                         ?.copyWith(
+                              //                                           color: AppColors
+                              //                                               .kPrimaryColor,
+                              //                                         ),
+                              //                                   ),
+                              //                                 ),
+                              //                                 const SizedBox(
+                              //                                   width: 12,
+                              //                                 ),
+                              //                                 Padding(
+                              //                                   padding:
+                              //                                       const EdgeInsets
+                              //                                           .all(
+                              //                                           4.0),
+                              //                                   child: Obx(() => taskDetailController
+                              //                                           .descriptionItems[
+                              //                                               index]
+                              //                                           .isFileLoading
+                              //                                           .value
+                              //                                       ? Container(
+                              //                                           height:
+                              //                                               24,
+                              //                                           width:
+                              //                                               24,
+                              //                                           padding:
+                              //                                               EdgeInsets.all(4),
+                              //                                           child:
+                              //                                               CircularProgressIndicator(
+                              //                                             strokeWidth:
+                              //                                                 2,
+                              //                                             color:
+                              //                                                 AppColors.kPrimaryColor,
+                              //                                           ),
+                              //                                         )
+                              //                                       : Image
+                              //                                           .asset(
+                              //                                           AppIcons
+                              //                                               .icDownload,
+                              //                                           width:
+                              //                                               24,
+                              //                                           color: AppColors.kPrimaryColor,
+                              //                                         )),
+                              //                                 ),
+                              //                               ],
+                              //                             ),
+                              //                           ),
+                              //                         )
+                              //                       : const SizedBox();
+                              //         },
+                              //         separatorBuilder: (context, index) {
+                              //           return const SizedBox(
+                              //             height: 10,
+                              //           );
+                              //         },
+                              //         itemCount: taskDetailController
+                              //             .descriptionItems.length)
+                              ,
                             )
                           ],
                         ),
@@ -609,7 +851,7 @@ class TaskDetailPage extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                 child: Obx(
                   () => taskDetailController.isLoading.value
-                      ? CommonButtonShimmer(
+                      ? const CommonButtonShimmer(
                           borderRadius: 0,
                         )
                       : taskDetailController.areCommentsLoading.value
@@ -617,7 +859,7 @@ class TaskDetailPage extends StatelessWidget {
                               child: Container(
                                 height: 51,
                                 width: 51,
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 child: CircularProgressIndicator(
                                   color: AppColors.kPrimaryColor,
                                 ),
@@ -631,8 +873,8 @@ class TaskDetailPage extends StatelessWidget {
                                 taskDetailController.isEditingComment.value =
                                     false;
                                 taskDetailController.editCommentIndex = null;
-                                taskDetailController.commentFieldTextController
-                                    .clear();
+                                taskDetailController
+                                    .commentFieldHtmlEditorContent.value = "";
                                 taskDetailController
                                     .isCommentFieldTextEmpty.value = true;
                                 taskDetailController
@@ -641,6 +883,13 @@ class TaskDetailPage extends StatelessWidget {
                                 taskDetailController
                                     .commentFieldContentEditIndex = null;
                                 taskDetailController.commentFieldContent
+                                    .clear();
+                                taskDetailController
+                                    .commentFieldHtmlEditorContent.value = "<p></p>";
+                                taskDetailController
+                                    .commentFieldAttachedDocuments
+                                    .clear();
+                                taskDetailController.commentFieldAttachedImages
                                     .clear();
                                 taskDetailController
                                     .showCreateCommentWidget.value = false;
@@ -660,8 +909,14 @@ class TaskDetailPage extends StatelessWidget {
                                   context: context,
                                   createCommentWidget:
                                       CommonMultimediaContentCreateWidget(
-                                    textController: taskDetailController
-                                        .commentFieldTextController,
+                                    htmlEditorOnChange: taskDetailController
+                                        .commentFieldHtmlEditorControllerOnChange,
+                                    cancelEditing: taskDetailController
+                                        .cancelCommentEditing,
+                                    htmlEditorController: taskDetailController
+                                        .commentFieldHtmlEditorController,
+                                    htmlEditorOnInit: taskDetailController
+                                        .commentFieldHtmlEditorOnInit,
                                     hint: 'enter_text'.tr,
                                     createComment:
                                         taskDetailController.createComment,
@@ -697,6 +952,17 @@ class TaskDetailPage extends StatelessWidget {
                                         .isCommentCreateEditLoading,
                                     focusNode: taskDetailController
                                         .commentFieldTextFocusNode,
+                                    attachedImages: taskDetailController
+                                        .commentFieldAttachedImages,
+                                    attachedDocuments: taskDetailController
+                                        .commentFieldAttachedDocuments,
+                                    removeAttachedImage: taskDetailController
+                                        .removeCommentFieldAttachedImage,
+                                    removeAttachedDocument: taskDetailController
+                                        .removeCommentFieldAttachedDocument,
+                                    areAttachedFilesLoading:
+                                        taskDetailController
+                                            .areCommentFieldFilesLoading,
                                   ),
                                   comments: taskDetailController.comments,
                                   commentCount:

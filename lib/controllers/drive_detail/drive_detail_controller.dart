@@ -1,10 +1,8 @@
 import 'dart:io';
 
 import 'package:archive/archive_io.dart';
-import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_media_downloader/flutter_media_downloader.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:get/get.dart';
@@ -16,10 +14,12 @@ import 'package:teqtop_team/model/global_search/drive_model.dart';
 import 'package:teqtop_team/utils/helpers.dart';
 
 import '../../consts/app_consts.dart';
+import '../../model/drive_detail/file_model.dart';
 import '../../network/get_requests.dart';
 import '../../network/post_requests.dart';
 import '../../utils/permission_handler.dart';
 import '../../utils/preference_manager.dart';
+import '../../views/dialogs/common/common_alert_dialog.dart';
 
 class DriveDetailController extends GetxController {
   final GlobalKey<FormState> folderNameFormKey = GlobalKey();
@@ -29,7 +29,7 @@ class DriveDetailController extends GetxController {
   String driveURL = "";
   RxBool isLoading = false.obs;
   DriveDetailResModel? driveDetail;
-  RxList<String> files = <String>[].obs;
+  RxList<FileModel> files = <FileModel>[].obs;
   RxList<FileOrFolderModel> folders = <FileOrFolderModel>[].obs;
   Rx<DriveModel?> basicDriveDetails = Rx<DriveModel?>(null);
   RxBool isFolderCreating = false.obs;
@@ -55,6 +55,22 @@ class DriveDetailController extends GetxController {
     super.onClose();
   }
 
+  Future<void> onTapImage(int itemIndex) async {
+    List<String> images = [];
+    for (var file in files) {
+      if (Helpers.isImage(file.file)) {
+        images.add(file.file);
+      }
+    }
+    String tappedImageString = files[itemIndex].file;
+    int? imageIndex;
+    imageIndex = images.indexOf(tappedImageString);
+    Get.toNamed(AppRoutes.routeGallery, arguments: {
+      AppConsts.keyImagesURLS: images,
+      AppConsts.keyIndex: imageIndex,
+    });
+  }
+
   void getDriveURL() {
     Map? data = Get.arguments;
     if (data != null && data.isNotEmpty) {
@@ -66,6 +82,55 @@ class DriveDetailController extends GetxController {
       }
     }
     getDriveDetail();
+  }
+
+  void onTapFileCross(int itemIndex) {
+    CommonAlertDialog.showDialog(
+      message: "message_file_delete_confirmation",
+      positiveText: "yes",
+      positiveBtnCallback: () async {
+        Get.back();
+        deleteFolderOrFile(files[itemIndex].id);
+      },
+      isShowNegativeBtn: true,
+      negativeText: 'no',
+    );
+  }
+
+  Future<void> deleteFolderOrFile(int? id) async {
+    if (id != null) {
+      isLoading.value = true;
+      try {
+        Map<String, dynamic> requestBody = {
+          'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+              as String?,
+          'id': id,
+          'parent': driveURL.split('/').last
+        };
+        var response = await PostRequests.deleteDriveFolder(requestBody);
+        if (response != null) {
+          driveDetail = response;
+          getDataFromDriveDetail();
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
+        }
+      } finally {
+        isLoading.value = false;
+      }
+    }
+  }
+
+  void onTapFolderCross(int? folderId) {
+    CommonAlertDialog.showDialog(
+      message: "message_folder_delete_confirmation",
+      positiveText: "yes",
+      positiveBtnCallback: () async {
+        Get.back();
+        deleteFolderOrFile(folderId);
+      },
+      isShowNegativeBtn: true,
+      negativeText: 'no',
+    );
   }
 
   void initializeTextEditingControllers() {
@@ -152,7 +217,7 @@ class DriveDetailController extends GetxController {
               //     description:
               //         "DRIVE_DETAIL_CONTROLLER_SEPARATE_FILES_AND_FOLDERS",
               //     message: "FILES = ${item.path}");
-              files.add(item.path!);
+              files.add(FileModel(id: item.id, file: item.path!));
             }
             if (item.isFolder == "true") {
               folders.add(item);
@@ -235,7 +300,7 @@ class DriveDetailController extends GetxController {
 
         // Encode the archive to a zip file
         final zipFile = File(zipPath);
-        await zipFile.writeAsBytes(ZipEncoder().encode(archive)!);
+        await zipFile.writeAsBytes(ZipEncoder().encode(archive));
 
         // Clean up the temporary file
         await tempFile.delete();

@@ -39,8 +39,8 @@ class LikeUser {
         "component": component,
         "component_id": componentId,
         "status": status,
-        "created_at": createdAt == null ? null : createdAt!.toIso8601String(),
-        "updated_at": updatedAt == null ? null : updatedAt!.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
+        "updated_at": updatedAt?.toIso8601String(),
         "name": name,
         "profile": profile,
       };

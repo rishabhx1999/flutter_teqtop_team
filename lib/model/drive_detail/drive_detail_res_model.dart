@@ -40,6 +40,6 @@ class DriveDetailResModel {
             ? null
             : List<dynamic>.from(driveFolders!.map((x) => x!.toJson())),
         "test": test == null ? null : List<dynamic>.from(test!.map((x) => x)),
-        "parentFolder": parentFolder == null ? null : parentFolder!.toJson(),
+        "parentFolder": parentFolder?.toJson(),
       };
 }

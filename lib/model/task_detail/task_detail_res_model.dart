@@ -4,7 +4,6 @@
 
 import 'dart:convert';
 
-import 'package:teqtop_team/model/global_search/project_model.dart';
 import 'package:teqtop_team/model/global_search/task_model.dart';
 
 TaskDetailResModel taskDetailResModelFromJson(String str) =>
@@ -33,7 +32,7 @@ class TaskDetailResModel {
 
   Map<String, dynamic> toJson() => {
         "status": status,
-        "task": task == null ? null : task!.toJson(),
+        "task": task?.toJson(),
         "project": project,
       };
 }

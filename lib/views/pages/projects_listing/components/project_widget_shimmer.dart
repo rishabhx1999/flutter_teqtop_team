@@ -13,7 +13,7 @@ class ProjectWidgetShimmer extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          padding: EdgeInsets.all(12),
+          padding: const EdgeInsets.all(12),
           width: double.infinity,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.zero,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:intl/intl.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
@@ -68,10 +68,9 @@ class LogWidget extends StatelessWidget {
                 const SizedBox(
                   width: 16,
                 ),
-                SvgPicture.asset(AppIcons.icNavigateNext,
+                Image.asset(AppIcons.icNavigateNext,
                     width: 8,
-                    colorFilter:
-                        const ColorFilter.mode(Colors.black, BlendMode.srcIn)),
+                    color: Colors.black,),
               ],
             ),
           ),

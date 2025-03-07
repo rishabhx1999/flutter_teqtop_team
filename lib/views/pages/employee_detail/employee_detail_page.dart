@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
@@ -42,10 +42,9 @@ class EmployeeDetailPage extends StatelessWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16),
-                child: SvgPicture.asset(
+                child: Image.asset(
                   AppIcons.icBack,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color: Colors.black,
                 ),
               )),
           leadingWidth: 40,
@@ -86,7 +85,7 @@ class EmployeeDetailPage extends StatelessWidget {
                             : CircleAvatar(
                                 radius: 58,
                                 backgroundImage:
-                                    AssetImage(AppImages.imgPersonPlaceholder),
+                                    const AssetImage(AppImages.imgPersonPlaceholder),
                                 foregroundImage: employeeDetailController
                                                 .employeeDetail.value !=
                                             null &&
@@ -95,7 +94,7 @@ class EmployeeDetailPage extends StatelessWidget {
                                     ? NetworkImage(AppConsts.imgInitialUrl +
                                         employeeDetailController
                                             .employeeDetail.value!.profile!)
-                                    : AssetImage(
+                                    : const AssetImage(
                                         AppImages.imgPersonPlaceholder),
                               ),
                       ),
@@ -190,7 +189,7 @@ class EmployeeDetailPage extends StatelessWidget {
                                 ),
                               ))
                           : Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 32, vertical: 4),
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.zero,
@@ -778,9 +777,9 @@ class EmployeeDetailPage extends StatelessWidget {
                       () => SizedBox(
                         height: 98,
                         child: ListView.separated(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             scrollDirection: Axis.horizontal,
-                            physics: BouncingScrollPhysics(),
+                            physics: const BouncingScrollPhysics(),
                             shrinkWrap: true,
                             itemBuilder: (context, index) {
                               return employeeDetailController
@@ -894,9 +893,9 @@ class EmployeeDetailPage extends StatelessWidget {
                       () => SizedBox(
                         height: 98,
                         child: ListView.separated(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             scrollDirection: Axis.horizontal,
-                            physics: BouncingScrollPhysics(),
+                            physics: const BouncingScrollPhysics(),
                             shrinkWrap: true,
                             itemBuilder: (context, index) {
                               return employeeDetailController
@@ -1008,9 +1007,9 @@ class EmployeeDetailPage extends StatelessWidget {
                       () => SizedBox(
                         height: 98,
                         child: ListView.separated(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             scrollDirection: Axis.horizontal,
-                            physics: BouncingScrollPhysics(),
+                            physics: const BouncingScrollPhysics(),
                             shrinkWrap: true,
                             itemBuilder: (context, index) {
                               return employeeDetailController
@@ -1123,9 +1122,9 @@ class EmployeeDetailPage extends StatelessWidget {
                       () => SizedBox(
                         height: 98,
                         child: ListView.separated(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             scrollDirection: Axis.horizontal,
-                            physics: BouncingScrollPhysics(),
+                            physics: const BouncingScrollPhysics(),
                             shrinkWrap: true,
                             itemBuilder: (context, index) {
                               return employeeDetailController
@@ -1186,7 +1185,7 @@ class EmployeeDetailPage extends StatelessWidget {
                                               ? Container(
                                                   width: 152,
                                                   height: 98,
-                                                  padding: EdgeInsets.all(8),
+                                                  padding: const EdgeInsets.all(8),
                                                   color:
                                                       AppColors.kPrimaryColor,
                                                   child: Center(
@@ -1263,7 +1262,7 @@ class EmployeeDetailPage extends StatelessWidget {
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemBuilder: (context, index) {
-                                  return LeaveWidgetShimmer(
+                                  return const LeaveWidgetShimmer(
                                     showUserShimmer: false,
                                   );
                                 },
@@ -1350,7 +1349,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       color: AppColors.colorF7F7F7,
-      margin: EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       child: _tabBar,
     );
   }

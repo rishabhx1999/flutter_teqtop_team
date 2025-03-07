@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/config/app_colors.dart';
@@ -51,10 +51,9 @@ class LeavesListingPage extends StatelessWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: SvgPicture.asset(
+                child: Image.asset(
                   AppIcons.icMenu,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color: Colors.black,
                 ),
               )),
           backgroundColor: Colors.white,
@@ -70,11 +69,10 @@ class LeavesListingPage extends StatelessWidget {
                   onTap: () {
                     Get.toNamed(AppRoutes.routeGlobalSearch);
                   },
-                  child: SvgPicture.asset(
+                  child: Image.asset(
                     AppIcons.icSearch,
                     width: 24,
-                    colorFilter:
-                        const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    color: Colors.black,
                   )),
             ),
             GestureDetector(
@@ -146,18 +144,18 @@ class LeavesListingPage extends StatelessWidget {
                 },
                 child: CircleAvatar(
                   radius: 17,
-                  backgroundImage: AssetImage(AppImages.imgPersonPlaceholder),
+                  backgroundImage: const AssetImage(AppImages.imgPersonPlaceholder),
                   foregroundImage: leavesListingController.profilePhoto != null
                       ? NetworkImage(AppConsts.imgInitialUrl +
                           leavesListingController.profilePhoto!)
-                      : AssetImage(AppImages.imgPersonPlaceholder),
+                      : const AssetImage(AppImages.imgPersonPlaceholder),
                 ),
               ),
             )
           ],
         ),
         backgroundColor: Colors.white,
-        drawer: MenuDrawerWidget(),
+        drawer: const MenuDrawerWidget(),
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -207,7 +205,7 @@ class LeavesListingPage extends StatelessWidget {
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemBuilder: (context, index) {
-                                  return LeaveWidgetShimmer();
+                                  return const LeaveWidgetShimmer();
                                 },
                                 separatorBuilder: (context, index) {
                                   return const SizedBox(

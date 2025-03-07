@@ -28,7 +28,7 @@ class NotificationWidget extends StatelessWidget {
         children: [
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.zero,
                 border: Border.all(
@@ -40,12 +40,12 @@ class NotificationWidget extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 12,
-                  backgroundImage: AssetImage(AppImages.imgPersonPlaceholder),
+                  backgroundImage: const AssetImage(AppImages.imgPersonPlaceholder),
                   foregroundImage: notificationData.profile != null &&
                           notificationData.profile!.isNotEmpty
                       ? NetworkImage(
                           AppConsts.imgInitialUrl + notificationData.profile!)
-                      : AssetImage(AppImages.imgPersonPlaceholder),
+                      : const AssetImage(AppImages.imgPersonPlaceholder),
                 ),
                 const SizedBox(
                   width: 8,

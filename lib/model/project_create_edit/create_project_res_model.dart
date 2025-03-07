@@ -35,6 +35,6 @@ class CreateProjectResModel {
   Map<String, dynamic> toJson() => {
         "status": status,
         "message": message,
-        "project": project == null ? null : project!.toJson(),
+        "project": project?.toJson(),
       };
 }

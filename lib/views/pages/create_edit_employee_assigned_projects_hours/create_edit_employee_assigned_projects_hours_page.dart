@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/views/dialogs/assign_project_dialog.dart';
@@ -56,10 +56,10 @@ class CreateEditEmployeeAssignedProjectsHoursPage extends StatelessWidget {
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: SvgPicture.asset(
+                  child: Image.asset(
                     AppIcons.icBack,
-                    colorFilter:
-                        const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    color:
+                        Colors.black,
                   ),
                 )),
             leadingWidth: 40,
@@ -75,11 +75,11 @@ class CreateEditEmployeeAssignedProjectsHoursPage extends StatelessWidget {
                     onTap: () {
                       Get.toNamed(AppRoutes.routeGlobalSearch);
                     },
-                    child: SvgPicture.asset(
+                    child: Image.asset(
                       AppIcons.icSearch,
                       width: 24,
-                      colorFilter:
-                          const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      color:
+                          Colors.black,
                     )),
               ),
               GestureDetector(
@@ -296,7 +296,7 @@ class CreateEditEmployeeAssignedProjectsHoursPage extends StatelessWidget {
                                   children: [
                                     CircleAvatar(
                                       radius: 34,
-                                      backgroundImage: AssetImage(
+                                      backgroundImage: const AssetImage(
                                           AppImages.imgPersonPlaceholder),
                                       foregroundImage:
                                           createEditEmployeeAssignedProjectsHoursController
@@ -306,7 +306,7 @@ class CreateEditEmployeeAssignedProjectsHoursPage extends StatelessWidget {
                                                       .imgInitialUrl +
                                                   createEditEmployeeAssignedProjectsHoursController
                                                       .employeeProfilePhoto!)
-                                              : AssetImage(AppImages
+                                              : const AssetImage(AppImages
                                                   .imgPersonPlaceholder),
                                     ),
                                     const SizedBox(
@@ -382,7 +382,7 @@ class CreateEditEmployeeAssignedProjectsHoursPage extends StatelessWidget {
                                         .bodySmall!
                                         .copyWith(color: Colors.white),
                                   ),
-                                  SvgPicture.asset(
+                                  Image.asset(
                                     AppIcons.icDropdownWhite,
                                     width: 16,
                                   )
@@ -431,7 +431,7 @@ class CreateEditEmployeeAssignedProjectsHoursPage extends StatelessWidget {
                         ? Container(
                             height: 51,
                             width: 51,
-                            padding: EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(8),
                             child: CircularProgressIndicator(
                               color: AppColors.kPrimaryColor,
                             ),

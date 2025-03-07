@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:html/dom.dart' as html_dom;
 import 'package:html/parser.dart';
+import 'package:html/parser.dart' as htmlParser;
 import 'package:image_picker/image_picker.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
@@ -153,7 +154,7 @@ class Helpers {
     DateTime firstDayOfCurrentMonth = DateTime(now.year, now.month, 1);
 
     DateTime lastDayOfLastMonth =
-        firstDayOfCurrentMonth.subtract(Duration(days: 1));
+        firstDayOfCurrentMonth.subtract(const Duration(days: 1));
 
     return lastDayOfLastMonth;
   }
@@ -236,7 +237,7 @@ class Helpers {
           options: Options(
               responseType: ResponseType.bytes,
               followRedirects: false,
-              receiveTimeout: Duration(microseconds: 0)));
+              receiveTimeout: const Duration(microseconds: 0)));
       final raf = file.openSync(mode: FileMode.write);
       raf.writeFromSync(response.data);
       await raf.close();
@@ -258,6 +259,26 @@ class Helpers {
       default:
         return 'application/octet-stream';
     }
+  }
+
+  static String updateHtmlAttributes(String htmlContent) {
+    html_dom.Document document = htmlParser.parse(htmlContent);
+
+    document.querySelectorAll('img').forEach((element) {
+      String? src = element.attributes['src'];
+      if (src != null && !src.startsWith('http')) {
+        element.attributes['src'] = '${AppConsts.imgInitialUrl}$src';
+      }
+    });
+
+    document.querySelectorAll('a').forEach((element) {
+      String? href = element.attributes['href'];
+      if (href != null && !href.startsWith('http')) {
+        element.attributes['href'] = '${AppConsts.imgInitialUrl}$href';
+      }
+    });
+
+    return document.body?.innerHtml ?? htmlContent;
   }
 
   static void openLink(String url) async {
@@ -369,30 +390,38 @@ class Helpers {
       String html) async {
     List<MediaContentModel> mediaList = [];
 
-    var document = html_parser.parse(html
-            .replaceAll(r'\"', '"') // First pass
-            .replaceAll(r'\\', '') // **New: Remove residual escaping**
-        );
+    if (!html.contains(RegExp(r'<[^>]+>'))) {
+      mediaList.add(MediaContentModel(text: html.trim()));
+      return mediaList;
+    }
+
+    var document =
+        html_parser.parse(html.replaceAll(r'\"', '"').replaceAll(r'\\', ''));
 
     for (var element in document.body!.children) {
-      if (element.localName == 'p') {
+      if (element.localName == 'p' || element.localName == 'div') {
         if (element.children.isEmpty) {
           mediaList.add(MediaContentModel(text: element.text));
         } else {
-          var child = element.children.first;
-          if (child.localName == 'img' && child.attributes.containsKey('src')) {
-            mediaList.add(MediaContentModel(
-                imageString: child.attributes['src']!
-                    .replaceAll(
-                        r'\"', '"') // **New: Remove surrounding escapes**
-                    .replaceAll(r'\\', '') // **New: Remove extra backslashes**
-                ));
-          } else if (child.localName == 'a' &&
-              child.attributes.containsKey('href')) {
-            mediaList.add(MediaContentModel(
-                fileString: child.attributes['href']!
-                    .replaceAll(r'\"', '"')
-                    .replaceAll(r'\\', '')));
+          if (element.children.any((child) =>
+              child.localName == 'b' && child.classes.contains('dx-mention'))) {
+            String extractedText = element.text.trim();
+            mediaList.add(MediaContentModel(text: extractedText));
+          } else {
+            var child = element.children.first;
+            if (child.localName == 'img' &&
+                child.attributes.containsKey('src')) {
+              mediaList.add(MediaContentModel(
+                  imageString: child.attributes['src']!
+                      .replaceAll(r'\"', '"')
+                      .replaceAll(r'\\', '')));
+            } else if (child.localName == 'a' &&
+                child.attributes.containsKey('href')) {
+              mediaList.add(MediaContentModel(
+                  fileString: child.attributes['href']!
+                      .replaceAll(r'\"', '"')
+                      .replaceAll(r'\\', '')));
+            }
           }
         }
       }
@@ -421,7 +450,8 @@ class Helpers {
   }
 
   static Future<String> convertMultimediaContentToHTML(
-      List<MediaContentModel> content) async {
+      List<MediaContentModel> content,
+      {bool addDecode = false}) async {
     List<String> htmlParts = [];
 
     for (var media in content) {
@@ -431,10 +461,14 @@ class Helpers {
         // String? imageUrl = await Helpers.convertImageToDataUrl(media.image!);
         String? imageUrl = await uploadFile(media.image!.path, null);
         if (imageUrl != null && imageUrl.isNotEmpty) {
-          htmlParts.add('<p><img src="$imageUrl" class="decode"></p>');
+          htmlParts.add(addDecode
+              ? '<p><img src="$imageUrl"  class="decode"></p>'
+              : '<p><img src="$imageUrl"></p>');
         }
       } else if (media.imageString != null && media.imageString!.isNotEmpty) {
-        htmlParts.add('<p><img src="${media.imageString}" class="decode"></p>');
+        htmlParts.add(addDecode
+            ? '<p><img src="${media.imageString}"  class="decode"></p>'
+            : '<p><img src="${media.imageString}"></p>');
       } else if (media.file != null && media.file!.path != null) {
         String? fileUrl =
             await uploadFile(media.file!.path!, media.file!.extension);

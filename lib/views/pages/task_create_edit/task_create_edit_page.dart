@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/controllers/task_create_edit/task_create_edit_controller.dart';
@@ -9,7 +9,6 @@ import 'package:teqtop_team/model/global_search/project_model.dart';
 import 'package:teqtop_team/model/task_create_edit/task_priority.dart';
 import 'package:teqtop_team/views/widgets/common/common_button_shimmer.dart';
 import 'package:teqtop_team/views/widgets/common/common_input_field_shimmer.dart';
-import 'package:teqtop_team/views/widgets/common/common_multimedia_content_create_widget.dart';
 
 import '../../../config/app_colors.dart';
 import '../../../consts/app_consts.dart';
@@ -18,6 +17,7 @@ import '../../../utils/validations.dart';
 import '../../widgets/common/common_button.dart';
 import '../../widgets/common/common_dropdown_button.dart';
 import '../../widgets/common/common_input_field.dart';
+import '../../widgets/common/common_multimedia_content_create_widget.dart';
 
 class TaskCreateEditPage extends StatelessWidget {
   final taskCreateEditController = Get.put(TaskCreateEditController());
@@ -30,10 +30,10 @@ class TaskCreateEditPage extends StatelessWidget {
         SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.white));
     final inputBorder = OutlineInputBorder(
         borderRadius: BorderRadius.circular(0),
-        borderSide: BorderSide(color: Colors.transparent, width: 0.5));
+        borderSide: const BorderSide(color: Colors.transparent, width: 0.5));
     final errorInputBorder = OutlineInputBorder(
         borderRadius: BorderRadius.circular(0),
-        borderSide: BorderSide(color: Colors.transparent, width: 0.5));
+        borderSide: const BorderSide(color: Colors.transparent, width: 0.5));
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -64,10 +64,9 @@ class TaskCreateEditPage extends StatelessWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16),
-                child: SvgPicture.asset(
+                child: Image.asset(
                   AppIcons.icBack,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color: Colors.black,
                 ),
               )),
           leadingWidth: 40,
@@ -94,8 +93,10 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController.areEmployeesLoading.value
-                        ? CommonInputFieldShimmer(
+                            taskCreateEditController
+                                .areEmployeesLoading.value ||
+                            taskCreateEditController.isDetailLoading.value
+                        ? const CommonInputFieldShimmer(
                             labelShimmerBorderRadius: 0,
                           )
                         : CommonInputField(
@@ -115,7 +116,9 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController.areEmployeesLoading.value
+                            taskCreateEditController
+                                .areEmployeesLoading.value ||
+                            taskCreateEditController.isDetailLoading.value
                         ? Shimmer.fromColors(
                             baseColor: AppColors.shimmerBaseColor,
                             highlightColor: AppColors.shimmerHighlightColor,
@@ -141,7 +144,9 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController.areEmployeesLoading.value
+                            taskCreateEditController
+                                .areEmployeesLoading.value ||
+                            taskCreateEditController.isDetailLoading.value
                         ? Shimmer.fromColors(
                             baseColor: AppColors.shimmerBaseColor,
                             highlightColor: AppColors.shimmerHighlightColor,
@@ -232,7 +237,9 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController.areEmployeesLoading.value
+                            taskCreateEditController
+                                .areEmployeesLoading.value ||
+                            taskCreateEditController.isDetailLoading.value
                         ? Shimmer.fromColors(
                             baseColor: AppColors.shimmerBaseColor,
                             highlightColor: AppColors.shimmerHighlightColor,
@@ -258,7 +265,9 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController.areEmployeesLoading.value
+                            taskCreateEditController
+                                .areEmployeesLoading.value ||
+                            taskCreateEditController.isDetailLoading.value
                         ? Shimmer.fromColors(
                             baseColor: AppColors.shimmerBaseColor,
                             highlightColor: AppColors.shimmerHighlightColor,
@@ -349,7 +358,9 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController.areEmployeesLoading.value
+                            taskCreateEditController
+                                .areEmployeesLoading.value ||
+                            taskCreateEditController.isDetailLoading.value
                         ? Shimmer.fromColors(
                             baseColor: AppColors.shimmerBaseColor,
                             highlightColor: AppColors.shimmerHighlightColor,
@@ -375,7 +386,9 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController.areEmployeesLoading.value
+                            taskCreateEditController
+                                .areEmployeesLoading.value ||
+                            taskCreateEditController.isDetailLoading.value
                         ? Shimmer.fromColors(
                             baseColor: AppColors.shimmerBaseColor,
                             highlightColor: AppColors.shimmerHighlightColor,
@@ -461,7 +474,9 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController.areEmployeesLoading.value
+                            taskCreateEditController
+                                .areEmployeesLoading.value ||
+                            taskCreateEditController.isDetailLoading.value
                         ? Shimmer.fromColors(
                             baseColor: AppColors.shimmerBaseColor,
                             highlightColor: AppColors.shimmerHighlightColor,
@@ -487,7 +502,9 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController.areEmployeesLoading.value
+                            taskCreateEditController
+                                .areEmployeesLoading.value ||
+                            taskCreateEditController.isDetailLoading.value
                         ? Shimmer.fromColors(
                             baseColor: AppColors.shimmerBaseColor,
                             highlightColor: AppColors.shimmerHighlightColor,
@@ -591,7 +608,7 @@ class TaskCreateEditPage extends StatelessWidget {
                                     decoration: BoxDecoration(
                                         color: AppColors.kPrimaryColor,
                                         borderRadius: BorderRadius.circular(8)),
-                                    padding: EdgeInsets.only(left: 8, right: 4),
+                                    padding: const EdgeInsets.only(left: 8, right: 4),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       mainAxisAlignment:
@@ -624,7 +641,7 @@ class TaskCreateEditPage extends StatelessWidget {
                                                       participant);
                                             }
                                           },
-                                          child: Padding(
+                                          child: const Padding(
                                             padding: EdgeInsets.all(4),
                                             child: Icon(
                                               Icons.close_rounded,
@@ -646,7 +663,9 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController.areEmployeesLoading.value
+                            taskCreateEditController
+                                .areEmployeesLoading.value ||
+                            taskCreateEditController.isDetailLoading.value
                         ? Shimmer.fromColors(
                             baseColor: AppColors.shimmerBaseColor,
                             highlightColor: AppColors.shimmerHighlightColor,
@@ -672,7 +691,9 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController.areEmployeesLoading.value
+                            taskCreateEditController
+                                .areEmployeesLoading.value ||
+                            taskCreateEditController.isDetailLoading.value
                         ? Shimmer.fromColors(
                             baseColor: AppColors.shimmerBaseColor,
                             highlightColor: AppColors.shimmerHighlightColor,
@@ -776,7 +797,7 @@ class TaskCreateEditPage extends StatelessWidget {
                                     decoration: BoxDecoration(
                                         color: AppColors.kPrimaryColor,
                                         borderRadius: BorderRadius.circular(8)),
-                                    padding: EdgeInsets.only(left: 8, right: 4),
+                                    padding: const EdgeInsets.only(left: 8, right: 4),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       mainAxisAlignment:
@@ -809,7 +830,7 @@ class TaskCreateEditPage extends StatelessWidget {
                                                       observer);
                                             }
                                           },
-                                          child: Padding(
+                                          child: const Padding(
                                             padding: EdgeInsets.all(4),
                                             child: Icon(
                                               Icons.close_rounded,
@@ -839,8 +860,9 @@ class TaskCreateEditPage extends StatelessWidget {
                           () => taskCreateEditController
                                       .areProjectsLoading.value ||
                                   taskCreateEditController
-                                      .areEmployeesLoading.value
-                              ? CommonInputFieldShimmer(
+                                      .areEmployeesLoading.value ||
+                                  taskCreateEditController.isDetailLoading.value
+                              ? const CommonInputFieldShimmer(
                                   labelShimmerBorderRadius: 0,
                                 )
                               : IgnorePointer(
@@ -865,8 +887,9 @@ class TaskCreateEditPage extends StatelessWidget {
                                     isEnable: false,
                                     trailing: Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: SvgPicture.asset(
+                                      child: Image.asset(
                                         AppIcons.icCalendar,
+                                        height: 16,
                                       ),
                                     ),
                                     onTap: taskCreateEditController
@@ -885,8 +908,9 @@ class TaskCreateEditPage extends StatelessWidget {
                           () => taskCreateEditController
                                       .areProjectsLoading.value ||
                                   taskCreateEditController
-                                      .areEmployeesLoading.value
-                              ? CommonInputFieldShimmer(
+                                      .areEmployeesLoading.value ||
+                                  taskCreateEditController.isDetailLoading.value
+                              ? const CommonInputFieldShimmer(
                                   labelShimmerBorderRadius: 0,
                                 )
                               : CommonInputField(
@@ -904,8 +928,9 @@ class TaskCreateEditPage extends StatelessWidget {
                                   isEnable: false,
                                   trailing: Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: SvgPicture.asset(
+                                    child: Image.asset(
                                       AppIcons.icCalendar,
+                                      height: 16,
                                     ),
                                   ),
                                   onTap: taskCreateEditController
@@ -922,7 +947,9 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController.areEmployeesLoading.value
+                            taskCreateEditController
+                                .areEmployeesLoading.value ||
+                            taskCreateEditController.isDetailLoading.value
                         ? Shimmer.fromColors(
                             baseColor: AppColors.shimmerBaseColor,
                             highlightColor: AppColors.shimmerHighlightColor,
@@ -948,14 +975,19 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController.areEmployeesLoading.value
-                        ? CommonInputFieldShimmer(
+                            taskCreateEditController
+                                .areEmployeesLoading.value ||
+                            taskCreateEditController.isDetailLoading.value
+                        ? const CommonInputFieldShimmer(
                             labelShimmerBorderRadius: 0,
                             textFieldShimmerHeight: 300,
                           )
                         : CommonMultimediaContentCreateWidget(
-                            textController: taskCreateEditController
-                                .descriptionTextController,
+                            expandEditor: true,
+                            htmlEditorController: taskCreateEditController
+                                .descriptionHtmlEditorController,
+                            htmlEditorOnInit: taskCreateEditController
+                                .descriptionHtmlEditorOnInit,
                             hint: 'enter_text',
                             isTextFieldEmpty: taskCreateEditController
                                 .isDescriptionTextFieldEmpty,
@@ -979,6 +1011,15 @@ class TaskCreateEditPage extends StatelessWidget {
                                 taskCreateEditController.editDescriptionText,
                             showCreateEditButton: false,
                             isCreateOrEditLoading: false.obs,
+                            attachedImages:
+                                taskCreateEditController.descriptionFieldImages,
+                            attachedDocuments: taskCreateEditController
+                                .descriptionFieldDocuments,
+                            removeAttachedImage: taskCreateEditController
+                                .removeDescriptionFieldImage,
+                            removeAttachedDocument: taskCreateEditController
+                                .removeDescriptionFieldDocument,
+                            areAttachedFilesLoading: taskCreateEditController.areDescriptionFieldFilesLoading,
                           ),
                     // Container(
                     //     padding: const EdgeInsets.only(top: 16),
@@ -1236,7 +1277,7 @@ class TaskCreateEditPage extends StatelessWidget {
                     //                           .withValues(alpha: 0.3),
                     //                       shape: BoxShape.circle),
                     //                   child: Center(
-                    //                     child: SvgPicture.asset(
+                    //                     child: Image.asset(
                     //                       AppIcons.icPhotoCamera,
                     //                       width: 16,
                     //                     ),
@@ -1256,7 +1297,7 @@ class TaskCreateEditPage extends StatelessWidget {
                     //                           .withValues(alpha: 0.3),
                     //                       shape: BoxShape.circle),
                     //                   child: Center(
-                    //                     child: SvgPicture.asset(
+                    //                     child: Image.asset(
                     //                       AppIcons.icImage,
                     //                       width: 16,
                     //                     ),
@@ -1276,7 +1317,7 @@ class TaskCreateEditPage extends StatelessWidget {
                     //                           .withValues(alpha: 0.3),
                     //                       shape: BoxShape.circle),
                     //                   child: Center(
-                    //                     child: SvgPicture.asset(
+                    //                     child: Image.asset(
                     //                       AppIcons.icDocument,
                     //                       width: 16,
                     //                     ),
@@ -1332,8 +1373,10 @@ class TaskCreateEditPage extends StatelessWidget {
                   ),
                   Obx(
                     () => taskCreateEditController.areProjectsLoading.value ||
-                            taskCreateEditController.areEmployeesLoading.value
-                        ? CommonButtonShimmer(
+                            taskCreateEditController
+                                .areEmployeesLoading.value ||
+                            taskCreateEditController.isDetailLoading.value
+                        ? const CommonButtonShimmer(
                             borderRadius: 0,
                           )
                         : taskCreateEditController.isLoading.value
@@ -1341,7 +1384,7 @@ class TaskCreateEditPage extends StatelessWidget {
                                 child: Container(
                                   height: 51,
                                   width: 51,
-                                  padding: EdgeInsets.all(8),
+                                  padding: const EdgeInsets.all(8),
                                   child: CircularProgressIndicator(
                                     color: AppColors.kPrimaryColor,
                                   ),

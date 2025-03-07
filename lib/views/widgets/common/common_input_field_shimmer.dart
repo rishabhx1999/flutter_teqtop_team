@@ -28,7 +28,7 @@ class CommonInputFieldShimmer extends StatelessWidget {
               child: Container(
                 height: 20,
                 width: 60,
-                margin: EdgeInsets.only(bottom: 8),
+                margin: const EdgeInsets.only(bottom: 8),
                 decoration: BoxDecoration(
                   borderRadius:
                       BorderRadius.circular(labelShimmerBorderRadius ?? 3),

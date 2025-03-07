@@ -32,6 +32,6 @@ class LogModel {
         "project_id": projectId,
         "project_name": projectName,
         "component": component,
-        "created_at": createdAt == null ? null : createdAt!.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
       };
 }

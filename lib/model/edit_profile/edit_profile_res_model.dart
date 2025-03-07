@@ -120,7 +120,7 @@ class EditProfileResModel {
         "position": position,
         "department": department,
         "department_id": departmentId,
-        "birth_date": birthDate == null ? null : birthDate!.toIso8601String(),
+        "birth_date": birthDate?.toIso8601String(),
         "joining_date": joiningDate,
         "appraisel_date": appraiselDate,
         "additional_info": additionalInfo,
@@ -132,7 +132,7 @@ class EditProfileResModel {
         "permanent_address": permanentAddress,
         "remarks": remarks,
         "shift": shift,
-        "created_at": createdAt == null ? null : createdAt!.toIso8601String(),
-        "updated_at": updatedAt == null ? null : updatedAt!.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
+        "updated_at": updatedAt?.toIso8601String(),
       };
 }

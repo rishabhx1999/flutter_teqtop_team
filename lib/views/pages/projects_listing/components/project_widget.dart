@@ -26,7 +26,7 @@ class ProjectWidget extends StatelessWidget {
       child: Stack(
         children: [
           Container(
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             width: double.infinity,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.zero,
@@ -48,7 +48,7 @@ class ProjectWidget extends StatelessWidget {
                   height: 26,
                 ),
                 Padding(
-                  padding: EdgeInsets.only(right: 96),
+                  padding: const EdgeInsets.only(right: 96),
                   child: RichText(
                       text: TextSpan(children: [
                     TextSpan(

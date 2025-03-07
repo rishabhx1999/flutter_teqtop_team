@@ -31,7 +31,7 @@ class EditPostResModel {
 
   Map<String, dynamic> toJson() => {
         "status": status,
-        "values": values == null ? null : values!.toJson(),
+        "values": values?.toJson(),
       };
 }
 

@@ -33,7 +33,7 @@ class AssignHourWidget extends StatelessWidget {
         children: [
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
                 border: Border.all(
                     width: 0.5, color: Colors.black.withValues(alpha: 0.1))),
@@ -53,11 +53,11 @@ class AssignHourWidget extends StatelessWidget {
                     child: CircleAvatar(
                       radius: 36,
                       backgroundImage:
-                          AssetImage(AppImages.imgPersonPlaceholder),
+                          const AssetImage(AppImages.imgPersonPlaceholder),
                       foregroundImage: assignHoursData.userProfile != null
                           ? NetworkImage(AppConsts.imgInitialUrl +
                               assignHoursData.userProfile!)
-                          : AssetImage(AppImages.imgPersonPlaceholder),
+                          : const AssetImage(AppImages.imgPersonPlaceholder),
                     ),
                   ),
                 ),

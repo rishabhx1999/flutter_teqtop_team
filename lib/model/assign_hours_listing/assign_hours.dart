@@ -47,16 +47,16 @@ class AssignHours {
       );
 
   Map<String, dynamic> toJson() => {
-        "DT_RowAttr": dtRowAttr == null ? null : dtRowAttr!.toJson(),
+        "DT_RowAttr": dtRowAttr?.toJson(),
         "id": id,
         "userName": userName,
         "userProfile": userProfile,
         "projects": projects,
-        "addedDate": addedDate == null ? null : addedDate!.toIso8601String(),
+        "addedDate": addedDate?.toIso8601String(),
         "updatededDate":
-            updatededDate == null ? null : updatededDate!.toIso8601String(),
+            updatededDate?.toIso8601String(),
         "user_id": userId,
-        "deleted_at": deletedAt == null ? null : deletedAt!.toIso8601String(),
+        "deleted_at": deletedAt?.toIso8601String(),
         "action": action,
       };
 }

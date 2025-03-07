@@ -31,7 +31,7 @@ class DailyReport {
         "user_id": userId,
         "name": name,
         "report": report,
-        "created_at": createdAt == null ? null : createdAt!.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
         "profile": profile,
       };
 }

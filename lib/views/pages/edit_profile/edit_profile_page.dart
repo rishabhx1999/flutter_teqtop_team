@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:get/get.dart';
 import 'package:teqtop_team/utils/validations.dart';
 
@@ -51,10 +51,9 @@ class EditProfilePage extends StatelessWidget {
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: SvgPicture.asset(
+                  child: Image.asset(
                     AppIcons.icBack,
-                    colorFilter:
-                        const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    color: Colors.black,
                   ),
                 )),
             leadingWidth: 40,
@@ -71,11 +70,10 @@ class EditProfilePage extends StatelessWidget {
                     onTap: () {
                       Get.toNamed(AppRoutes.routeGlobalSearch);
                     },
-                    child: SvgPicture.asset(
+                    child: Image.asset(
                       AppIcons.icSearch,
                       width: 24,
-                      colorFilter:
-                          const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      color: Colors.black,
                     )),
               ),
               GestureDetector(
@@ -98,40 +96,43 @@ class EditProfilePage extends StatelessWidget {
                           top: 0,
                           child: Visibility(
                               visible: editProfileController
-                                  .notificationsCount.value >
+                                      .notificationsCount.value >
                                   0,
-                              child:Container(
-                            height: 12,
-                            width: editProfileController
+                              child: Container(
+                                height: 12,
+                                width: editProfileController
+                                            .notificationsCount.value
+                                            .toString()
+                                            .length >
+                                        1
+                                    ? (12 +
+                                            ((editProfileController
+                                                        .notificationsCount
+                                                        .value
+                                                        .toString()
+                                                        .length -
+                                                    1) *
+                                                4))
+                                        .toDouble()
+                                    : 12,
+                                decoration: BoxDecoration(
+                                    color: AppColors.colorFFB400,
+                                    borderRadius: BorderRadius.circular(50)),
+                                child: Center(
+                                  child: Text(
+                                    editProfileController
                                         .notificationsCount.value
-                                        .toString()
-                                        .length >
-                                    1
-                                ? (12 +
-                                        ((editProfileController
-                                                    .notificationsCount.value
-                                                    .toString()
-                                                    .length -
-                                                1) *
-                                            4))
-                                    .toDouble()
-                                : 12,
-                            decoration: BoxDecoration(
-                                color: AppColors.colorFFB400,
-                                borderRadius: BorderRadius.circular(50)),
-                            child: Center(
-                              child: Text(
-                                editProfileController.notificationsCount.value
-                                    .toString(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(
-                                        fontSize:
-                                            AppConsts.commonFontSizeFactor * 8),
-                              ),
-                            ),
-                          )))
+                                        .toString(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(
+                                            fontSize:
+                                                AppConsts.commonFontSizeFactor *
+                                                    8),
+                                  ),
+                                ),
+                              )))
                     ],
                   ),
                 ),
@@ -162,7 +163,7 @@ class EditProfilePage extends StatelessWidget {
                               Obx(
                                 () => CircleAvatar(
                                   radius: 54,
-                                  backgroundImage: AssetImage(
+                                  backgroundImage: const AssetImage(
                                       AppImages.imgPersonPlaceholder),
                                   foregroundImage: editProfileController
                                               .selectedImage.value !=
@@ -175,7 +176,7 @@ class EditProfilePage extends StatelessWidget {
                                               AppConsts.imgInitialUrl +
                                                   editProfileController
                                                       .profilePhoto!)
-                                          : AssetImage(
+                                          : const AssetImage(
                                               AppImages.imgPersonPlaceholder),
                                 ),
                               ),
@@ -274,7 +275,7 @@ class EditProfilePage extends StatelessWidget {
                           isEnable: false,
                           trailing: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: SvgPicture.asset(
+                            child: Image.asset(
                               AppIcons.icCalendar,
                             ),
                           ),
@@ -328,7 +329,7 @@ class EditProfilePage extends StatelessWidget {
                           ? Container(
                               height: 51,
                               width: 51,
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               child: CircularProgressIndicator(
                                 color: AppColors.kPrimaryColor,
                               ),

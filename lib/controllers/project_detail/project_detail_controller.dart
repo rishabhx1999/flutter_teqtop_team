@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:teqtop_team/controllers/global_search/global_search_controller.dart';
 import 'package:teqtop_team/controllers/projects_listing/projects_listing_controller.dart';
 import 'package:teqtop_team/model/project_detail/project_detail_res_model.dart';
@@ -18,7 +19,7 @@ class ProjectDetailController extends GetxController {
   RxBool accessDetailEditing = false.obs;
   Rx<ProjectDetailResModel?> projectDetail = Rx<ProjectDetailResModel?>(null);
   bool shouldClearPreviousRoutes = false;
-  final TextEditingController accessDetailController = TextEditingController();
+  final HtmlEditorController accessDetailController = HtmlEditorController();
   final accessDetailFocusNode = FocusNode();
   FocusNode wholePageFocus = FocusNode();
 
@@ -38,7 +39,6 @@ class ProjectDetailController extends GetxController {
 
   @override
   void onClose() {
-    accessDetailController.dispose();
     accessDetailFocusNode.dispose();
     wholePageFocus.dispose();
     super.onClose();
@@ -53,14 +53,21 @@ class ProjectDetailController extends GetxController {
     }
   }
 
-  void onTapAccessDetailEdit() {
+  Future<void> onTapAccessDetailEdit() async {
     accessDetailEditing.value = true;
     if (projectDetail.value != null &&
-        projectDetail.value!.accessDetail is String) {
-      accessDetailController.text =
-          Helpers.formatHtmlParagraphs(projectDetail.value!.accessDetail);
-    }
+        projectDetail.value!.accessDetail is String) {}
     accessDetailFocusNode.requestFocus();
+  }
+
+  void accessDetailHtmlEditorOnInit() {
+    Helpers.printLog(
+        description:
+            "PROJECT_DETAIL_CONTROLLER_ACCESS_DETAIL_HTML_EDITOR_ON_INIT");
+    if (projectDetail.value != null &&
+        projectDetail.value!.accessDetail is String) {
+      accessDetailController.insertHtml(projectDetail.value!.accessDetail);
+    }
   }
 
   void getProjectId() {
@@ -121,9 +128,12 @@ class ProjectDetailController extends GetxController {
       isAccessDetailEditLoading.value = true;
 
       try {
+        Helpers.printLog(
+            description: "PROJECT_DETAIL_CONTROLLER",
+            message:
+                "ACCESS_DETAIL = ${await accessDetailController.getText()}");
         Map<String, dynamic> requestBody = {
-          'access_detail':
-              Helpers.convertToHTMLParagraphs(accessDetailController.text),
+          'access_detail': await accessDetailController.getText(),
           'id': projectId
         };
         var response = await PostRequests.editProjectAccessDetails(
@@ -170,6 +180,7 @@ class ProjectDetailController extends GetxController {
       //     message: "COULD_NOT_FIND_PROJECTS_LISTING_CONTROLLER");
     }
     if (projectsListingController != null) {
+      projectsListingController.projects.clear();
       projectsListingController.getProjects();
     }
     GlobalSearchController? globalSearchController;

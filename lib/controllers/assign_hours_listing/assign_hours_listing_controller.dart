@@ -365,7 +365,7 @@ class AssignHoursListingController extends GetxController {
                 selectedTime.value!.time == "yesterday".tr,
                 'date',
                 DateFormat('y-M-d')
-                    .format(DateTime.now().subtract(Duration(days: 1))));
+                    .format(DateTime.now().subtract(const Duration(days: 1))));
           }
 
           if (selectedTime.value!.time == "current_week".tr) {

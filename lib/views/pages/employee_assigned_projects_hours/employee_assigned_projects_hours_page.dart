@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:teqtop_team/controllers/employee_assigned_projects_hours/employee_assigned_projects_hours_controller.dart';
@@ -45,10 +45,9 @@ class EmployeeAssignedProjectsHoursPage extends StatelessWidget {
             },
             child: Padding(
               padding: const EdgeInsets.only(left: 16, right: 16),
-              child: SvgPicture.asset(
+              child: Image.asset(
                 AppIcons.icBack,
-                colorFilter:
-                    const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                color: Colors.black,
               ),
             )),
         leadingWidth: 40,
@@ -64,11 +63,10 @@ class EmployeeAssignedProjectsHoursPage extends StatelessWidget {
                 onTap: () {
                   Get.toNamed(AppRoutes.routeGlobalSearch);
                 },
-                child: SvgPicture.asset(
+                child: Image.asset(
                   AppIcons.icSearch,
                   width: 24,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color: Colors.black,
                 )),
           ),
           GestureDetector(
@@ -158,7 +156,7 @@ class EmployeeAssignedProjectsHoursPage extends StatelessWidget {
                         CircleAvatar(
                           radius: 34,
                           backgroundImage:
-                              AssetImage(AppImages.imgPersonPlaceholder),
+                              const AssetImage(AppImages.imgPersonPlaceholder),
                           foregroundImage:
                               employeeAssignedProjectsHoursController
                                           .employeeProfilePhoto !=
@@ -166,7 +164,7 @@ class EmployeeAssignedProjectsHoursPage extends StatelessWidget {
                                   ? NetworkImage(AppConsts.imgInitialUrl +
                                       employeeAssignedProjectsHoursController
                                           .employeeProfilePhoto!)
-                                  : AssetImage(AppImages.imgPersonPlaceholder),
+                                  : const AssetImage(AppImages.imgPersonPlaceholder),
                         ),
                         const SizedBox(
                           width: 16,
@@ -286,7 +284,7 @@ class EmployeeAssignedProjectsHoursPage extends StatelessWidget {
                                   ? Container(
                                       height: 30,
                                       width: 72,
-                                      padding: EdgeInsets.all(8),
+                                      padding: const EdgeInsets.all(8),
                                       child: Center(
                                         child: SizedBox(
                                           width: 16,

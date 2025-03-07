@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
@@ -31,7 +31,7 @@ class EmployeeWidget extends StatelessWidget {
         children: [
           Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.zero,
                 color: Colors.transparent,
@@ -51,11 +51,11 @@ class EmployeeWidget extends StatelessWidget {
                       CircleAvatar(
                         radius: 26,
                         backgroundImage:
-                            AssetImage(AppImages.imgPersonPlaceholder),
+                            const AssetImage(AppImages.imgPersonPlaceholder),
                         foregroundImage: employeeData.profile != null
                             ? NetworkImage(
                                 AppConsts.imgInitialUrl + employeeData.profile!)
-                            : AssetImage(AppImages.imgPersonPlaceholder),
+                            : const AssetImage(AppImages.imgPersonPlaceholder),
                       ),
                       const SizedBox(
                         width: 8,
@@ -100,11 +100,10 @@ class EmployeeWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                SvgPicture.asset(
+                Image.asset(
                   AppIcons.icNavigateNext,
                   width: 8,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color: Colors.black,
                 )
               ],
             ),
@@ -113,7 +112,7 @@ class EmployeeWidget extends StatelessWidget {
               right: 0,
               top: 10,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                     color: AppColors.colorFFF7E5,
                     borderRadius: BorderRadius.zero),

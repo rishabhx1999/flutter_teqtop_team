@@ -198,14 +198,14 @@ class ProposalModel {
         "refund_date":
             refundAmount == null ? null : refundDate!.toIso8601String(),
         "amount_date":
-            amountDate == null ? null : amountDate!.toIso8601String(),
+            amountDate?.toIso8601String(),
         "call_date": callDate,
-        "created_at": createdAt == null ? null : createdAt!.toIso8601String(),
-        "updated_at": updatedAt == null ? null : updatedAt!.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
+        "updated_at": updatedAt?.toIso8601String(),
         "deleted_at": deletedAt,
         "newStatusDate": newStatusDate,
         "hiredStatusDate":
-            hiredStatusDate == null ? null : hiredStatusDate!.toIso8601String(),
+            hiredStatusDate?.toIso8601String(),
         "discussStatusDate": discussStatusDate,
         "completeStatusDate": completeStatusDate,
         "rejectStatusDate": rejectStatusDate,

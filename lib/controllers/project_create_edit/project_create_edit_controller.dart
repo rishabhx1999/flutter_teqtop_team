@@ -147,6 +147,7 @@ class ProjectCreateEditController extends GetxController {
             Get.back();
             final projectsListingController =
                 Get.find<ProjectsListingController>();
+            projectsListingController.projects.clear();
             projectsListingController.getProjects();
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);

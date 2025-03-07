@@ -1,7 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:get/get.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/config/app_routes.dart';
@@ -53,10 +53,9 @@ class ProjectsListingPage extends StatelessWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: SvgPicture.asset(
+                child: Image.asset(
                   AppIcons.icMenu,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color: Colors.black,
                 ),
               )),
           backgroundColor: Colors.white,
@@ -72,11 +71,10 @@ class ProjectsListingPage extends StatelessWidget {
                   onTap: () {
                     Get.toNamed(AppRoutes.routeGlobalSearch);
                   },
-                  child: SvgPicture.asset(
+                  child: Image.asset(
                     AppIcons.icSearch,
                     width: 24,
-                    colorFilter:
-                        const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    color: Colors.black,
                   )),
             ),
             GestureDetector(
@@ -148,21 +146,22 @@ class ProjectsListingPage extends StatelessWidget {
                 },
                 child: CircleAvatar(
                   radius: 17,
-                  backgroundImage: AssetImage(AppImages.imgPersonPlaceholder),
+                  backgroundImage: const AssetImage(AppImages.imgPersonPlaceholder),
                   foregroundImage:
                       projectsListingController.profilePhoto != null
                           ? NetworkImage(AppConsts.imgInitialUrl +
                               projectsListingController.profilePhoto!)
-                          : AssetImage(AppImages.imgPersonPlaceholder),
+                          : const AssetImage(AppImages.imgPersonPlaceholder),
                 ),
               ),
             )
           ],
         ),
         backgroundColor: Colors.white,
-        drawer: MenuDrawerWidget(),
+        drawer: const MenuDrawerWidget(),
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
+          controller: projectsListingController.scrollController,
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -195,11 +194,11 @@ class ProjectsListingPage extends StatelessWidget {
                   child: DottedBorder(
                     color: Colors.black.withValues(alpha: 0.2),
                     padding: EdgeInsets.zero,
-                    dashPattern: [4],
+                    dashPattern: const [4],
                     strokeWidth: 1,
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 34),
+                      padding: const EdgeInsets.symmetric(vertical: 34),
                       color: AppColors.colorF7F7F7,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -242,8 +241,9 @@ class ProjectsListingPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 28),
                       physics: const NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
-                        return projectsListingController.isLoading.value
-                            ? ProjectWidgetShimmer()
+                        return projectsListingController.isLoading.value &&
+                                projectsListingController.projects.isEmpty
+                            ? const ProjectWidgetShimmer()
                             : ProjectWidget(
                                 projectData:
                                     projectsListingController.projects[index] ??
@@ -257,9 +257,29 @@ class ProjectsListingPage extends StatelessWidget {
                           height: 20,
                         );
                       },
-                      itemCount: projectsListingController.isLoading.value
+                      itemCount: projectsListingController.isLoading.value &&
+                              projectsListingController.projects.isEmpty
                           ? 5
                           : projectsListingController.projects.length),
+                ),
+                Obx(
+                  () => Visibility(
+                    visible: projectsListingController.projects.isNotEmpty &&
+                        projectsListingController.isLoading.value,
+                    child: ListView.separated(
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.symmetric(vertical: 28),
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return const ProjectWidgetShimmer();
+                        },
+                        separatorBuilder: (context, index) {
+                          return const SizedBox(
+                            height: 20,
+                          );
+                        },
+                        itemCount: 5),
+                  ),
                 )
               ],
             ),

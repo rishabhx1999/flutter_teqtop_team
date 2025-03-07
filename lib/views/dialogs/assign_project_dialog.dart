@@ -65,7 +65,7 @@ class AssignProjectDialogContent extends StatelessWidget {
         FocusManager.instance.primaryFocus?.unfocus();
       },
       child: Container(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,

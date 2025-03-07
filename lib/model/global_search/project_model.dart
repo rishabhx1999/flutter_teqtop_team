@@ -98,7 +98,7 @@ class ProjectModel {
       );
 
   Map<String, dynamic> toJson() => {
-        "DT_RowAttr": dtRowAttr == null ? null : dtRowAttr!.toJson(),
+        "DT_RowAttr": dtRowAttr?.toJson(),
         "id": id,
         "trash": trash,
         "proposal_id": proposalId,
@@ -122,10 +122,8 @@ class ProjectModel {
         "deleted_at": deletedAt,
         "folder_id": folderId,
         "folder_name": folderName,
-        "created_at": createdAt == null ? null : createdAt!.toIso8601String(),
-        "project_created_at": projectCreatedAt == null
-            ? null
-            : projectCreatedAt!.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
+        "project_created_at": projectCreatedAt?.toIso8601String(),
       };
 }
 

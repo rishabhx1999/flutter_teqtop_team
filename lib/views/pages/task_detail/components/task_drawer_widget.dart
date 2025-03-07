@@ -27,7 +27,7 @@ class TaskDrawerWidget extends StatelessWidget {
             height: 68,
           ),
           Padding(
-            padding: EdgeInsets.only(left: 28, right: 16),
+            padding: const EdgeInsets.only(left: 28, right: 16),
             child: Text(
               "${'created_by'.tr}:",
               style: Theme.of(context).textTheme.bodyLarge,
@@ -38,7 +38,7 @@ class TaskDrawerWidget extends StatelessWidget {
           ),
           Obx(
             () => Padding(
-              padding: EdgeInsets.only(left: 28, right: 16),
+              padding: const EdgeInsets.only(left: 28, right: 16),
               child: ConcernedPersonWidget(
                 personData: responsiblePerson.value ?? EmployeeModel(),
               ),
@@ -57,7 +57,7 @@ class TaskDrawerWidget extends StatelessWidget {
             height: 24,
           ),
           Padding(
-            padding: EdgeInsets.only(left: 28, right: 16),
+            padding: const EdgeInsets.only(left: 28, right: 16),
             child: Text(
               "${'responsible_person'.tr}:",
               style: Theme.of(context).textTheme.bodyLarge,
@@ -68,7 +68,7 @@ class TaskDrawerWidget extends StatelessWidget {
           ),
           Obx(
             () => Padding(
-              padding: EdgeInsets.only(left: 28, right: 16),
+              padding: const EdgeInsets.only(left: 28, right: 16),
               child: ConcernedPersonWidget(
                 personData: responsiblePerson.value ?? EmployeeModel(),
               ),
@@ -87,7 +87,7 @@ class TaskDrawerWidget extends StatelessWidget {
             height: 24,
           ),
           Padding(
-            padding: EdgeInsets.only(left: 28, right: 16),
+            padding: const EdgeInsets.only(left: 28, right: 16),
             child: Text(
               "${'participants'.tr}:",
               style: Theme.of(context).textTheme.bodyLarge,
@@ -100,7 +100,7 @@ class TaskDrawerWidget extends StatelessWidget {
             () => ListView.separated(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                padding: EdgeInsets.only(left: 28, right: 16),
+                padding: const EdgeInsets.only(left: 28, right: 16),
                 itemBuilder: (context, index) {
                   return ConcernedPersonWidget(
                     personData: participants[index] ?? EmployeeModel(),
@@ -126,7 +126,7 @@ class TaskDrawerWidget extends StatelessWidget {
             height: 24,
           ),
           Padding(
-            padding: EdgeInsets.only(left: 28, right: 16),
+            padding: const EdgeInsets.only(left: 28, right: 16),
             child: Text(
               "${'observer'.tr}:",
               style: Theme.of(context).textTheme.bodyLarge,
@@ -139,7 +139,7 @@ class TaskDrawerWidget extends StatelessWidget {
             () => ListView.separated(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                padding: EdgeInsets.only(left: 28, right: 16),
+                padding: const EdgeInsets.only(left: 28, right: 16),
                 itemBuilder: (context, index) {
                   return ConcernedPersonWidget(
                     personData: observers[index] ?? EmployeeModel(),

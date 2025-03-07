@@ -62,6 +62,6 @@ class FeedResModel {
             ? null
             : List<dynamic>.from(users!.map((x) => x!.toJson())),
         "user_name": userName,
-        "sidebar_data": sidebarData == null ? null : sidebarData!.toJson(),
+        "sidebar_data": sidebarData?.toJson(),
       };
 }

@@ -42,7 +42,7 @@ class LeaveWidget extends StatelessWidget {
                       CircleAvatar(
                         radius: 12,
                         backgroundImage:
-                            AssetImage(AppImages.imgPersonPlaceholder),
+                            const AssetImage(AppImages.imgPersonPlaceholder),
                         foregroundImage: leaveData.profile != null &&
                                 leaveData.profile!.isNotEmpty &&
                                 leaveData.profile!.first != null &&
@@ -50,7 +50,7 @@ class LeaveWidget extends StatelessWidget {
                                 leaveData.profile!.first!.profile!.isNotEmpty
                             ? NetworkImage(AppConsts.imgInitialUrl +
                                 leaveData.profile!.first!.profile!)
-                            : AssetImage(AppImages.imgPersonPlaceholder),
+                            : const AssetImage(AppImages.imgPersonPlaceholder),
                       ),
                       const SizedBox(
                         width: 12,

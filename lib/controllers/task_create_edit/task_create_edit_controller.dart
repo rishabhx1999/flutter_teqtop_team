@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:teqtop_team/controllers/task_detail/task_detail_controller.dart';
@@ -25,7 +26,10 @@ import '../tasks_listing/tasks_listing_controller.dart';
 class TaskCreateEditController extends GetxController {
   final GlobalKey<FormState> formKey = GlobalKey();
   late TextEditingController nameController;
-  late TextEditingController descriptionTextController;
+  late HtmlEditorController descriptionHtmlEditorController;
+  RxString descriptionHtmlEditorContent = "".obs;
+  RxList<String> descriptionFieldImages = <String>[].obs;
+  RxList<String> descriptionFieldDocuments = <String>[].obs;
   late TextEditingController startDateController;
   late TextEditingController endDateController;
   RxBool areProjectsLoading = false.obs;
@@ -75,10 +79,12 @@ class TaskCreateEditController extends GetxController {
   final ImagePicker _imagePicker = ImagePicker();
   RxBool isDescriptionTextFieldEmpty = true.obs;
   final FilePicker _filePicker = FilePicker.platform;
+  RxBool isDetailLoading = false.obs;
+  RxBool areDescriptionFieldFilesLoading = false.obs;
 
   @override
   void onInit() {
-    initializeTextEditingControllers();
+    initializeEditingControllers();
     initializeSelectedPriority();
     getData();
 
@@ -101,7 +107,9 @@ class TaskCreateEditController extends GetxController {
     getTaskDetail();
     await getProjects();
     await getEmployees();
-    setInitialFieldValues();
+    isDetailLoading.value = true;
+    await setInitialFieldValues();
+    isDetailLoading.value = false;
   }
 
   void getTaskDetail() {
@@ -113,20 +121,24 @@ class TaskCreateEditController extends GetxController {
     }
   }
 
+  void descriptionHtmlEditorOnInit() {
+    descriptionHtmlEditorController
+        .insertHtml(descriptionHtmlEditorContent.value);
+  }
+
   void initializeSelectedPriority() {
     selectedPriority.value = taskPriorities.first;
   }
 
-  void initializeTextEditingControllers() {
+  void initializeEditingControllers() {
     nameController = TextEditingController();
-    descriptionTextController = TextEditingController();
+    descriptionHtmlEditorController = HtmlEditorController();
     startDateController = TextEditingController();
     endDateController = TextEditingController();
   }
 
   void disposeTextEditingControllers() {
     nameController.dispose();
-    descriptionTextController.dispose();
     startDateController.dispose();
     endDateController.dispose();
   }
@@ -135,47 +147,52 @@ class TaskCreateEditController extends GetxController {
     FocusManager.instance.primaryFocus?.unfocus();
     if (areRequiredFieldsFilled() && editTaskDetail.value!.id != null) {
       isLoading.value = true;
-      String htmlDescription =
-          await Helpers.convertMultimediaContentToHTML(descriptionItems);
 
       try {
-        if (htmlDescription.isNotEmpty) {
-          Map<String, dynamic> requestBody = {
-            'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-                as String?,
-            'id': editTaskDetail.value!.id,
-            'extras': convertToCustomJsonFormat(
-                selectedParticipants, selectedObservers),
-            'description': '"$htmlDescription"',
-            'deadline': selectedEndDate == null
-                ? ''
-                : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
-            'name': nameController.text.toString().trim(),
-            'project': selectedProject.value!.id,
-            'responsible': selectedResponsiblePerson.value!.id,
-            'priority': selectedPriority.value!.priorityNumber == null
-                ? null
-                : selectedPriority.value!.priorityNumber! - 1,
-            'observer': generateIdsString(selectedObservers),
-            'participants': generateIdsString(selectedParticipants),
-          };
-          var response = await PostRequests.editTask(requestBody);
-          if (response != null) {
-            if (response.status == "success") {
-              Get.back();
-              final taskDetailController = Get.find<TaskDetailController>();
-              taskDetailController.getTaskDetail();
-            } else {
-              Get.snackbar("error".tr, "message_server_error".tr);
-            }
+        Map<String, dynamic> requestBody = {
+          'id': editTaskDetail.value!.id,
+          'extras': convertToCustomJsonFormat(
+              selectedParticipants, selectedObservers),
+          'description': await descriptionHtmlEditorController.getText(),
+          'files': [...descriptionFieldImages, ...descriptionFieldDocuments],
+          'deadline': selectedEndDate == null
+              ? ''
+              : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
+          'name': nameController.text.toString().trim(),
+          'project': selectedProject.value!.id,
+          'responsible': selectedResponsiblePerson.value!.id,
+          'priority': selectedPriority.value!.priorityNumber == null
+              ? null
+              : selectedPriority.value!.priorityNumber! - 1,
+          'observer': generateIdsString(selectedObservers),
+          'participants': generateIdsString(selectedParticipants),
+        };
+        var response = await PostRequests.editTask(requestBody);
+        if (response != null) {
+          if (response.status == "success") {
+            Get.back();
+            final taskDetailController = Get.find<TaskDetailController>();
+            taskDetailController.getTaskDetail();
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
         }
       } finally {
         isLoading.value = false;
       }
     }
+  }
+
+  void removeDescriptionFieldDocument(String document) {
+    descriptionFieldDocuments.remove(document);
+    descriptionFieldDocuments.refresh();
+  }
+
+  void removeDescriptionFieldImage(String image) {
+    descriptionFieldImages.remove(image);
+    descriptionFieldImages.refresh();
   }
 
   Future<void> setInitialFieldValues() async {
@@ -245,7 +262,11 @@ class TaskCreateEditController extends GetxController {
       }
 
       if (editTaskDetail.value!.deadline is String) {
-        selectedEndDate = DateTime.parse(editTaskDetail.value!.deadline);
+        try {
+          selectedEndDate = DateTime.parse(editTaskDetail.value!.deadline);
+        } catch (e) {
+          // Helpers.printLog(description: "");
+        }
       }
       if (selectedEndDate != null) {
         endDateController.text =
@@ -254,6 +275,21 @@ class TaskCreateEditController extends GetxController {
 
       String? html = editTaskDetail.value!.description;
       if (html != null && html.isNotEmpty) {
+        descriptionHtmlEditorContent.value = html;
+        if (editTaskDetail.value!.files is String &&
+            editTaskDetail.value!.files!.isNotEmpty) {
+          var decode = json.decode(editTaskDetail.value!.files!);
+          if (decode != null) {
+            var files = List<String>.from(decode);
+            for (var file in files) {
+              if (Helpers.isImage(file)) {
+                descriptionFieldImages.add(file);
+              } else {
+                descriptionFieldDocuments.add(file);
+              }
+            }
+          }
+        }
         var items = await Helpers.convertHTMLToMultimediaContent(html);
         descriptionItems.assignAll(items);
         for (var item in descriptionItems) {
@@ -293,48 +329,46 @@ class TaskCreateEditController extends GetxController {
     FocusManager.instance.primaryFocus?.unfocus();
     if (areRequiredFieldsFilled()) {
       isLoading.value = true;
-      String htmlDescription =
-          await Helpers.convertMultimediaContentToHTML(descriptionItems);
       try {
-        if (htmlDescription.isNotEmpty) {
-          Map<String, dynamic> requestBody = {
-            'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-                as String?,
-            'name': nameController.text.toString().trim(),
-            'project': selectedProject.value!.id,
-            'responsible': selectedResponsiblePerson.value!.id,
-            'priority': selectedPriority.value!.priorityNumber,
-            'observer': generateIdsString(selectedObservers),
-            'participants': generateIdsString(selectedParticipants),
-            'extras': convertToCustomJsonFormat(
-                selectedParticipants, selectedObservers),
-            'description': '"$htmlDescription"',
-            'deadline': selectedEndDate == null
-                ? ''
-                : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
-            'created_at': selectedStartDate == null
-                ? ''
-                : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
-                    selectedStartDate!.year,
-                    selectedStartDate!.month,
-                    selectedStartDate!.day,
-                    DateTime.now().hour,
-                    DateTime.now().minute,
-                    DateTime.now().second,
-                  )),
-          };
-          var response = await PostRequests.createTask(requestBody);
-          if (response != null) {
-            if (response.status == "Added a new task") {
-              Get.back();
-              final tasksListingController = Get.find<TasksListingController>();
-              tasksListingController.getTasks();
-            } else {
-              Get.snackbar("error".tr, "message_server_error".tr);
-            }
+        Map<String, dynamic> requestBody = {
+          'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+              as String?,
+          'name': nameController.text.toString().trim(),
+          'project': selectedProject.value!.id,
+          'responsible': selectedResponsiblePerson.value!.id,
+          'priority': selectedPriority.value!.priorityNumber,
+          'observer': generateIdsString(selectedObservers),
+          'participants': generateIdsString(selectedParticipants),
+          'extras': convertToCustomJsonFormat(
+              selectedParticipants, selectedObservers),
+          'description': await descriptionHtmlEditorController.getText(),
+          'files': [...descriptionFieldImages, ...descriptionFieldDocuments],
+          'deadline': selectedEndDate == null
+              ? ''
+              : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
+          'created_at': selectedStartDate == null
+              ? ''
+              : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
+                  selectedStartDate!.year,
+                  selectedStartDate!.month,
+                  selectedStartDate!.day,
+                  DateTime.now().hour,
+                  DateTime.now().minute,
+                  DateTime.now().second,
+                )),
+        };
+        var response = await PostRequests.createTask(requestBody);
+        if (response != null) {
+          if (response.status == "Added a new task") {
+            Get.back();
+            final tasksListingController = Get.find<TasksListingController>();
+            tasksListingController.tasks.clear();
+            tasksListingController.getTasks();
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
         }
       } finally {
         isLoading.value = false;
@@ -362,9 +396,6 @@ class TaskCreateEditController extends GetxController {
     bool areObserversSelected = selectedObservers.isNotEmpty;
     showSelectObserversMessage.value = !areObserversSelected;
 
-    bool areDescriptionItemsPresent = descriptionItems.isNotEmpty;
-    showAddDescriptionMessage.value = !areDescriptionItemsPresent;
-
     bool areTextFieldsFilled = formKey.currentState!.validate();
 
     return isProjectSelected &&
@@ -372,7 +403,6 @@ class TaskCreateEditController extends GetxController {
         isPrioritySelected &&
         areParticipantsSelected &&
         areObserversSelected &&
-        areDescriptionItemsPresent &&
         areTextFieldsFilled;
   }
 
@@ -451,22 +481,22 @@ class TaskCreateEditController extends GetxController {
   }
 
   void addTextInDescription() {
-    if (descriptionTextController.text.isEmpty) return;
-
-    final newItem = MediaContentModel(text: descriptionTextController.text);
-
-    if (descriptionItemEditIndex != null) {
-      descriptionItems.insert(descriptionItemEditIndex!, newItem);
-    } else {
-      final insertIndex = (addDescriptionItemAfterIndex != null)
-          ? addDescriptionItemAfterIndex! + 1
-          : descriptionItems.length;
-      descriptionItems.insert(insertIndex, newItem);
-    }
-    descriptionItemEditIndex = null;
-    addDescriptionItemAfterIndex = null;
-    descriptionTextController.clear();
-    isDescriptionTextFieldEmpty.value = true;
+    // if (descriptionTextController.text.isEmpty) return;
+    //
+    // final newItem = MediaContentModel(text: descriptionTextController.text);
+    //
+    // if (descriptionItemEditIndex != null) {
+    //   descriptionItems.insert(descriptionItemEditIndex!, newItem);
+    // } else {
+    //   final insertIndex = (addDescriptionItemAfterIndex != null)
+    //       ? addDescriptionItemAfterIndex! + 1
+    //       : descriptionItems.length;
+    //   descriptionItems.insert(insertIndex, newItem);
+    // }
+    // descriptionItemEditIndex = null;
+    // addDescriptionItemAfterIndex = null;
+    // descriptionTextController.clear();
+    // isDescriptionTextFieldEmpty.value = true;
   }
 
   void onDescriptionTextChange(String value) {
@@ -478,7 +508,13 @@ class TaskCreateEditController extends GetxController {
     var havePermission = await PermissionHandler.requestCameraPermission();
     if (havePermission) {
       var image = await _imagePicker.pickImage(source: ImageSource.camera);
+      areDescriptionFieldFilesLoading.value = true;
       if (image != null) {
+        String? imageUrl = await uploadFile(image.path, null);
+        if (imageUrl != null && imageUrl.isNotEmpty) {
+          descriptionFieldImages.add(imageUrl);
+          descriptionFieldImages.refresh();
+        }
         if (addDescriptionItemAfterIndex == null) {
           descriptionItems.add(MediaContentModel(image: image));
         } else {
@@ -487,6 +523,7 @@ class TaskCreateEditController extends GetxController {
         }
         addDescriptionItemAfterIndex = null;
       }
+      areDescriptionFieldFilesLoading.value = false;
       // handlePostButtonEnable();
     }
   }
@@ -495,8 +532,13 @@ class TaskCreateEditController extends GetxController {
     FocusManager.instance.primaryFocus?.unfocus();
     var images = await _imagePicker.pickMultiImage();
     if (images.isEmpty) return;
-
+    areDescriptionFieldFilesLoading.value = true;
     for (var image in images) {
+      String? imageUrl = await uploadFile(image.path, null);
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        descriptionFieldImages.add(imageUrl);
+        descriptionFieldImages.refresh();
+      }
       if (addDescriptionItemAfterIndex == null) {
         descriptionItems.add(MediaContentModel(image: image));
       } else {
@@ -505,6 +547,7 @@ class TaskCreateEditController extends GetxController {
         addDescriptionItemAfterIndex = addDescriptionItemAfterIndex! + 1;
       }
     }
+    areDescriptionFieldFilesLoading.value = false;
     addDescriptionItemAfterIndex = null;
     // handlePostButtonEnable();
   }
@@ -517,9 +560,14 @@ class TaskCreateEditController extends GetxController {
     var files = await _filePicker.pickFiles(allowMultiple: true);
     if (files == null) return;
 
+    areDescriptionFieldFilesLoading.value = true;
     for (var file in files.files) {
       if (file.path == null) continue;
-
+      String? fileUrl = await uploadFile(file.path!, file.extension);
+      if (fileUrl != null && fileUrl.isNotEmpty) {
+        descriptionFieldDocuments.add(fileUrl);
+        descriptionFieldDocuments.refresh();
+      }
       var mediaContent = (file.extension != null &&
               ['jpg', 'jpeg', 'png'].contains(file.extension!.toLowerCase()))
           ? MediaContentModel(image: XFile(file.path!))
@@ -532,6 +580,7 @@ class TaskCreateEditController extends GetxController {
         descriptionItems.insert(addDescriptionItemAfterIndex!, mediaContent);
       }
     }
+    areDescriptionFieldFilesLoading.value = false;
     addDescriptionItemAfterIndex = null;
   }
 
@@ -670,7 +719,7 @@ class TaskCreateEditController extends GetxController {
     selectedStartDate = await showDatePicker(
       initialDate: selectedStartDate,
       firstDate: DateTime(2013),
-      lastDate: DateTime.now().add(Duration(days: 365)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
       context: context,
     );
     if (selectedStartDate != null) {
@@ -684,7 +733,7 @@ class TaskCreateEditController extends GetxController {
     selectedEndDate = await showDatePicker(
       initialDate: selectedEndDate,
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 3650)),
+      lastDate: DateTime.now().add(const Duration(days: 3650)),
       context: context,
     );
     if (selectedEndDate != null) {
@@ -752,12 +801,12 @@ class TaskCreateEditController extends GetxController {
   }
 
   void editDescriptionText(int index) {
-    if (descriptionItems[index].text != null &&
-        descriptionItems[index].text!.isNotEmpty) {
-      descriptionTextController.clear();
-      descriptionTextController.text = descriptionItems[index].text!;
-      descriptionItems.removeAt(index);
-      descriptionItemEditIndex = index;
-    }
+    // if (descriptionItems[index].text != null &&
+    //     descriptionItems[index].text!.isNotEmpty) {
+    //   descriptionTextController.clear();
+    //   descriptionTextController.text = descriptionItems[index].text!;
+    //   descriptionItems.removeAt(index);
+    //   descriptionItemEditIndex = index;
+    // }
   }
 }

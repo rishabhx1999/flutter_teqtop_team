@@ -1,27 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:teqtop_team/model/media_content_model.dart';
 
 class CommentList {
-  //Don't delete these variables
-  TextEditingController? editController;
-  RxBool isEditing = false.obs;
-  FocusNode focusNode = FocusNode();
-  RxBool showTextFieldSuffix = true.obs;
-
   int? id;
   int? user;
   int? componentId;
   String? component;
   String? comment;
-  String? files;
+  dynamic files;
   String? status;
   dynamic deletedAt;
   DateTime? createdAt;
   DateTime? updatedAt;
   String? userName;
   String? profile;
-  List<MediaContentModel> commentItems = [];
+  // List<MediaContentModel> commentItems = [];
 
   CommentList({
     this.id,
@@ -36,7 +27,6 @@ class CommentList {
     this.updatedAt,
     this.userName,
     this.profile,
-    this.editController,
   });
 
   factory CommentList.fromJson(Map<String, dynamic> json) => CommentList(
@@ -63,8 +53,8 @@ class CommentList {
         "files": files,
         "status": status,
         "deleted_at": deletedAt,
-        "created_at": createdAt == null ? null : createdAt!.toIso8601String(),
-        "updated_at": updatedAt == null ? null : updatedAt!.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
+        "updated_at": updatedAt?.toIso8601String(),
         "user_name": userName,
         "profile": profile,
         "user_profile": profile

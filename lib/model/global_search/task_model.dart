@@ -114,7 +114,7 @@ class TaskModel {
       );
 
   Map<String, dynamic> toJson() => {
-        "DT_RowAttr": dtRowAttr == null ? null : dtRowAttr!.toJson(),
+        "DT_RowAttr": dtRowAttr?.toJson(),
         "id": id,
         "trash": trash,
         "project": project,
@@ -128,13 +128,13 @@ class TaskModel {
         "description": description,
         "completed_on": completedOn,
         "deadline": deadline,
-        "created_at": createdAt == null ? null : createdAt!.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
         "priority": priority,
         "status": status,
         "files": files,
         "extras": extras,
         "taggedDate": taggedDate,
-        "updated_at": updatedAt == null ? null : updatedAt!.toIso8601String(),
+        "updated_at": updatedAt?.toIso8601String(),
         "deleted_at": deletedAt,
         "user_name": userName,
         "user_role": userRole,

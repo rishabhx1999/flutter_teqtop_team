@@ -52,5 +52,7 @@
           <string>sms</string>
           <string>tel</string>
         </array>
+        <key>NSCameraUsageDescription</key>
+        <string>We need access to your camera for capturing photos.</string>
 	</dict>
 </plist>

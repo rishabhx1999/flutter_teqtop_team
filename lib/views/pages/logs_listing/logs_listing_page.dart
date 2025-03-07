@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:get/get.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/config/app_routes.dart';
@@ -50,10 +50,9 @@ class LogsListingPage extends StatelessWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: SvgPicture.asset(
+                child: Image.asset(
                   AppIcons.icMenu,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color: Colors.black,
                 ),
               )),
           backgroundColor: Colors.white,
@@ -69,11 +68,10 @@ class LogsListingPage extends StatelessWidget {
                   onTap: () {
                     Get.toNamed(AppRoutes.routeGlobalSearch);
                   },
-                  child: SvgPicture.asset(
+                  child: Image.asset(
                     AppIcons.icSearch,
                     width: 24,
-                    colorFilter:
-                        const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    color: Colors.black,
                   )),
             ),
             GestureDetector(
@@ -144,18 +142,18 @@ class LogsListingPage extends StatelessWidget {
                 },
                 child: CircleAvatar(
                   radius: 17,
-                  backgroundImage: AssetImage(AppImages.imgPersonPlaceholder),
+                  backgroundImage: const AssetImage(AppImages.imgPersonPlaceholder),
                   foregroundImage: logsListingController.profilePhoto != null
                       ? NetworkImage(AppConsts.imgInitialUrl +
                           logsListingController.profilePhoto!)
-                      : AssetImage(AppImages.imgPersonPlaceholder),
+                      : const AssetImage(AppImages.imgPersonPlaceholder),
                 ),
               ),
             )
           ],
         ),
         backgroundColor: Colors.white,
-        drawer: MenuDrawerWidget(),
+        drawer: const MenuDrawerWidget(),
         body: Obx(
           () => ListView.separated(
               shrinkWrap: true,
@@ -163,7 +161,7 @@ class LogsListingPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               itemBuilder: (context, index) {
                 return logsListingController.isLoading.value
-                    ? LogWidgetShimmer()
+                    ? const LogWidgetShimmer()
                     : LogWidget(
                         logData:
                             logsListingController.logs[index] ?? LogModel(),

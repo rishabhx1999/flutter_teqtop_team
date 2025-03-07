@@ -1,7 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:get/get.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/config/app_routes.dart';
@@ -52,10 +52,9 @@ class TasksListingPage extends StatelessWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: SvgPicture.asset(
+                child: Image.asset(
                   AppIcons.icMenu,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color: Colors.black,
                 ),
               )),
           backgroundColor: Colors.white,
@@ -69,11 +68,10 @@ class TasksListingPage extends StatelessWidget {
               child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: tasksListingController.handleOnGlobalSearchTap,
-                  child: SvgPicture.asset(
+                  child: Image.asset(
                     AppIcons.icSearch,
                     width: 24,
-                    colorFilter:
-                        const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    color: Colors.black,
                   )),
             ),
             GestureDetector(
@@ -145,20 +143,21 @@ class TasksListingPage extends StatelessWidget {
                 },
                 child: CircleAvatar(
                   radius: 17,
-                  backgroundImage: AssetImage(AppImages.imgPersonPlaceholder),
+                  backgroundImage: const AssetImage(AppImages.imgPersonPlaceholder),
                   foregroundImage: tasksListingController.profilePhoto != null
                       ? NetworkImage(AppConsts.imgInitialUrl +
                           tasksListingController.profilePhoto!)
-                      : AssetImage(AppImages.imgPersonPlaceholder),
+                      : const AssetImage(AppImages.imgPersonPlaceholder),
                 ),
               ),
             )
           ],
         ),
         backgroundColor: Colors.white,
-        drawer: MenuDrawerWidget(),
+        drawer: const MenuDrawerWidget(),
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
+          controller: tasksListingController.scrollController,
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -190,11 +189,11 @@ class TasksListingPage extends StatelessWidget {
                   child: DottedBorder(
                     color: Colors.black.withValues(alpha: 0.2),
                     padding: EdgeInsets.zero,
-                    dashPattern: [4],
+                    dashPattern: const [4],
                     strokeWidth: 1,
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 34),
+                      padding: const EdgeInsets.symmetric(vertical: 34),
                       color: AppColors.colorF7F7F7,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -237,8 +236,9 @@ class TasksListingPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 28),
                       physics: const NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
-                        return tasksListingController.isLoading.value
-                            ? TaskWidgetShimmer()
+                        return tasksListingController.isLoading.value &&
+                                tasksListingController.tasks.isEmpty
+                            ? const TaskWidgetShimmer()
                             : TaskWidget(
                                 taskData: tasksListingController.tasks[index] ??
                                     TaskModel(),
@@ -250,9 +250,29 @@ class TasksListingPage extends StatelessWidget {
                           height: 20,
                         );
                       },
-                      itemCount: tasksListingController.isLoading.value
+                      itemCount: tasksListingController.isLoading.value &&
+                              tasksListingController.tasks.isEmpty
                           ? 5
                           : tasksListingController.tasks.length),
+                ),
+                Obx(
+                  () => Visibility(
+                    visible: tasksListingController.isLoading.value &&
+                        tasksListingController.tasks.isNotEmpty,
+                    child: ListView.separated(
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.symmetric(vertical: 28),
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return const TaskWidgetShimmer();
+                        },
+                        separatorBuilder: (context, index) {
+                          return const SizedBox(
+                            height: 20,
+                          );
+                        },
+                        itemCount: 5),
+                  ),
                 ),
               ],
             ),

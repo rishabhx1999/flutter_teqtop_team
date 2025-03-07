@@ -26,7 +26,7 @@ class DriveModel {
   Map<String, dynamic> toJson() => {
         "id": id,
         "name": name,
-        "created_at": createdAt == null ? null : createdAt!.toIso8601String(),
+        "created_at": createdAt?.toIso8601String(),
         "site_url": siteUrl,
         "link": link,
       };

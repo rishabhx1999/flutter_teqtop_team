@@ -19,7 +19,7 @@ class EditEmployeeAssignedProjectWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final inputBorder = OutlineInputBorder(
         borderRadius: BorderRadius.circular(4),
-        borderSide: BorderSide(color: Colors.transparent, width: 0));
+        borderSide: const BorderSide(color: Colors.transparent, width: 0));
 
     return Container(
       width: double.infinity,
@@ -81,7 +81,7 @@ class EditEmployeeAssignedProjectWidget extends StatelessWidget {
                                 fontSize: AppConsts.commonFontSizeFactor * 12,
                               ),
                       contentPadding:
-                          EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       isDense: true),
                   validator: Validations.checkAssignHoursValidations,
                   textInputAction: TextInputAction.done,

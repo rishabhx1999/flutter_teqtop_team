@@ -1,7 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/config/app_colors.dart';
@@ -24,7 +24,6 @@ import '../../widgets/common/common_button_outline.dart';
 import '../../widgets/common/common_dropdown_button.dart';
 import '../../widgets/common/common_input_field.dart';
 import '../../widgets/common/common_search_field.dart';
-import '../daily_reports_listing/components/daily_report_widget.dart';
 
 class AssignHoursListingPage extends StatelessWidget {
   final assignHoursListingController = Get.put(AssignHoursListingController());
@@ -63,10 +62,10 @@ class AssignHoursListingPage extends StatelessWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: SvgPicture.asset(
+                child: Image.asset(
                   AppIcons.icMenu,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color:
+                      Colors.black,
                 ),
               )),
           backgroundColor: Colors.white,
@@ -82,11 +81,11 @@ class AssignHoursListingPage extends StatelessWidget {
                   onTap: () {
                     Get.toNamed(AppRoutes.routeGlobalSearch);
                   },
-                  child: SvgPicture.asset(
+                  child: Image.asset(
                     AppIcons.icSearch,
                     width: 24,
-                    colorFilter:
-                        const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    color:
+                        Colors.black,
                   )),
             ),
             GestureDetector(
@@ -158,19 +157,19 @@ class AssignHoursListingPage extends StatelessWidget {
                 },
                 child: CircleAvatar(
                   radius: 14,
-                  backgroundImage: AssetImage(AppImages.imgPersonPlaceholder),
+                  backgroundImage: const AssetImage(AppImages.imgPersonPlaceholder),
                   foregroundImage:
                       assignHoursListingController.profilePhoto != null
                           ? NetworkImage(AppConsts.imgInitialUrl +
                               assignHoursListingController.profilePhoto!)
-                          : AssetImage(AppImages.imgPersonPlaceholder),
+                          : const AssetImage(AppImages.imgPersonPlaceholder),
                 ),
               ),
             )
           ],
         ),
         backgroundColor: Colors.white,
-        drawer: MenuDrawerWidget(),
+        drawer: const MenuDrawerWidget(),
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -211,7 +210,7 @@ class AssignHoursListingPage extends StatelessWidget {
                           onTapTrailing: assignHoursListingController
                               .handleClearSearchField,
                           contentPadding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                              const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
                         ),
                 ),
                 const SizedBox(
@@ -537,7 +536,7 @@ class AssignHoursListingPage extends StatelessWidget {
                                   .areUsersLoading.value ||
                               assignHoursListingController
                                   .areProjectsLoading.value
-                          ? CommonButtonShimmer(
+                          ? const CommonButtonShimmer(
                               borderRadius: 0,
                               height: 48,
                             )
@@ -561,7 +560,7 @@ class AssignHoursListingPage extends StatelessWidget {
                                   .areUsersLoading.value ||
                               assignHoursListingController
                                   .areProjectsLoading.value
-                          ? CommonButtonShimmer(
+                          ? const CommonButtonShimmer(
                               borderRadius: 0,
                               height: 48,
                             )
@@ -605,11 +604,11 @@ class AssignHoursListingPage extends StatelessWidget {
                           child: DottedBorder(
                             color: Colors.black.withValues(alpha: 0.2),
                             padding: EdgeInsets.zero,
-                            dashPattern: [4],
+                            dashPattern: const [4],
                             strokeWidth: 1,
                             child: Container(
                               width: double.infinity,
-                              padding: EdgeInsets.symmetric(vertical: 34),
+                              padding: const EdgeInsets.symmetric(vertical: 34),
                               color: AppColors.colorF7F7F7,
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -650,7 +649,7 @@ class AssignHoursListingPage extends StatelessWidget {
                 ),
                 Obx(
                   () => GridView.builder(
-                      padding: EdgeInsets.symmetric(vertical: 32),
+                      padding: const EdgeInsets.symmetric(vertical: 32),
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: assignHoursListingController
@@ -661,7 +660,7 @@ class AssignHoursListingPage extends StatelessWidget {
                                   .areProjectsLoading.value
                           ? 10
                           : assignHoursListingController.assignHoursList.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           mainAxisSpacing: 20,
                           crossAxisSpacing: 20,
                           crossAxisCount: 2),
@@ -672,7 +671,7 @@ class AssignHoursListingPage extends StatelessWidget {
                                     .areUsersLoading.value ||
                                 assignHoursListingController
                                     .areProjectsLoading.value
-                            ? AssignHourWidgetShimmer()
+                            ? const AssignHourWidgetShimmer()
                             : AssignHourWidget(
                                 onTap: assignHoursListingController
                                     .handleAssignHourOnTap,

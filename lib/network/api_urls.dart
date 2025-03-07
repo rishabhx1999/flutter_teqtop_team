@@ -24,6 +24,7 @@ class ApiUrls {
   static const projects = 'projects';
   static const tasksAdd = 'tasks/add';
   static const tasksUpdate = 'tasks/update';
+  static const drivesFolderDelete = 'drives/folder/delete';
   static const accessDetail = 'access_detail';
   static const commentUpdate = 'comment/update';
   static const commentDelete = 'comment/delete';

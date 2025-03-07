@@ -51,7 +51,7 @@ class CreateCommentResModel {
         "comments": comments == null
             ? null
             : List<dynamic>.from(comments!.map((x) => x)),
-        "latestComment": latestComment == null ? null : latestComment!.toJson(),
+        "latestComment": latestComment?.toJson(),
         "count": count,
         "observers": observers == null
             ? null

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/config/app_colors.dart';
@@ -56,10 +56,9 @@ class ProjectCreateEditPage extends StatelessWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16),
-                child: SvgPicture.asset(
+                child: Image.asset(
                   AppIcons.icBack,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color: Colors.black,
                 ),
               )),
           leadingWidth: 40,
@@ -87,7 +86,7 @@ class ProjectCreateEditPage extends StatelessWidget {
                   Obx(
                     () => projectCreateEditController
                             .areProjectCategoriesAndProposalLoading.value
-                        ? CommonInputFieldShimmer(
+                        ? const CommonInputFieldShimmer(
                             labelShimmerBorderRadius: 0,
                           )
                         : CommonInputField(
@@ -227,7 +226,7 @@ class ProjectCreateEditPage extends StatelessWidget {
                   Obx(
                     () => projectCreateEditController
                             .areProjectCategoriesAndProposalLoading.value
-                        ? CommonInputFieldShimmer(
+                        ? const CommonInputFieldShimmer(
                             labelShimmerBorderRadius: 0,
                           )
                         : CommonInputField(
@@ -249,7 +248,7 @@ class ProjectCreateEditPage extends StatelessWidget {
                   Obx(
                     () => projectCreateEditController
                             .areProjectCategoriesAndProposalLoading.value
-                        ? CommonInputFieldShimmer(
+                        ? const CommonInputFieldShimmer(
                             labelShimmerBorderRadius: 0,
                           )
                         : CommonInputField(
@@ -271,7 +270,7 @@ class ProjectCreateEditPage extends StatelessWidget {
                   Obx(
                     () => projectCreateEditController
                             .areProjectCategoriesAndProposalLoading.value
-                        ? CommonInputFieldShimmer(
+                        ? const CommonInputFieldShimmer(
                             labelShimmerBorderRadius: 0,
                           )
                         : CommonInputField(
@@ -293,7 +292,7 @@ class ProjectCreateEditPage extends StatelessWidget {
                   Obx(
                     () => projectCreateEditController
                             .areProjectCategoriesAndProposalLoading.value
-                        ? CommonInputFieldShimmer(
+                        ? const CommonInputFieldShimmer(
                             labelShimmerBorderRadius: 0,
                           )
                         : CommonInputField(
@@ -315,7 +314,7 @@ class ProjectCreateEditPage extends StatelessWidget {
                   Obx(
                     () => projectCreateEditController
                             .areProjectCategoriesAndProposalLoading.value
-                        ? CommonInputFieldShimmer(
+                        ? const CommonInputFieldShimmer(
                             labelShimmerBorderRadius: 0,
                             textFieldShimmerHeight: 124,
                           )
@@ -457,7 +456,7 @@ class ProjectCreateEditPage extends StatelessWidget {
                     () => projectCreateEditController
                                 .areProjectCategoriesAndProposalLoading.value ||
                             projectCreateEditController.isLoading.value
-                        ? CommonButtonShimmer(
+                        ? const CommonButtonShimmer(
                             borderRadius: 0,
                           )
                         : CommonButton(

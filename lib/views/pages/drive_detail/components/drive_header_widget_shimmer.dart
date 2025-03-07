@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 
-import '../../../../consts/app_consts.dart';
-import '../../../../model/global_search/drive_model.dart';
 
 class DriveHeaderWidgetShimmer extends StatelessWidget {
   const DriveHeaderWidgetShimmer({
@@ -16,7 +12,7 @@ class DriveHeaderWidgetShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       decoration: BoxDecoration(
           color: AppColors.colorF9F9F9, borderRadius: BorderRadius.zero),
       child: Column(

@@ -25,7 +25,7 @@ class DailyReportWidget extends StatelessWidget {
         onTap(index);
       },
       child: Container(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
             border: Border.all(
                 width: 0.5, color: Colors.black.withValues(alpha: 0.1))),
@@ -43,11 +43,11 @@ class DailyReportWidget extends StatelessWidget {
               child: Center(
                 child: CircleAvatar(
                   radius: 36,
-                  backgroundImage: AssetImage(AppImages.imgPersonPlaceholder),
+                  backgroundImage: const AssetImage(AppImages.imgPersonPlaceholder),
                   foregroundImage: dailyReportData.profile != null
                       ? NetworkImage(
                           AppConsts.imgInitialUrl + dailyReportData.profile!)
-                      : AssetImage(AppImages.imgPersonPlaceholder),
+                      : const AssetImage(AppImages.imgPersonPlaceholder),
                 ),
               ),
             ),

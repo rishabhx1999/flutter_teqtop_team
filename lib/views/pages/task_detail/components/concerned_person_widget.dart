@@ -18,10 +18,10 @@ class ConcernedPersonWidget extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 24,
-          backgroundImage: AssetImage(AppImages.imgPersonPlaceholder),
+          backgroundImage: const AssetImage(AppImages.imgPersonPlaceholder),
           foregroundImage: personData.profile is String
               ? NetworkImage(AppConsts.imgInitialUrl + personData.profile)
-              : AssetImage(AppImages.imgPersonPlaceholder),
+              : const AssetImage(AppImages.imgPersonPlaceholder),
         ),
         const SizedBox(
           width: 8,

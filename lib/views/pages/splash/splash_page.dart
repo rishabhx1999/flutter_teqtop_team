@@ -2,12 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:teqtop_team/config/app_route_observer.dart';
 import 'package:teqtop_team/config/app_routes.dart';
 import 'package:teqtop_team/config/size_config.dart';
 import 'package:teqtop_team/consts/app_images.dart';
 import 'package:teqtop_team/controllers/splash/splash_controller.dart';
-import 'package:teqtop_team/utils/helpers.dart';
 import 'package:teqtop_team/utils/preference_manager.dart';
 
 class SplashPage extends StatelessWidget {

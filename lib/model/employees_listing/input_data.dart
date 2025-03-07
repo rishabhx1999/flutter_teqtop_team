@@ -56,7 +56,7 @@ class InputData {
             : List<dynamic>.from(order!.map((x) => x!.toJson())),
         "start": start,
         "length": length,
-        "search": search == null ? null : search!.toJson(),
+        "search": search?.toJson(),
         "_": empty,
       };
 }

@@ -43,7 +43,7 @@ class EmployeesResModel {
       );
 
   Map<String, dynamic> toJson() => {
-        "input": input == null ? null : input!.toJson(),
+        "input": input?.toJson(),
         "draw": draw,
         "recordsTotal": recordsTotal,
         "recordsFiltered": recordsFiltered,

@@ -26,7 +26,7 @@ class UserResModel {
       );
 
   Map<String, dynamic> toJson() => {
-        "user": user == null ? null : user!.toJson(),
+        "user": user?.toJson(),
         "id": id,
       };
 }

@@ -108,7 +108,7 @@ class LoginPage extends StatelessWidget {
                           ? Container(
                               height: 51,
                               width: 51,
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               child: CircularProgressIndicator(
                                 color: AppColors.kPrimaryColor,
                               ),

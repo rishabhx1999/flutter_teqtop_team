@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/config/app_colors.dart';
@@ -18,6 +18,7 @@ import 'package:teqtop_team/views/widgets/common/common_button.dart';
 
 import '../../../consts/app_images.dart';
 import '../../widgets/common/common_dropdown_button.dart';
+import '../../widgets/common/common_input_field.dart';
 
 class DailyReportsListingPage extends StatelessWidget {
   final dailyReportsListingController =
@@ -57,10 +58,10 @@ class DailyReportsListingPage extends StatelessWidget {
               },
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: SvgPicture.asset(
+                child: Image.asset(
                   AppIcons.icMenu,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                  color:
+                      Colors.black,
                 ),
               )),
           backgroundColor: Colors.white,
@@ -76,11 +77,10 @@ class DailyReportsListingPage extends StatelessWidget {
                   onTap: () {
                     Get.toNamed(AppRoutes.routeGlobalSearch);
                   },
-                  child: SvgPicture.asset(
+                  child: Image.asset(
                     AppIcons.icSearch,
                     width: 24,
-                    colorFilter:
-                        const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    color: Colors.black,
                   )),
             ),
             GestureDetector(
@@ -152,21 +152,22 @@ class DailyReportsListingPage extends StatelessWidget {
                 },
                 child: CircleAvatar(
                   radius: 14,
-                  backgroundImage: AssetImage(AppImages.imgPersonPlaceholder),
+                  backgroundImage: const AssetImage(AppImages.imgPersonPlaceholder),
                   foregroundImage:
                       dailyReportsListingController.profilePhoto != null
                           ? NetworkImage(AppConsts.imgInitialUrl +
                               dailyReportsListingController.profilePhoto!)
-                          : AssetImage(AppImages.imgPersonPlaceholder),
+                          : const AssetImage(AppImages.imgPersonPlaceholder),
                 ),
               ),
             )
           ],
         ),
         backgroundColor: Colors.white,
-        drawer: MenuDrawerWidget(),
+        drawer: const MenuDrawerWidget(),
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
+          controller: dailyReportsListingController.scrollController,
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -315,6 +316,104 @@ class DailyReportsListingPage extends StatelessWidget {
                     ),
                   ],
                 ),
+                Obx(
+                  () => Visibility(
+                    visible: dailyReportsListingController.selectedTime.value !=
+                            null &&
+                        dailyReportsListingController
+                                .selectedTime.value!.time ==
+                            "select_date".tr,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: CommonInputField(
+                              textStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.5),
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 14),
+                              hintStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.1),
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 14),
+                              inputVerticalPadding: 0,
+                              inputHorizontalPadding: 16,
+                              showLabel: false,
+                              controller: dailyReportsListingController
+                                  .startDateController,
+                              hint: "start_date",
+                              label: "start_date",
+                              borderWidth: 0,
+                              inputType: TextInputType.datetime,
+                              textInputAction: TextInputAction.done,
+                              fillColor:
+                                  AppColors.colorD9D9D9.withValues(alpha: 0.2),
+                              borderColor: Colors.transparent,
+                              isEnable: false,
+                              onTap: dailyReportsListingController
+                                  .handleStartDateFieldOnTap,
+                              onTapFirstArg: context,
+                              errorMaxLines: 2,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 18,
+                          ),
+                          Expanded(
+                            child: CommonInputField(
+                              textStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.5),
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 14),
+                              hintStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.1),
+                                      fontSize:
+                                          AppConsts.commonFontSizeFactor * 14),
+                              inputVerticalPadding: 0,
+                              inputHorizontalPadding: 16,
+                              showLabel: false,
+                              controller: dailyReportsListingController
+                                  .endDateController,
+                              hint: "end_date",
+                              label: "end_date",
+                              borderWidth: 0,
+                              inputType: TextInputType.datetime,
+                              textInputAction: TextInputAction.done,
+                              fillColor:
+                                  AppColors.colorD9D9D9.withValues(alpha: 0.2),
+                              borderColor: Colors.transparent,
+                              isEnable: false,
+                              onTap: dailyReportsListingController
+                                  .handleEndDateFieldOnTap,
+                              onTapFirstArg: context,
+                              errorMaxLines: 2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(
                   height: 20,
                 ),
@@ -334,32 +433,38 @@ class DailyReportsListingPage extends StatelessWidget {
                           ))
                       : CommonButton(
                           text: "search",
-                          onClick:
-                              dailyReportsListingController.getDailyReports,
+                          onClick: () {
+                            dailyReportsListingController.dailyReports.clear();
+                            dailyReportsListingController.getDailyReports();
+                          },
                           height: 40,
                         ),
                 ),
                 Obx(
                   () => GridView.builder(
-                      padding: EdgeInsets.symmetric(vertical: 20),
+                      padding: const EdgeInsets.symmetric(vertical: 20),
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: dailyReportsListingController
                                   .areUsersLoading.value ||
-                              dailyReportsListingController
-                                  .areDailyReportsLoading.value
+                              (dailyReportsListingController
+                                      .areDailyReportsLoading.value &&
+                                  dailyReportsListingController
+                                      .dailyReports.isEmpty)
                           ? 10
                           : dailyReportsListingController.dailyReports.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           mainAxisSpacing: 20,
                           crossAxisSpacing: 20,
                           crossAxisCount: 2),
                       itemBuilder: (context, index) {
                         return dailyReportsListingController
                                     .areUsersLoading.value ||
-                                dailyReportsListingController
-                                    .areDailyReportsLoading.value
-                            ? DailyReportWidgetShimmer()
+                                (dailyReportsListingController
+                                        .areDailyReportsLoading.value &&
+                                    dailyReportsListingController
+                                        .dailyReports.isEmpty)
+                            ? const DailyReportWidgetShimmer()
                             : DailyReportWidget(
                                 dailyReportData: dailyReportsListingController
                                         .dailyReports[index] ??
@@ -369,6 +474,25 @@ class DailyReportsListingPage extends StatelessWidget {
                                 index: index,
                               );
                       }),
+                ),
+                Obx(
+                  () => Visibility(
+                    visible: dailyReportsListingController
+                            .areDailyReportsLoading.value &&
+                        dailyReportsListingController.dailyReports.isNotEmpty,
+                    child: GridView.builder(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: 10,
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            mainAxisSpacing: 20,
+                            crossAxisSpacing: 20,
+                            crossAxisCount: 2),
+                        itemBuilder: (context, index) {
+                          return const DailyReportWidgetShimmer();
+                        }),
+                  ),
                 )
               ],
             ),

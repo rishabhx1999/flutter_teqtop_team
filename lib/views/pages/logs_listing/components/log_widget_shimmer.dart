@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
+
 import 'package:shimmer/shimmer.dart';
-import 'package:teqtop_team/consts/app_consts.dart';
-import 'package:teqtop_team/consts/app_icons.dart';
 
 import '../../../../config/app_colors.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:get/get.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 
@@ -13,7 +13,7 @@ class CommonSearchField extends StatelessWidget {
   final RxBool? isShowTrailing;
   final Function()? onTapTrailing;
   final bool? isShowLeading;
-  final inputBorder = OutlineInputBorder(
+  static const inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.zero, borderSide: BorderSide.none);
   final EdgeInsetsGeometry? contentPadding;
 
@@ -47,10 +47,9 @@ class CommonSearchField extends StatelessWidget {
             prefixIcon: isShowLeading ?? true
                 ? Padding(
                     padding: const EdgeInsets.fromLTRB(10, 4, 8, 4),
-                    child: SvgPicture.asset(
+                    child: Image.asset(
                       AppIcons.icSearch,
-                      colorFilter:
-                          const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      color: Colors.black,
                     ),
                   )
                 : const SizedBox(),
@@ -65,11 +64,11 @@ class CommonSearchField extends StatelessWidget {
                     child: Container(
                       width: 16,
                       height: 16,
-                      margin: EdgeInsets.all(8),
+                      margin: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: AppColors.kPrimaryColor),
-                      child: Icon(
+                      child: const Icon(
                         Icons.clear_rounded,
                         color: Colors.white,
                         size: 12,
@@ -84,7 +83,7 @@ class CommonSearchField extends StatelessWidget {
             focusedErrorBorder: inputBorder,
             errorBorder: inputBorder,
             disabledBorder: inputBorder,
-            contentPadding: contentPadding ?? EdgeInsets.all(8)),
+            contentPadding: contentPadding ?? const EdgeInsets.all(8)),
         cursorColor: AppColors.kPrimaryColor,
         keyboardType: TextInputType.text,
         style: Theme.of(context)

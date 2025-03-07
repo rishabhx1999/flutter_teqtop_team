@@ -31,6 +31,6 @@ class ColumnData {
         "name": name,
         "searchable": searchable,
         "orderable": orderable,
-        "search": search == null ? null : search!.toJson(),
+        "search": search?.toJson(),
       };
 }

@@ -1,7 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:get/get.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/controllers/drive_detail/drive_detail_controller.dart';
@@ -53,10 +53,9 @@ class DriveDetailPage extends StatelessWidget {
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 16, right: 16),
-                    child: SvgPicture.asset(
+                    child: Image.asset(
                       AppIcons.icBack,
-                      colorFilter:
-                          const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      color: Colors.black,
                     ),
                   )),
               leadingWidth: 40,
@@ -79,7 +78,7 @@ class DriveDetailPage extends StatelessWidget {
                   ),
                   Obx(
                     () => driveDetailController.isLoading.value
-                        ? DriveHeaderWidgetShimmer()
+                        ? const DriveHeaderWidgetShimmer()
                         : DriveHeaderWidget(
                             driveData:
                                 driveDetailController.basicDriveDetails.value ??
@@ -112,11 +111,11 @@ class DriveDetailPage extends StatelessWidget {
                       child: DottedBorder(
                         color: Colors.black.withValues(alpha: 0.2),
                         padding: EdgeInsets.zero,
-                        dashPattern: [4],
+                        dashPattern: const [4],
                         strokeWidth: 1,
                         child: Container(
                           width: double.infinity,
-                          padding: EdgeInsets.symmetric(vertical: 34),
+                          padding: const EdgeInsets.symmetric(vertical: 34),
                           color: AppColors.colorF7F7F7,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -159,66 +158,167 @@ class DriveDetailPage extends StatelessWidget {
                     () => ListView.separated(
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
-                        padding: EdgeInsets.only(left: 16, right: 16, top: 22),
+                        padding: const EdgeInsets.only(left: 16, right: 16, top: 22),
                         itemBuilder: (context, index) {
                           return driveDetailController.isLoading.value
-                              ? FileOrFolderWidgetShimmer()
+                              ? const FileOrFolderWidgetShimmer()
                               : GestureDetector(
-                                  onTap: () {
-                                    Helpers.openFile(
-                                        path:
-                                            driveDetailController.files[index],
-                                        fileName: driveDetailController
-                                            .files[index]
-                                            .split("/")
-                                            .last);
+                                  onTap: () async {
+                                    if (Helpers.isImage(driveDetailController
+                                        .files[index].file)) {
+                                      driveDetailController.onTapImage(index);
+                                    } else {
+                                      driveDetailController
+                                          .files[index].isLoading.value = true;
+                                      await Helpers.openFile(
+                                          path: driveDetailController
+                                              .files[index].file,
+                                          fileName: driveDetailController
+                                              .files[index].file
+                                              .split("/")
+                                              .last);
+                                      driveDetailController
+                                          .files[index].isLoading.value = false;
+                                    }
                                   },
                                   behavior: HitTestBehavior.opaque,
-                                  child: Helpers.isImage(
-                                          driveDetailController.files[index])
-                                      ? FadeInImage.assetNetwork(
-                                          width: double.infinity,
-                                          height: 144,
-                                          placeholder: AppImages.imgPlaceholder,
-                                          image: AppConsts.imgInitialUrl +
-                                              driveDetailController
-                                                  .files[index],
-                                          imageErrorBuilder:
-                                              (BuildContext context,
-                                                  Object error,
-                                                  StackTrace? stackTrace) {
-                                            return Image.asset(
-                                              AppImages.imgPlaceholder,
-                                              width: double.infinity,
-                                              height: 144,
-                                              fit: BoxFit.cover,
-                                            );
-                                          },
-                                          fit: BoxFit.cover,
-                                        )
+                                  child: Helpers.isImage(driveDetailController
+                                          .files[index].file)
+                                      ? Stack(children: [
+                                          FadeInImage.assetNetwork(
+                                            width: double.infinity,
+                                            height: 144,
+                                            placeholder:
+                                                AppImages.imgPlaceholder,
+                                            image: AppConsts.imgInitialUrl +
+                                                driveDetailController
+                                                    .files[index].file,
+                                            imageErrorBuilder:
+                                                (BuildContext context,
+                                                    Object error,
+                                                    StackTrace? stackTrace) {
+                                              return Image.asset(
+                                                AppImages.imgPlaceholder,
+                                                width: double.infinity,
+                                                height: 144,
+                                                fit: BoxFit.cover,
+                                              );
+                                            },
+                                            fit: BoxFit.cover,
+                                          ),
+                                          Positioned(
+                                              right: 0,
+                                              top: 0,
+                                              child: GestureDetector(
+                                                  onTap: () {
+                                                    driveDetailController
+                                                        .onTapFileCross(index);
+                                                  },
+                                                  behavior:
+                                                      HitTestBehavior.opaque,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(8),
+                                                    child: Container(
+                                                      width: 20,
+                                                      height: 20,
+                                                      decoration: BoxDecoration(
+                                                          color: AppColors
+                                                              .kPrimaryColor,
+                                                          shape:
+                                                              BoxShape.circle),
+                                                      child: const Center(
+                                                        child: Icon(
+                                                          Icons.close_rounded,
+                                                          color: Colors.white,
+                                                          size: 12,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )))
+                                        ])
                                       : driveDetailController
-                                              .files[index].isNotEmpty
-                                          ? Container(
-                                              width: double.infinity,
-                                              height: 144,
-                                              padding: const EdgeInsets.all(16),
-                                              color: AppColors.kPrimaryColor,
-                                              child: Center(
-                                                child: Text(
-                                                  driveDetailController
-                                                      .files[index]
-                                                      .split("/")
-                                                      .last,
-                                                  maxLines: 3,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyMedium
-                                                      ?.copyWith(
-                                                          color: Colors.white),
+                                              .files[index].file.isNotEmpty
+                                          ? Stack(
+                                              children: [
+                                                Obx(
+                                                  () => Container(
+                                                    width: double.infinity,
+                                                    height: 144,
+                                                    padding:
+                                                        driveDetailController
+                                                                .files[index]
+                                                                .isLoading
+                                                                .value
+                                                            ? const EdgeInsets
+                                                                .all(16)
+                                                            : const EdgeInsets
+                                                                .only(
+                                                                left: 16,
+                                                                top: 24,
+                                                                right: 32,
+                                                                bottom: 16),
+                                                    color:
+                                                        AppColors.kPrimaryColor,
+                                                    child: driveDetailController
+                                                            .files[index]
+                                                            .isLoading
+                                                            .value
+                                                        ? const Center(
+                                                            child: SizedBox(
+                                                                width: 32,
+                                                                height: 32,
+                                                                child:
+                                                                    CircularProgressIndicator(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  strokeWidth:
+                                                                      2,
+                                                                )),
+                                                          )
+                                                        : Text(
+                                                            driveDetailController
+                                                                .files[index]
+                                                                .file
+                                                                .split("/")
+                                                                .last,
+                                                            maxLines: 3,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style: Theme.of(
+                                                                    context)
+                                                                .textTheme
+                                                                .bodyMedium
+                                                                ?.copyWith(
+                                                                    color: Colors
+                                                                        .white),
+                                                          ),
+                                                  ),
                                                 ),
-                                              ),
+                                                Positioned(
+                                                    right: 0,
+                                                    top: 0,
+                                                    child: GestureDetector(
+                                                        onTap: () {
+                                                          driveDetailController
+                                                              .onTapFileCross(
+                                                                  index);
+                                                        },
+                                                        behavior:
+                                                            HitTestBehavior
+                                                                .opaque,
+                                                        child: const Padding(
+                                                          padding:
+                                                              EdgeInsets
+                                                                  .all(8),
+                                                          child: Icon(
+                                                            Icons.close_rounded,
+                                                            color: Colors.white,
+                                                            size: 20,
+                                                          ),
+                                                        )))
+                                              ],
                                             )
                                           : const SizedBox(),
                                 );
@@ -232,7 +332,7 @@ class DriveDetailPage extends StatelessWidget {
                             ? 5
                             : driveDetailController.files.length),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 16,
                   ),
                   Obx(
@@ -240,10 +340,10 @@ class DriveDetailPage extends StatelessWidget {
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         padding:
-                            EdgeInsets.only(left: 16, right: 16, bottom: 22),
+                            const EdgeInsets.only(left: 16, right: 16, bottom: 22),
                         itemBuilder: (context, index) {
                           return driveDetailController.isLoading.value
-                              ? FileOrFolderWidgetShimmer()
+                              ? const FileOrFolderWidgetShimmer()
                               : FolderWidget(
                                   openFolder: driveDetailController.openFolder,
                                   folderData:
@@ -251,6 +351,8 @@ class DriveDetailPage extends StatelessWidget {
                                   index: index,
                                   downloadFolder:
                                       driveDetailController.downloadFolder,
+                                  onTapCross:
+                                      driveDetailController.onTapFolderCross,
                                 );
                         },
                         separatorBuilder: (context, index) {

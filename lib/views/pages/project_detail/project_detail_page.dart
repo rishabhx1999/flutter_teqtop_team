@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_html/flutter_html.dart';
+
 import 'package:get/get.dart';
+import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/consts/app_images.dart';
@@ -22,7 +24,7 @@ class ProjectDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.white));
-    final inputBorder = OutlineInputBorder(
+    const inputBorder = OutlineInputBorder(
         borderRadius: BorderRadius.zero,
         borderSide: BorderSide(color: Colors.transparent));
 
@@ -47,10 +49,9 @@ class ProjectDetailPage extends StatelessWidget {
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: SvgPicture.asset(
+                  child: Image.asset(
                     AppIcons.icBack,
-                    colorFilter:
-                        const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    color: Colors.black,
                   ),
                 )),
             leadingWidth: 40,
@@ -79,7 +80,7 @@ class ProjectDetailPage extends StatelessWidget {
               //         mainAxisAlignment: MainAxisAlignment.center,
               //         crossAxisAlignment: CrossAxisAlignment.center,
               //         children: [
-              //           SvgPicture.asset(
+              //           Image.asset(
               //             AppIcons.icEdit,
               //             width: 24,
               //           ),
@@ -155,7 +156,7 @@ class ProjectDetailPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SvgPicture.asset(
+                        Image.asset(
                           AppIcons.icTask,
                           width: 24,
                         ),
@@ -177,13 +178,13 @@ class ProjectDetailPage extends StatelessWidget {
                 ),
               ),
               PopupMenuButton(
-                  padding: EdgeInsets.only(right: 16),
+                  padding: const EdgeInsets.only(right: 16),
                   menuPadding: EdgeInsets.zero,
                   shape:
-                      RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                      const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   style: IconButton.styleFrom(
                       splashFactory: NoSplash.splashFactory),
-                  icon: SvgPicture.asset(
+                  icon: Image.asset(
                     AppIcons.icMoreHorizontal,
                     width: 24,
                   ),
@@ -198,7 +199,7 @@ class ProjectDetailPage extends StatelessWidget {
                   itemBuilder: (context) => [
                         PopupMenuItem(
                             value: "edit".tr,
-                            padding: EdgeInsets.only(left: 16),
+                            padding: const EdgeInsets.only(left: 16),
                             child: Text(
                               "edit".tr,
                               style: Theme.of(context)
@@ -210,7 +211,7 @@ class ProjectDetailPage extends StatelessWidget {
                             )),
                         PopupMenuItem(
                             value: "delete".tr,
-                            padding: EdgeInsets.only(left: 16),
+                            padding: const EdgeInsets.only(left: 16),
                             child: Text(
                               "delete".tr,
                               style: Theme.of(context)
@@ -238,7 +239,7 @@ class ProjectDetailPage extends StatelessWidget {
                   ),
                   Container(
                     width: double.infinity,
-                    padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                     decoration: BoxDecoration(
                         color: AppColors.colorF9F9F9,
                         borderRadius: BorderRadius.zero),
@@ -305,7 +306,7 @@ class ProjectDetailPage extends StatelessWidget {
                         Obx(
                           () => projectDetailController.isLoading.value
                               ? Padding(
-                                  padding: EdgeInsets.only(top: 2),
+                                  padding: const EdgeInsets.only(top: 2),
                                   child: Shimmer.fromColors(
                                       baseColor: AppColors.shimmerBaseColor,
                                       highlightColor:
@@ -320,28 +321,26 @@ class ProjectDetailPage extends StatelessWidget {
                                         ),
                                       )),
                                 )
-                              : Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    SelectableText(
-                                      projectDetailController
-                                                  .projectDetail.value !=
-                                              null
-                                          ? projectDetailController
-                                                  .projectDetail.value!.url ??
-                                              ""
-                                          : "",
-                                      textAlign: TextAlign.center,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                              fontSize: AppConsts
-                                                      .commonFontSizeFactor *
-                                                  18),
-                                    ),
-                                    Visibility(
+                              : SelectableText.rich(
+                                  textAlign: TextAlign.center,
+                                  TextSpan(children: [
+                                    TextSpan(
+                                        text: projectDetailController
+                                                    .projectDetail.value !=
+                                                null
+                                            ? projectDetailController
+                                                    .projectDetail.value!.url ??
+                                                ""
+                                            : "",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                                fontSize: AppConsts
+                                                        .commonFontSizeFactor *
+                                                    18)),
+                                    WidgetSpan(
+                                        child: Visibility(
                                       visible:
                                           projectDetailController
                                                       .projectDetail.value !=
@@ -382,13 +381,12 @@ class ProjectDetailPage extends StatelessWidget {
                                             }
                                           },
                                           behavior: HitTestBehavior.opaque,
-                                          child: Icon(
+                                          child: const Icon(
                                             Icons.open_in_browser_rounded,
                                             color: Colors.black,
                                           )),
-                                    )
-                                  ],
-                                ),
+                                    ))
+                                  ])),
                         ),
                         const SizedBox(
                           height: 8,
@@ -396,7 +394,7 @@ class ProjectDetailPage extends StatelessWidget {
                         Obx(
                           () => projectDetailController.isLoading.value
                               ? Padding(
-                                  padding: EdgeInsets.only(top: 2),
+                                  padding: const EdgeInsets.only(top: 2),
                                   child: Shimmer.fromColors(
                                       baseColor: AppColors.shimmerBaseColor,
                                       highlightColor:
@@ -433,7 +431,7 @@ class ProjectDetailPage extends StatelessWidget {
                     height: 28,
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -449,7 +447,7 @@ class ProjectDetailPage extends StatelessWidget {
                                 false,
                             child: projectDetailController
                                     .isAccessDetailEditLoading.value
-                                ? SizedBox(
+                                ? const SizedBox(
                                     width: 20,
                                     height: 20,
                                     child: CircularProgressIndicator(
@@ -475,7 +473,7 @@ class ProjectDetailPage extends StatelessWidget {
                                                 .textTheme
                                                 .bodyMedium,
                                           )
-                                        : SvgPicture.asset(
+                                        : Image.asset(
                                             AppIcons.icEdit,
                                             width: 20,
                                           ),
@@ -506,48 +504,59 @@ class ProjectDetailPage extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: projectDetailController
                                   .accessDetailEditing.value
-                              ? TextField(
+                              ? HtmlEditor(
                                   controller: projectDetailController
                                       .accessDetailController,
-                                  maxLines: 5,
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  keyboardType: TextInputType.multiline,
-                                  cursorColor: Colors.black,
-                                  textInputAction: TextInputAction.newline,
-                                  decoration: InputDecoration(
-                                    hintText: 'enter_access_details'.tr,
-                                    enabled: true,
-                                    hintStyle: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                          color: Colors.black
-                                              .withValues(alpha: 0.3),
-                                        ),
-                                    fillColor:
-                                        Colors.grey.withValues(alpha: 0.1),
-                                    filled: true,
-                                    border: inputBorder,
-                                    errorBorder: inputBorder,
-                                    enabledBorder: inputBorder,
-                                    disabledBorder: inputBorder,
-                                    focusedBorder: inputBorder,
-                                    focusedErrorBorder: inputBorder,
-                                    contentPadding: const EdgeInsets.all(10),
-                                  ),
-                                  focusNode: projectDetailController
-                                      .accessDetailFocusNode,
+                                  callbacks: Callbacks(
+                                      onInit: projectDetailController
+                                          .accessDetailHtmlEditorOnInit),
                                 )
-                              : SelectableText(
-                                  projectDetailController.projectDetail.value !=
+                              // TextField(
+                              //         controller: projectDetailController
+                              //             .accessDetailController,
+                              //         maxLines: 5,
+                              //         style: Theme.of(context).textTheme.bodyMedium,
+                              //         keyboardType: TextInputType.multiline,
+                              //         cursorColor: Colors.black,
+                              //         textInputAction: TextInputAction.newline,
+                              //         decoration: InputDecoration(
+                              //           hintText: 'enter_access_details'.tr,
+                              //           enabled: true,
+                              //           hintStyle: Theme.of(context)
+                              //               .textTheme
+                              //               .bodyMedium
+                              //               ?.copyWith(
+                              //                 color: Colors.black
+                              //                     .withValues(alpha: 0.3),
+                              //               ),
+                              //           fillColor:
+                              //               Colors.grey.withValues(alpha: 0.1),
+                              //           filled: true,
+                              //           border: inputBorder,
+                              //           errorBorder: inputBorder,
+                              //           enabledBorder: inputBorder,
+                              //           disabledBorder: inputBorder,
+                              //           focusedBorder: inputBorder,
+                              //           focusedErrorBorder: inputBorder,
+                              //           contentPadding: const EdgeInsets.all(10),
+                              //         ),
+                              //         focusNode: projectDetailController
+                              //             .accessDetailFocusNode,
+                              //       )
+                              : Html(
+                                  data: projectDetailController
+                                                  .projectDetail.value !=
                                               null &&
                                           projectDetailController.projectDetail
                                               .value!.accessDetail is String
-                                      ? Helpers.formatHtmlParagraphs(
-                                          projectDetailController.projectDetail
-                                              .value!.accessDetail)
+                                      ? projectDetailController
+                                          .projectDetail.value!.accessDetail
                                       : "",
-                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  onLinkTap: (url, attributes, element) {
+                                    if (url != null) {
+                                      Helpers.openLink(url);
+                                    }
+                                  },
                                 ),
                         )),
                   const SizedBox(

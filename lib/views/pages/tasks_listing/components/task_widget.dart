@@ -26,7 +26,7 @@ class TaskWidget extends StatelessWidget {
       child: Stack(
         children: [
           Container(
-            padding: EdgeInsets.fromLTRB(12, 12, 14, 16),
+            padding: const EdgeInsets.fromLTRB(12, 12, 14, 16),
             width: double.infinity,
             decoration: BoxDecoration(
                 color: Colors.transparent,
@@ -112,7 +112,7 @@ class TaskWidget extends StatelessWidget {
                     ),
                     Container(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                       decoration: BoxDecoration(
                           color: taskData.priority == "0"
                               ? Colors.grey.withValues(alpha: 0.2)

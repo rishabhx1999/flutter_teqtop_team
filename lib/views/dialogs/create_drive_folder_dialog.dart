@@ -55,7 +55,7 @@ class CreateDriveFolderDialogContent extends StatelessWidget {
             BorderSide(color: Colors.red.withValues(alpha: 0.1), width: 0.5));
 
     return Container(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Form(
           key: formKey,
           child: Column(
@@ -92,7 +92,7 @@ class CreateDriveFolderDialogContent extends StatelessWidget {
                           fontSize: AppConsts.commonFontSizeFactor * 12,
                         ),
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 14, vertical: 16)),
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 16)),
                 validator: Validations.checkFolderNameValidations,
                 textInputAction: TextInputAction.done,
               ),
@@ -122,7 +122,7 @@ class CreateDriveFolderDialogContent extends StatelessWidget {
                             child: Container(
                               height: 51,
                               width: 51,
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               child: CircularProgressIndicator(
                                 color: AppColors.kPrimaryColor,
                               ),

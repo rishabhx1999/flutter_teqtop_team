@@ -17,6 +17,7 @@ class ProjectsListingController extends GetxController {
   RxList<ProjectModel?> projects = <ProjectModel>[].obs;
   RxInt notificationsCount = 0.obs;
   RxString searchText = ''.obs;
+  final ScrollController scrollController = ScrollController();
 
   @override
   void onInit() {
@@ -25,6 +26,7 @@ class ProjectsListingController extends GetxController {
     setupSearchTextChangeListener();
     getProjects();
     getNotificationsCount();
+    addListenerToScrollController();
 
     super.onInit();
   }
@@ -39,8 +41,19 @@ class ProjectsListingController extends GetxController {
   void onClose() {
     disposeSearchTextChangeListenerWorker();
     disposeSearchTextController();
+    scrollController.dispose();
 
     super.onClose();
+  }
+
+  void addListenerToScrollController() {
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        isLoading.value = true;
+        getProjects();
+      }
+    });
   }
 
   void getProfilePhoto() {
@@ -51,8 +64,10 @@ class ProjectsListingController extends GetxController {
   }
 
   void setupSearchTextChangeListener() {
-    searchTextChangeListenerWorker =
-        debounce(searchText, (callback) => getProjects());
+    searchTextChangeListenerWorker = debounce(searchText, (callback) {
+      projects.clear();
+      getProjects();
+    });
 
     searchTextController.addListener(() {
       searchText.value = searchTextController.text.toString().trim();
@@ -126,18 +141,26 @@ class ProjectsListingController extends GetxController {
       // 'columns%5B6%5D%5Bsearch%5D%5Bregex%5D': 'false',
       'order%5B0%5D%5Bcolumn%5D': '0',
       'order%5B0%5D%5Bdir%5D': 'DESC',
-      'start': '0',
-      'length': '-1',
+      'length': '10',
       'search%5Bvalue%5D': searchText.value,
       'search%5Bregex%5D': 'false'
     };
+    int startValue = (projects.length ~/ 10) * 10;
+    requestBody['start'] = startValue.toString();
 
     isLoading.value = true;
     try {
       var response = await GetRequests.getProjects(requestBody);
       if (response != null) {
         if (response.data != null) {
-          projects.assignAll(response.data!.toList());
+          for (var existingProject in projects) {
+            response.data!.removeWhere((project) =>
+                project != null &&
+                existingProject != null &&
+                project.id == existingProject.id);
+          }
+
+          projects.addAll(response.data as Iterable<ProjectModel?>);
         }
       } else {
         Get.snackbar("error".tr, "message_server_error".tr);

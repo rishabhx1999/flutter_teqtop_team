@@ -11,8 +11,10 @@ import '../config/app_routes.dart';
 import '../views/dialogs/common/common_alert_dialog.dart';
 
 class RemoteService {
-  static var client = http.Client();
-  static const String _baseUrl = "https://dev.team.teqtop.com/api/";
+  // static const String _baseUrl = "https://dev.team.teqtop.com/api/";
+  static const String _baseUrl = "https://new.teqtop.com/api/";
+
+  // static const String _baseUrl = "https://updateteamportal.teqtop.com/api/";
 
   //
   //
@@ -73,17 +75,17 @@ class RemoteService {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
         // Helpers.printLog(
-        //     description: "REMOTE_SERVICE_SIMPLE_POST", message: "NO_INTERNET");
+        //     description: "REMOTE_SERVICES_SIMPLE_POST", message: "NO_INTERNET");
         return null;
       }
 
       var body = json.encode(requestBody);
       final http.Response response;
 
-      // Helpers.printLog(
-      //     description: 'REMOTE_SERVICE_SIMPLE_POST',
-      //     message:
-      //         "REQUEST_URL = ${_baseUrl + endUrl} ===== REQUEST_BODY = $body ===== REQUEST_HEADERS = $headers");
+      Helpers.printLog(
+          description: 'REMOTE_SERVICE_SIMPLE_POST',
+          message:
+              "REQUEST_URL = ${_baseUrl + endUrl} ===== REQUEST_BODY = $body ===== REQUEST_HEADERS = $headers");
       if (requestBody != null) {
         response = await http.post(Uri.parse(_baseUrl + endUrl),
             headers: headers, body: body);
@@ -117,20 +119,20 @@ class RemoteService {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
         // Helpers.printLog(
-        //     description: "REMOTE_SERVICE_SIMPLE_GET", message: "NO_INTERNET");
+        //     description: "REMOTE_SERVICES_SIMPLE_GET", message: "NO_INTERNET");
         return null;
       }
 
       var url = "$_baseUrl$endUrl?token=${getToken()}";
-      // Helpers.printLog(
-      //     description: 'REMOTE_SERVICE_SIMPLE_GET',
-      //     message:
-      //         "REQUEST_URL = $url ===== REQUEST_HEADERS = ${json.encode(headers)}");
+      Helpers.printLog(
+          description: 'REMOTE_SERVICES_SIMPLE_GET',
+          message:
+              "REQUEST_URL = $url ===== REQUEST_HEADERS = ${json.encode(headers)}");
 
       final response = await http.get(Uri.parse(url), headers: headers);
 
       // Helpers.printLog(
-      //     description: 'REMOTE_SERVICE_SIMPLE_GET',
+      //     description: 'REMOTE_SERVICES_SIMPLE_GET',
       //     message:
       //         "RESPONSE = ${response.body} ===== REQUEST_URL = $url");
 
@@ -155,7 +157,7 @@ class RemoteService {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
         // Helpers.printLog(
-        //     description: "REMOTE_SERVICE_GET_WITH_QUERIES",
+        //     description: "REMOTE_SERVICES_GET_WITH_QUERIES",
         //     message: "NO_INTERNET");
         return null;
       }
@@ -166,10 +168,10 @@ class RemoteService {
           url += "&$key=$value";
         });
       }
-      // Helpers.printLog(
-      //     description: 'REMOTE_SERVICE_GET_WITH_QUERIES',
-      //     message:
-      //         "REQUEST_URL = $url ===== REQUEST_HEADERS = $headers ===== REQUEST_BODY = $requestBody");
+      Helpers.printLog(
+          description: 'REMOTE_SERVICE_GET_WITH_QUERIES',
+          message:
+              "REQUEST_URL = $url ===== REQUEST_HEADERS = $headers ===== REQUEST_BODY = $requestBody");
 
       final response = await http.get(Uri.parse(url), headers: headers);
 
@@ -203,13 +205,13 @@ class RemoteService {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
         // Helpers.printLog(
-        //     description: "REMOTE_SERVICE_SIMPLE_POST_WITH_SINGLE_MEDIA",
+        //     description: "REMOTE_SERVICES_SIMPLE_POST_WITH_SINGLE_MEDIA",
         //     message: "NO_INTERNET");
         return null;
       }
 
       // Helpers.printLog(
-      //     description: "REMOTE_SERVICE_SIMPLE_POST_WITH_SINGLE_MEDIA",
+      //     description: "REMOTE_SERVICES_SIMPLE_POST_WITH_SINGLE_MEDIA",
       //     message:
       //         "REQUEST_DATA = $requestBody ===== REQUEST_URL = ${_baseUrl + endUrl} ===== REQUEST_HEADERS = ${json.encode(headers)}");
 
@@ -255,7 +257,7 @@ class RemoteService {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
         // Helpers.printLog(
-        //     description: "REMOTE_SERVICE_SIMPLE_PUT", message: "NO_INTERNET");
+        //     description: "REMOTE_SERVICES_SIMPLE_PUT", message: "NO_INTERNET");
         return null;
       }
 
@@ -358,7 +360,7 @@ class RemoteService {
       if (!isConnected) {
         // Helpers.printLog(
         //     description:
-        //         "REMOTE_SERVICE_SIMPLE_POST_WITH_SINGLE_MEDIA_AND_QUERIES",
+        //         "REMOTE_SERVICES_SIMPLE_POST_WITH_SINGLE_MEDIA_AND_QUERIES",
         //     message: "NO_INTERNET");
         return null;
       }
@@ -376,11 +378,11 @@ class RemoteService {
         request.files.add(uploadMedia);
       }
 
-      // Helpers.printLog(
-      //     description:
-      //         'REMOTE_SERVICE_SIMPLE_POST_WITH_SINGLE_MEDIA_AND_QUERIES',
-      //     message:
-      //         "REQUEST_URL = $url ===== UPLOAD_MEDIA = ${uploadMedia.toString()} ===== REQUEST_HEADERS = ${json.encode(headers)}");
+      Helpers.printLog(
+          description:
+              'REMOTE_SERVICES_SIMPLE_POST_WITH_SINGLE_MEDIA_AND_QUERIES',
+          message:
+              "REQUEST_URL = $url ===== UPLOAD_MEDIA = ${uploadMedia.toString()} ===== REQUEST_HEADERS = ${json.encode(headers)}");
 
       http.StreamedResponse streamedResponse = await request.send();
 
@@ -388,7 +390,7 @@ class RemoteService {
 
       // Helpers.printLog(
       //     description:
-      //         'REMOTE_SERVICE_SIMPLE_POST_WITH_SINGLE_MEDIA_AND_QUERIES',
+      //         'REMOTE_SERVICES_SIMPLE_POST_WITH_SINGLE_MEDIA_AND_QUERIES',
       //     message:
       //         "RESPONSE = ${response.body} ===== REQUEST_URL = $url ===== REQUEST_HEADERS = ${json.encode(headers)}");
 
@@ -450,6 +452,49 @@ class RemoteService {
   //
   //
   //
+  static Future<CommonResModel?> simplePostWithQueriesAndBody(
+    String endUrl, {
+    required Map<String, String> headers,
+    Map<String, dynamic>? requestBody,
+    Map<String, dynamic>? requestBody2,
+    bool? isLogin,
+  }) async {
+    if (isTokenExpired() == false || isLogin == true) {
+      var isConnected = await InternetConnection.isConnected();
+      if (!isConnected) {
+        return null;
+      }
+
+      var url = "$_baseUrl$endUrl?token=${getToken()}";
+      if (requestBody != null) {
+        requestBody.forEach((key, value) {
+          url += "&$key=$value";
+        });
+      }
+      var body = json.encode(requestBody2);
+      Helpers.printLog(
+          description: 'REMOTE_SERVICES_SIMPLE_POST_WITH_QUERIES',
+          message:
+              "REQUEST_URL = $url ===== REQUEST_HEADERS = ${json.encode(headers)} ===== REQUEST_BODY = $body");
+
+      final http.Response response;
+
+      response = await http.post(Uri.parse(url), headers: headers, body: body);
+
+      var responseCode = response.statusCode;
+      if (Helpers.isResponseSuccessful(responseCode)) {
+        return CommonResModel(
+            statusCode: responseCode, response: response.body);
+      }
+    } else {
+      showLoginDialog();
+    }
+    return null;
+  }
+
+  //
+  //
+  //
   static Future<CommonResModel?> simplePutWithoutQueries(String endUrl,
       {required Map<String, String> headers,
       Map<String, dynamic>? requestBody}) async {
@@ -457,7 +502,7 @@ class RemoteService {
       var isConnected = await InternetConnection.isConnected();
       if (!isConnected) {
         // Helpers.printLog(
-        //     description: "REMOTE_SERVICE_SIMPLE_PUT_WITHOUT_QUERIES",
+        //     description: "REMOTE_SERVICES_SIMPLE_PUT_WITHOUT_QUERIES",
         //     message: "NO_INTERNET");
         return null;
       }

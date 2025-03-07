@@ -18,18 +18,19 @@ import 'package:teqtop_team/model/task_detail/task_detail_res_model.dart';
 import 'package:teqtop_team/model/tasks_listing/tasks_res_model.dart';
 import 'package:teqtop_team/network/remote_services.dart';
 
-import '../utils/helpers.dart';
 import 'api_urls.dart';
 
 class GetRequests {
   GetRequests._();
 
-  static Future<FeedResModel?> getPosts() async {
+  static Future<FeedResModel?> getPosts(Map<String, String> requestBody) async {
     // Helpers.printLog(description: "GET_REQUESTS_GET_POSTS_REACHED");
-    var apiResponse = await RemoteService.simpleGet(ApiUrls.feeds, headers: {
-      "Accept": "application/json",
-      "Content-Type": "application/json;charset=utf-8"
-    });
+    var apiResponse = await RemoteService.getWithQueries(ApiUrls.feeds,
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json;charset=utf-8"
+        },
+        requestBody: requestBody);
 
     if (apiResponse != null) {
       return feedResModelFromJson(apiResponse.response!);
@@ -234,15 +235,16 @@ class GetRequests {
     }
   }
 
-  static Future<TaskDetailResModel?> getTaskDetail(int taskId) async {
+  static Future<TaskDetailResModel?> getTaskDetail(
+      int taskId, Map<String, String> requestBody) async {
     // Helpers.printLog(description: "GET_REQUESTS_GET_TASK_DETAIL_REACHED");
     var apiResponse = await RemoteService.getWithQueries(
-      "${ApiUrls.tasksView}/$taskId",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json;charset=utf-8"
-      },
-    );
+        "${ApiUrls.tasksView}/$taskId",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json;charset=utf-8"
+        },
+        requestBody: requestBody);
 
     if (apiResponse != null) {
       return taskDetailResModelFromJson(apiResponse.response!);

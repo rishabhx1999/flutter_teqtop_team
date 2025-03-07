@@ -11,7 +11,7 @@ class EmployeeWidgetShimmer extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.zero,
               color: Colors.transparent,

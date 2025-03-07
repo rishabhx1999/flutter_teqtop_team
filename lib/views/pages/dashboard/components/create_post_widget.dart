@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:open_file/open_file.dart';
@@ -120,7 +120,7 @@ class CreatePostWidget extends StatelessWidget {
                               children: [
                                 ListView.separated(
                                     shrinkWrap: true,
-                                    padding: EdgeInsets.only(left: 14),
+                                    padding: const EdgeInsets.only(left: 14),
                                     physics:
                                         const NeverScrollableScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
@@ -128,7 +128,7 @@ class CreatePostWidget extends StatelessWidget {
                                       return Stack(
                                         children: [
                                           Container(
-                                              padding: EdgeInsets.only(
+                                              padding: const EdgeInsets.only(
                                                   right: 8, top: 8),
                                               width: 108,
                                               height: 108,
@@ -156,7 +156,7 @@ class CreatePostWidget extends StatelessWidget {
                                                       color: AppColors
                                                           .kPrimaryColor,
                                                       shape: BoxShape.circle),
-                                                  child: Center(
+                                                  child: const Center(
                                                       child: Icon(
                                                     Icons.close,
                                                     color: Colors.white,
@@ -181,7 +181,7 @@ class CreatePostWidget extends StatelessWidget {
                                 ),
                                 ListView.separated(
                                     shrinkWrap: true,
-                                    padding: EdgeInsets.only(right: 6),
+                                    padding: const EdgeInsets.only(right: 6),
                                     physics:
                                         const NeverScrollableScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
@@ -190,7 +190,7 @@ class CreatePostWidget extends StatelessWidget {
                                           ? Stack(
                                               children: [
                                                 Container(
-                                                  padding: EdgeInsets.only(
+                                                  padding: const EdgeInsets.only(
                                                       right: 8, top: 8),
                                                   width: 108,
                                                   height: 108,
@@ -240,7 +240,7 @@ class CreatePostWidget extends StatelessWidget {
                                                                 .kPrimaryColor,
                                                             shape: BoxShape
                                                                 .circle),
-                                                        child: Center(
+                                                        child: const Center(
                                                             child: Icon(
                                                           Icons.close,
                                                           color: Colors.white,
@@ -265,12 +265,12 @@ class CreatePostWidget extends StatelessWidget {
                       : const SizedBox(),
                   ListView.separated(
                       shrinkWrap: true,
-                      padding: EdgeInsets.only(left: 14, right: 14, top: 10),
+                      padding: const EdgeInsets.only(left: 14, right: 14, top: 10),
                       physics: const NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         return Stack(children: [
                           Container(
-                            padding: EdgeInsets.fromLTRB(14, 10, 40, 10),
+                            padding: const EdgeInsets.fromLTRB(14, 10, 40, 10),
                             width: double.infinity,
                             decoration: BoxDecoration(
                                 color: AppColors.kPrimaryColor
@@ -300,7 +300,7 @@ class CreatePostWidget extends StatelessWidget {
                                   decoration: BoxDecoration(
                                       color: AppColors.kPrimaryColor,
                                       shape: BoxShape.circle),
-                                  child: Center(
+                                  child: const Center(
                                       child: Icon(
                                     Icons.close,
                                     color: Colors.white,
@@ -324,13 +324,13 @@ class CreatePostWidget extends StatelessWidget {
                   ),
                   ListView.separated(
                       shrinkWrap: true,
-                      padding: EdgeInsets.only(left: 14, right: 14, bottom: 10),
+                      padding: const EdgeInsets.only(left: 14, right: 14, bottom: 10),
                       physics: const NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         return selectedDocuments[index] != null
                             ? Stack(children: [
                                 Container(
-                                  padding: EdgeInsets.fromLTRB(14, 10, 40, 10),
+                                  padding: const EdgeInsets.fromLTRB(14, 10, 40, 10),
                                   width: double.infinity,
                                   decoration: BoxDecoration(
                                       color: AppColors.kPrimaryColor
@@ -362,7 +362,7 @@ class CreatePostWidget extends StatelessWidget {
                                         decoration: BoxDecoration(
                                             color: AppColors.kPrimaryColor,
                                             shape: BoxShape.circle),
-                                        child: Center(
+                                        child: const Center(
                                             child: Icon(
                                           Icons.close,
                                           color: Colors.white,
@@ -403,13 +403,13 @@ class CreatePostWidget extends StatelessWidget {
                               child: Container(
                                 width: 26,
                                 height: 26,
-                                margin: EdgeInsets.all(5),
+                                margin: const EdgeInsets.all(5),
                                 decoration: BoxDecoration(
                                     color: AppColors.color2998BA
                                         .withValues(alpha: 0.3),
                                     shape: BoxShape.circle),
                                 child: Center(
-                                  child: SvgPicture.asset(
+                                  child: Image.asset(
                                     AppIcons.icPhotoCamera,
                                     width: 16,
                                   ),
@@ -422,13 +422,13 @@ class CreatePostWidget extends StatelessWidget {
                               child: Container(
                                 width: 26,
                                 height: 26,
-                                margin: EdgeInsets.all(5),
+                                margin: const EdgeInsets.all(5),
                                 decoration: BoxDecoration(
                                     color: AppColors.colorEDDEA1
                                         .withValues(alpha: 0.3),
                                     shape: BoxShape.circle),
                                 child: Center(
-                                  child: SvgPicture.asset(
+                                  child: Image.asset(
                                     AppIcons.icImage,
                                     width: 16,
                                   ),
@@ -441,13 +441,13 @@ class CreatePostWidget extends StatelessWidget {
                               child: Container(
                                 width: 26,
                                 height: 26,
-                                margin: EdgeInsets.all(5),
+                                margin: const EdgeInsets.all(5),
                                 decoration: BoxDecoration(
                                     color: AppColors.colorF1C40F
                                         .withValues(alpha: 0.3),
                                     shape: BoxShape.circle),
                                 child: Center(
-                                  child: SvgPicture.asset(
+                                  child: Image.asset(
                                     AppIcons.icDocument,
                                     width: 16,
                                   ),
@@ -460,7 +460,7 @@ class CreatePostWidget extends StatelessWidget {
                             ? Container(
                                 height: 30,
                                 width: 56,
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 child: Center(
                                   child: SizedBox(
                                     width: 14,

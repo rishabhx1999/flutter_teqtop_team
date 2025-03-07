@@ -10,7 +10,7 @@ class TaskWidgetShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(12, 12, 14, 16),
+      padding: const EdgeInsets.fromLTRB(12, 12, 14, 16),
       width: double.infinity,
       decoration: BoxDecoration(
           color: Colors.transparent,

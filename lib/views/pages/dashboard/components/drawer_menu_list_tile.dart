@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:get/get.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 
@@ -36,7 +36,7 @@ class DrawerMenuListTile extends StatelessWidget {
                 width: 16,
               ),
               leading.toLowerCase().endsWith('.svg')
-                  ? SvgPicture.asset(
+                  ? Image.asset(
                       leading,
                       width: 18,
                     )

@@ -19,6 +19,7 @@ class TasksListingController extends GetxController {
   int? projectId;
   bool singleProjectTasks = false;
   RxString searchText = ''.obs;
+  final ScrollController scrollController = ScrollController();
 
   @override
   void onInit() {
@@ -27,6 +28,7 @@ class TasksListingController extends GetxController {
     setupSearchTextChangeListener();
     getNotificationsCount();
     checkIfSingleProjectTasks();
+    addListenerToScrollController();
 
     super.onInit();
   }
@@ -41,6 +43,7 @@ class TasksListingController extends GetxController {
   void onClose() {
     disposeSearchTextChangeListenerWorker();
     disposeSearchTextController();
+    scrollController.dispose();
 
     super.onClose();
   }
@@ -52,6 +55,16 @@ class TasksListingController extends GetxController {
       singleProjectTasks = true;
     }
     getProjectId();
+  }
+
+  void addListenerToScrollController() {
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        isLoading.value = true;
+        getTasks();
+      }
+    });
   }
 
   void getNotificationsCount() {
@@ -77,9 +90,10 @@ class TasksListingController extends GetxController {
   }
 
   void setupSearchTextChangeListener() {
-
-    searchTextChangeListenerWorker =
-        debounce(searchText, (callback) => getTasks());
+    searchTextChangeListenerWorker = debounce(searchText, (callback) {
+      tasks.clear();
+      getTasks();
+    });
 
     searchTextController.addListener(() {
       searchText.value = searchTextController.text.toString().trim();
@@ -161,11 +175,13 @@ class TasksListingController extends GetxController {
         // 'columns%5B6%5D%5Bsearch%5D%5Bregex%5D': 'false',
         'order%5B0%5D%5Bcolumn%5D': '0',
         'order%5B0%5D%5Bdir%5D': 'DESC',
-        'start': '0',
-        'length': '-1',
+        'length': '10',
         'search%5Bvalue%5D': searchText.value,
         'search%5Bregex%5D': 'false'
       };
+      int startValue = (tasks.length ~/ 10) * 10;
+      requestBody['start'] = startValue.toString();
+
       if (projectId != null) {
         requestBody.addIf(projectId != null, 'project', projectId.toString());
       }
@@ -175,7 +191,15 @@ class TasksListingController extends GetxController {
         var response = await GetRequests.getTasks(requestBody);
         if (response != null) {
           if (response.data != null) {
-            tasks.assignAll(response.data!.toList());
+
+            for (var existingTask in tasks) {
+              response.data!.removeWhere((task) =>
+              task != null &&
+                  existingTask != null &&
+                  task.id == existingTask.id);
+            }
+
+            tasks.addAll(response.data as Iterable<TaskModel?>);
           }
         } else {
           Get.snackbar("error".tr, "message_server_error".tr);

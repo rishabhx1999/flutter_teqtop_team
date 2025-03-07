@@ -56,7 +56,7 @@ class EmployeesListingController extends GetxController {
 
   void startEmployeeCountLoadingAnimation() {
     employeeCountLoadingDotsTimer =
-        Timer.periodic(Duration(milliseconds: 100), (timer) {
+        Timer.periodic(const Duration(milliseconds: 100), (timer) {
       employeeCountLoadingDotIndex.value =
           (employeeCountLoadingDotIndex.value + 1) %
               employeeCountLoadingDots.length;

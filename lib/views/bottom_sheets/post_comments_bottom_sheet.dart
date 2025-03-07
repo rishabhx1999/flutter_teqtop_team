@@ -19,14 +19,14 @@ class PostCommentsBottomSheet {
     required Function(int) handleCommentOnDelete,
     required FocusNode createCommentTextFieldFocusNode,
     required RxBool showCreateCommentWidget,
-    required Function(int, int) handleCommentImageOnTap,
+    required Function(int, String?) handleCommentImageOnTap,
   }) {
     // Helpers.printLog(description: "COMMENT_BOTTOM_SHEET_SHOW_REACHED");
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.92),
+            maxHeight: MediaQuery.of(context).size.height * 0.95),
         builder: (context) {
           return PostCommentsBottomSheetContent(
             createCommentWidget: createCommentWidget,
@@ -57,7 +57,7 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
   final Function(int) handleCommentOnDelete;
   final RxBool showCreateCommentWidget;
   final FocusNode createCommentTextFieldFocusNode;
-  final Function(int, int) handleCommentImageOnTap;
+  final Function(int, String?) handleCommentImageOnTap;
 
   const PostCommentsBottomSheetContent({
     super.key,
@@ -87,11 +87,6 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
         showCreateCommentWidget.value = false;
-        for (var comment in comments) {
-          if (comment != null) {
-            comment.isEditing.value = false;
-          }
-        }
       },
       child: Padding(
         padding:
@@ -142,13 +137,13 @@ class PostCommentsBottomSheetContent extends StatelessWidget {
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
                         return areCommentsLoading.value
-                            ? CommentWidgetShimmer()
+                            ? const CommentWidgetShimmer()
                             : CommentWidget(
                                 commentData: comments[index] ?? CommentList(),
                                 onTapDelete: handleCommentOnDelete,
-                                commentItems: comments[index] == null
-                                    ? []
-                                    : comments[index]!.commentItems,
+                                // commentItems: comments[index] == null
+                                //     ? []
+                                //     : comments[index]!.commentItems,
                                 handleImageOnTap: handleCommentImageOnTap,
                               );
                       },

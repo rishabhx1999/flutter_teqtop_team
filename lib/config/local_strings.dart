@@ -161,6 +161,7 @@ class LocalStrings extends Translations {
           'add_remove_projects': 'Add/remove project(s)',
           'update': 'Update',
           'enter_access_details': 'Enter access details',
+          'create_feed': 'Create feed',
 
           //
           'error': 'Error',
@@ -184,6 +185,10 @@ class LocalStrings extends Translations {
           'message_login_again': 'Please login again to continue',
           'message_comment_delete_confirmation':
               'Are you sure you want to delete this comment?',
+          'message_file_delete_confirmation':
+              'Are you sure you want to delete this file?',
+          'message_folder_delete_confirmation':
+              'Are you sure you want to delete this folder?',
           'message_task_delete_confirmation':
               'Are you sure you want to delete this task?',
           'message_delete_confirmation':

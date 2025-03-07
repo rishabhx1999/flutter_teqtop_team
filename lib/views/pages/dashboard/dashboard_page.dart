@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:get/get.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/config/app_routes.dart';
@@ -31,6 +31,7 @@ class DashboardPage extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
+        dashboardController.showCreateEditPostWidget.value = false;
       },
       child: Scaffold(
           key: dashboardController.scaffoldKey,
@@ -53,10 +54,9 @@ class DashboardPage extends StatelessWidget {
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: SvgPicture.asset(
+                  child: Image.asset(
                     AppIcons.icMenu,
-                    colorFilter:
-                        const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    color: Colors.black,
                   ),
                 )),
             backgroundColor: Colors.white,
@@ -72,11 +72,10 @@ class DashboardPage extends StatelessWidget {
                     onTap: () {
                       Get.toNamed(AppRoutes.routeGlobalSearch);
                     },
-                    child: SvgPicture.asset(
+                    child: Image.asset(
                       AppIcons.icSearch,
                       width: 24,
-                      colorFilter:
-                          const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      color: Colors.black,
                     )),
               ),
               GestureDetector(
@@ -150,14 +149,14 @@ class DashboardPage extends StatelessWidget {
                     () => CircleAvatar(
                       radius: 17,
                       backgroundImage:
-                          AssetImage(AppImages.imgPersonPlaceholder),
+                          const AssetImage(AppImages.imgPersonPlaceholder),
                       foregroundImage: dashboardController.loggedInUser.value !=
                                   null &&
                               dashboardController.loggedInUser.value!.profile !=
                                   null
                           ? NetworkImage(AppConsts.imgInitialUrl +
                               dashboardController.loggedInUser.value!.profile!)
-                          : AssetImage(AppImages.imgPersonPlaceholder),
+                          : const AssetImage(AppImages.imgPersonPlaceholder),
                     ),
                   ),
                 ),
@@ -165,7 +164,7 @@ class DashboardPage extends StatelessWidget {
             ],
           ),
           backgroundColor: Colors.white,
-          drawer: MenuDrawerWidget(),
+          drawer: const MenuDrawerWidget(),
           body: RefreshIndicator(
             color: AppColors.kPrimaryColor,
             backgroundColor: Colors.white,
@@ -184,34 +183,81 @@ class DashboardPage extends StatelessWidget {
                     const SizedBox(
                       height: 16,
                     ),
-                    CommonMultimediaContentCreateWidget(
-                      textController:
-                          dashboardController.createPostTextController,
-                      hint: 'enter_text'.tr,
-                      createComment: dashboardController.createPost,
-                      isEditingComment: dashboardController.isEditPost,
-                      editComment: dashboardController.editPost,
-                      isTextFieldEmpty:
-                          dashboardController.isPostFieldTextEmpty,
-                      onTextChanged: dashboardController.onPostFieldTextChange,
-                      contentItems: dashboardController.postFieldContent,
-                      clickImage: dashboardController.clickImage,
-                      pickImages: dashboardController.pickImages,
-                      addText: dashboardController.addTextInPostContent,
-                      removeContentItem:
-                          dashboardController.removePostContentItem,
-                      addContentAfter: dashboardController
-                          .initializeAddingInBetweenPostContent,
-                      pickFiles: dashboardController.pickDocuments,
-                      editText: dashboardController.editPostContentText,
-                      showCreateEditButton: true,
-                      showShadow: true,
-                      borderRadius: BorderRadius.circular(10),
-                      backgroundColor: Colors.white,
-                      textFieldBackgroundColor:
-                          Colors.grey.withValues(alpha: 0.1),
-                      isCreateOrEditLoading:
-                          dashboardController.isPostCreateEditLoading,
+                    Obx(
+                      () => dashboardController.showCreateEditPostWidget.value
+                          ? CommonMultimediaContentCreateWidget(
+                              removeAttachedDocument: dashboardController
+                                  .removeCreatePostAttachedDocument,
+                              removeAttachedImage: dashboardController
+                                  .removeCreatePostAttachedImage,
+                              htmlEditorOnChange: dashboardController
+                                  .createPostHtmlEditorControllerOnChange,
+                              cancelEditing:
+                                  dashboardController.cancelPostEditing,
+                              htmlEditorController: dashboardController
+                                  .createPostHtmlEditorController,
+                              hint: 'enter_text'.tr,
+                              createComment: dashboardController.createPost,
+                              isEditingComment: dashboardController.isEditPost,
+                              editComment: dashboardController.editPost,
+                              isTextFieldEmpty:
+                                  dashboardController.isPostFieldTextEmpty,
+                              onTextChanged:
+                                  dashboardController.onPostFieldTextChange,
+                              contentItems:
+                                  dashboardController.postFieldContent,
+                              clickImage: dashboardController.clickImage,
+                              pickImages: dashboardController.pickImages,
+                              addText: dashboardController.addTextInPostContent,
+                              removeContentItem:
+                                  dashboardController.removePostContentItem,
+                              addContentAfter: dashboardController
+                                  .initializeAddingInBetweenPostContent,
+                              pickFiles: dashboardController.pickDocuments,
+                              expandEditor: true,
+                              editText: dashboardController.editPostContentText,
+                              showCreateEditButton: true,
+                              showShadow: true,
+                              borderRadius: BorderRadius.circular(10),
+                              backgroundColor: Colors.white,
+                              textFieldBackgroundColor:
+                                  Colors.grey.withValues(alpha: 0.1),
+                              isCreateOrEditLoading:
+                                  dashboardController.isPostCreateEditLoading,
+                              htmlEditorOnInit: dashboardController
+                                  .createPostHtmlEditorOnInit,
+                              attachedImages:
+                                  dashboardController.createPostAttachedImages,
+                              attachedDocuments: dashboardController
+                                  .createPostAttachedDocuments,
+                              areAttachedFilesLoading: dashboardController
+                                  .areCreateEditPostFilesLoading,
+                            )
+                          : GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
+                                dashboardController
+                                    .showCreateEditPostWidget.value = true;
+                              },
+                              child: Container(
+                                height: 48,
+                                width: double.infinity,
+                                color: Colors.grey.withValues(alpha: 0.1),
+                                padding: const EdgeInsets.all(10),
+                                child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "create_feed".tr,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            color: Colors.black
+                                                .withValues(alpha: 0.3),
+                                          ),
+                                    )),
+                              ),
+                            ),
                     ),
                     Obx(
                       () => ListView.separated(
@@ -220,7 +266,7 @@ class DashboardPage extends StatelessWidget {
                           physics: const NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
                             return dashboardController.arePostsLoading.value
-                                ? PostWidgetShimmer()
+                                ? const PostWidgetShimmer()
                                 : PostWidget(
                                     handleImageOnTap:
                                         dashboardController.onTapPostImage,
@@ -229,12 +275,6 @@ class DashboardPage extends StatelessWidget {
                                           .currentCommentsPostID = null;
                                       dashboardController
                                           .currentCommentsLength.value = 0;
-                                      for (var comment in dashboardController
-                                          .singlePostComments) {
-                                        if (comment != null) {
-                                          comment.editController?.dispose();
-                                        }
-                                      }
                                       dashboardController.singlePostComments
                                           .value = <CommentList>[];
                                       if (dashboardController.posts[index] !=
@@ -260,6 +300,15 @@ class DashboardPage extends StatelessWidget {
                                           .commentFieldContentEditIndex = null;
                                       dashboardController.commentFieldContent
                                           .clear();
+                                      dashboardController
+                                          .commentFieldHtmlEditorHtmlContent
+                                          .value = "<p></p>";
+                                      dashboardController
+                                          .commentFieldAttachedDocuments
+                                          .clear();
+                                      dashboardController
+                                          .commentFieldAttachedImages
+                                          .clear();
                                       if (dashboardController
                                               .commentFieldTextFocusNode !=
                                           null) {
@@ -279,10 +328,14 @@ class DashboardPage extends StatelessWidget {
                                         context: context,
                                         createCommentWidget:
                                             CommonMultimediaContentCreateWidget(
+                                          htmlEditorOnChange: dashboardController
+                                              .commentFieldHtmlEditorControllerOnChange,
                                           focusNode: dashboardController
                                               .commentFieldTextFocusNode,
-                                          textController: dashboardController
-                                              .commentFieldTextController,
+                                          htmlEditorOnInit: dashboardController
+                                              .commentFieldHtmlEditorOnInit,
+                                          htmlEditorController: dashboardController
+                                              .commentFieldHtmlEditorController,
                                           hint: 'enter_text'.tr,
                                           createComment:
                                               dashboardController.createComment,
@@ -317,6 +370,20 @@ class DashboardPage extends StatelessWidget {
                                           isCreateOrEditLoading:
                                               dashboardController
                                                   .isCommentCreateLoading,
+                                          cancelEditing: dashboardController
+                                              .cancelCommentEditing,
+                                          attachedImages: dashboardController
+                                              .commentFieldAttachedImages,
+                                          attachedDocuments: dashboardController
+                                              .commentFieldAttachedDocuments,
+                                          removeAttachedImage: dashboardController
+                                              .removeCommentFieldAttachedImage,
+                                          removeAttachedDocument:
+                                              dashboardController
+                                                  .removeCommentFieldAttachedDocument,
+                                          areAttachedFilesLoading:
+                                              dashboardController
+                                                  .areCommentFieldFilesLoading,
                                         ),
                                         commentCount: dashboardController
                                             .currentCommentsLength,
@@ -375,7 +442,7 @@ class DashboardPage extends StatelessWidget {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemBuilder: (context, index) {
-                              return PostWidgetShimmer();
+                              return const PostWidgetShimmer();
                             },
                             separatorBuilder: (context, index) {
                               return const SizedBox(
