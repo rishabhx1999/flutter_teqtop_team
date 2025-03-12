@@ -15,11 +15,12 @@ import 'package:teqtop_team/network/get_requests.dart';
 import 'package:teqtop_team/network/post_requests.dart';
 import 'package:teqtop_team/utils/helpers.dart';
 import 'package:teqtop_team/utils/permission_handler.dart';
-import 'package:http/http.dart' as http;
+import 'package:teqtop_team/views/dialogs/employees_dialog.dart';
 
 import '../../config/app_routes.dart';
 import '../../consts/app_consts.dart';
 import '../../model/dashboard/feed_model.dart';
+import '../../model/employees_listing/employee_model.dart';
 import '../../model/media_content_model.dart';
 import '../../utils/preference_manager.dart';
 import '../../views/dialogs/common/common_alert_dialog.dart';
@@ -80,6 +81,14 @@ class DashboardController extends GetxController
   bool shouldCommentsSheetScrollerJumpToPrevious = true;
   Timer? createPostContentTimer;
   Timer? commentFieldContentTimer;
+  double commentsListPreviousOffset = 0;
+  final TextEditingController employeesSearchTextController =
+      TextEditingController();
+  RxBool showEmployeesSearchFieldTrailing = false.obs;
+  late Worker employeesSearchTextChangeListenerWorker;
+  RxBool areEmployeesLoading = false.obs;
+  RxList<EmployeeModel?> employees = <EmployeeModel>[].obs;
+  FocusNode? searchEmployeesFieldFocusNode;
 
   @override
   void onInit() {
@@ -93,6 +102,8 @@ class DashboardController extends GetxController
     addListenerToScrollControllers();
     getNotifications();
     initializeCommentFilePicker();
+    setupEmployeesSearchTextChangeListener();
+    getEmployees('');
 
     super.onInit();
   }
@@ -114,7 +125,141 @@ class DashboardController extends GetxController
     if (commentFieldContentTimer != null) {
       commentFieldContentTimer!.cancel();
     }
+    employeesSearchTextChangeListenerWorker.dispose();
+    employeesSearchTextController.dispose();
     super.onClose();
+  }
+
+  void setupEmployeesSearchTextChangeListener() {
+    RxString searchText = ''.obs;
+    employeesSearchTextChangeListenerWorker =
+        debounce(searchText, (callback) => getEmployees(searchText.value));
+
+    employeesSearchTextController.addListener(() {
+      searchText.value = employeesSearchTextController.text.toString().trim();
+    });
+  }
+
+  void handleEmployeesSearchTextChange(String text) {
+    showEmployeesSearchFieldTrailing.value = text.isNotEmpty;
+  }
+
+  void handleClearEmployeesSearchField() {
+    employeesSearchTextController.clear();
+    showEmployeesSearchFieldTrailing.value = false;
+  }
+
+  void handleCreateEditPostEmployeeOnTap(int? id) {
+    if (id == null) return;
+    var requiredEmployee = employees
+        .firstWhereOrNull((employee) => employee != null && employee.id == id);
+    if (requiredEmployee == null ||
+        requiredEmployee.name == null ||
+        requiredEmployee.name!.isEmpty) {
+      return;
+    }
+
+    requiredEmployee.multiUse.value = true;
+    showCreateEditPostWidget.value = false;
+    createPostHtmlEditorContent.value = Helpers.mentionPersonInHTML(
+        createPostHtmlEditorContent.value,
+        requiredEmployee.name!,
+        requiredEmployee.id.toString());
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      showCreateEditPostWidget.value = true;
+      requiredEmployee.multiUse.value = false;
+      Get.back();
+    });
+  }
+
+  void handleCommentFieldEmployeeOnTap(int? id) {
+    if (id == null) return;
+    var requiredEmployee = employees
+        .firstWhereOrNull((employee) => employee != null && employee.id == id);
+    if (requiredEmployee == null ||
+        requiredEmployee.name == null ||
+        requiredEmployee.name!.isEmpty) {
+      return;
+    }
+
+    requiredEmployee.multiUse.value = true;
+    showCreateCommentWidget.value = false;
+    commentFieldHtmlEditorHtmlContent.value = Helpers.mentionPersonInHTML(
+        commentFieldHtmlEditorHtmlContent.value,
+        requiredEmployee.name!,
+        requiredEmployee.id.toString());
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      showCreateCommentWidget.value = true;
+      requiredEmployee.multiUse.value = false;
+      Get.back();
+    });
+  }
+
+  Future<void> getEmployees(String searchText) async {
+    Map<String, String> requestBody = {
+      // 'draw': '20',
+      // 'columns%5B0%5D%5Bdata%5D': 'DT_RowIndex',
+      // 'columns%5B0%5D%5Bname%5D': '',
+      // 'columns%5B0%5D%5Bsearchable%5D': 'true',
+      // 'columns%5B0%5D%5Borderable%5D': 'true',
+      // 'columns%5B0%5D%5Bsearch%5D%5Bvalue%5D': '',
+      // 'columns%5B0%5D%5Bsearch%5D%5Bregex%5D': 'false',
+      // 'columns%5B1%5D%5Bdata%5D': 'employee_id',
+      // 'columns%5B1%5D%5Bname%5D': '',
+      // 'columns%5B1%5D%5Bsearchable%5D': 'true',
+      // 'columns%5B1%5D%5Borderable%5D': 'true',
+      // 'columns%5B1%5D%5Bsearch%5D%5Bvalue%5D': '',
+      // 'columns%5B1%5D%5Bsearch%5D%5Bregex%5D': 'false',
+      // 'columns%5B2%5D%5Bdata%5D': 'name',
+      // 'columns%5B2%5D%5Bname%5D': 'name',
+      // 'columns%5B2%5D%5Bsearchable%5D': 'true',
+      // 'columns%5B2%5D%5Borderable%5D': 'true',
+      // 'columns%5B2%5D%5Bsearch%5D%5Bvalue%5D': '',
+      // 'columns%5B2%5D%5Bsearch%5D%5Bregex%5D': 'false',
+      // 'columns%5B3%5D%5Bdata%5D': 'registered',
+      // 'columns%5B3%5D%5Bname%5D': 'registered',
+      // 'columns%5B3%5D%5Borderable%5D': 'true',
+      // 'columns%5B3%5D%5Bsearch%5D%5Bvalue%5D': '',
+      // 'columns%5B3%5D%5Bsearch%5D%5Bregex%5D': 'false',
+      // 'columns%5B4%5D%5Bdata%5D': 'roles',
+      // 'columns%5B4%5D%5Bname%5D': '',
+      // 'columns%5B4%5D%5Bsearchable%5D': 'true',
+      // 'columns%5B4%5D%5Borderable%5D': 'true',
+      // 'columns%5B4%5D%5Bsearch%5D%5Bvalue%5D': '',
+      // 'columns%5B4%5D%5Bsearch%5D%5Bregex%5D': 'false',
+      // 'columns%5B5%5D%5Bdata%5D': 'status',
+      // 'columns%5B5%5D%5Bname%5D': '',
+      // 'columns%5B5%5D%5Bsearchable%5D': 'true',
+      // 'columns%5B5%5D%5Borderable%5D': 'true',
+      // 'columns%5B5%5D%5Bsearch%5D%5Bvalue%5D': '',
+      // 'columns%5B5%5D%5Bsearch%5D%5Bregex%5D': 'false',
+      // 'columns%5B6%5D%5Bdata%5D': 'action',
+      // 'columns%5B6%5D%5Bname%5D': '',
+      // 'columns%5B6%5D%5Bsearchable%5D': 'false',
+      // 'columns%5B6%5D%5Borderable%5D': 'false',
+      // 'columns%5B6%5D%5Bsearch%5D%5Bvalue%5D': '',
+      // 'columns%5B6%5D%5Bsearch%5D%5Bregex%5D': 'false',
+      'order%5B0%5D%5Bcolumn%5D': '0',
+      'order%5B0%5D%5Bdir%5D': 'DESC',
+      'start': '0',
+      'length': '-1',
+      'search%5Bvalue%5D': searchText,
+      'search%5Bregex%5D': 'false'
+    };
+
+    areEmployeesLoading.value = true;
+    try {
+      var response = await GetRequests.getEmployees(requestBody);
+      if (response != null) {
+        if (response.data != null) {
+          employees.assignAll(response.data!.toList());
+        }
+      }
+    } finally {
+      areEmployeesLoading.value = false;
+    }
   }
 
   void initializeCommentFieldTextFocusNode() {
@@ -302,7 +447,7 @@ class DashboardController extends GetxController
   }
 
   Future<void> getComments() async {
-    double? previousOffset;
+    Helpers.printLog(description: "DASHBOARD_CONTROLLER_GET_COMMENTS");
     int commentsPerPage = 10;
     int maxPage = (currentCommentsLength.value / commentsPerPage).ceil();
     int singlePostCommentsPage =
@@ -317,8 +462,13 @@ class DashboardController extends GetxController
 
     if (singlePostCommentsPage <= maxPage ||
         currentCommentsRefreshNeeded == true) {
-      if (commentsSheetScrollController.hasClients) {
-        previousOffset = commentsSheetScrollController.offset;
+      if (commentsSheetScrollController.hasClients &&
+          commentsListPreviousOffset == 0) {
+        commentsListPreviousOffset = commentsSheetScrollController.offset;
+        Helpers.printLog(
+            description: "DASHBOARD_CONTROLLER_GET_COMMENTS",
+            message:
+                "PREVIOUS_OFFSET = ${commentsListPreviousOffset.toString()}");
       }
       areCommentsLoading.value = true;
       try {
@@ -367,13 +517,15 @@ class DashboardController extends GetxController
               // for (var comment in newComments) {
               //   comment.editController = TextEditingController();
               // }
-              if (previousOffset != null &&
+              singlePostComments.refresh();
+              if (commentsListPreviousOffset != 0 &&
                   shouldCommentsSheetScrollerJumpToPrevious == true) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  commentsSheetScrollController.jumpTo(previousOffset!);
+                  commentsSheetScrollController
+                      .jumpTo(commentsListPreviousOffset);
+                  commentsListPreviousOffset = 0;
                 });
               }
-              singlePostComments.refresh();
             }
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
@@ -447,7 +599,7 @@ class DashboardController extends GetxController
       //     message: "IMAGE_CLICKED = ${image.toString()}");
       areCreateEditPostFilesLoading.value = true;
       if (image != null) {
-        String? imageUrl = await uploadFile(image.path, null);
+        String? imageUrl = await Helpers.uploadFile(image.path, null);
         if (imageUrl != null && imageUrl.isNotEmpty) {
           createPostAttachedImages.add(imageUrl);
           createPostAttachedImages.refresh();
@@ -470,7 +622,7 @@ class DashboardController extends GetxController
     areCreateEditPostFilesLoading.value = true;
     if (images.isNotEmpty) {
       for (var image in images) {
-        String? imageUrl = await uploadFile(image.path, null);
+        String? imageUrl = await Helpers.uploadFile(image.path, null);
         if (imageUrl != null && imageUrl.isNotEmpty) {
           createPostAttachedImages.add(imageUrl);
           createPostAttachedImages.refresh();
@@ -490,6 +642,21 @@ class DashboardController extends GetxController
     handlePostButtonEnable();
   }
 
+  void pickVideos() async {
+    var video = await _imagePicker.pickVideo(source: ImageSource.gallery);
+
+    areCreateEditPostFilesLoading.value = true;
+    if (video != null) {
+      String? videoUrl = await Helpers.uploadFile(video.path, null);
+      if (videoUrl != null && videoUrl.isNotEmpty) {
+        createPostAttachedDocuments.add(videoUrl);
+        createPostAttachedDocuments.refresh();
+      }
+    }
+    areCreateEditPostFilesLoading.value = false;
+    handlePostButtonEnable();
+  }
+
   void removePostContentItem(MediaContentModel item) {
     postFieldContent.remove(item);
   }
@@ -501,28 +668,19 @@ class DashboardController extends GetxController
     areCreateEditPostFilesLoading.value = true;
     for (var file in files.files) {
       if (file.path == null) continue;
-      String? fileUrl = await uploadFile(file.path!, file.extension);
+      String? fileUrl = await Helpers.uploadFile(file.path!, file.extension);
       if (fileUrl != null && fileUrl.isNotEmpty) {
-        createPostAttachedDocuments.add(fileUrl);
+        if (Helpers.isImage(fileUrl)) {
+          createPostAttachedImages.add(fileUrl);
+        } else {
+          createPostAttachedDocuments.add(fileUrl);
+        }
+        createPostAttachedImages.refresh();
         createPostAttachedDocuments.refresh();
-      }
-
-      var mediaContent = (file.extension != null &&
-              ['jpg', 'jpeg', 'png'].contains(file.extension!.toLowerCase()))
-          ? MediaContentModel(image: XFile(file.path!))
-          : MediaContentModel(file: file);
-
-      if (postFieldContentItemsInsertAfterIndex == null) {
-        postFieldContent.add(mediaContent);
-      } else {
-        postFieldContentItemsInsertAfterIndex =
-            postFieldContentItemsInsertAfterIndex! + 1;
-        postFieldContent.insert(
-            postFieldContentItemsInsertAfterIndex!, mediaContent);
       }
     }
     areCreateEditPostFilesLoading.value = false;
-    postFieldContentItemsInsertAfterIndex = null;
+    areCreateEditPostFilesLoading.refresh();
     handlePostButtonEnable();
   }
 
@@ -562,9 +720,14 @@ class DashboardController extends GetxController
     areCommentFieldFilesLoading.value = true;
     for (var file in files.files) {
       if (file.path == null) continue;
-      String? fileUrl = await uploadFile(file.path!, file.extension);
+      String? fileUrl = await Helpers.uploadFile(file.path!, file.extension);
       if (fileUrl != null && fileUrl.isNotEmpty) {
-        commentFieldAttachedDocuments.add(fileUrl);
+        if (Helpers.isImage(fileUrl)) {
+          commentFieldAttachedImages.add(fileUrl);
+        } else {
+          commentFieldAttachedDocuments.add(fileUrl);
+        }
+        commentFieldAttachedImages.refresh();
         commentFieldAttachedDocuments.refresh();
       }
 
@@ -639,7 +802,7 @@ class DashboardController extends GetxController
   }
 
   void createPost() async {
-    Helpers.printLog(description: "DASHBOARD_CONTROLLER_CREATE_POST");
+    // Helpers.printLog(description: "DASHBOARD_CONTROLLER_CREATE_POST");
     FocusManager.instance.primaryFocus?.unfocus();
     isPostCreateEditLoading.value = true;
     isPostCreateEditLoading.refresh();
@@ -750,14 +913,14 @@ class DashboardController extends GetxController
     try {
       String? comment = await commentFieldHtmlEditorController.getText();
       comment = comment.replaceAll('"', r'\"');
-      Helpers.printLog(
-          description: "DASHBOARD_CONTROLLER_CREATE_COMMENT",
-          message: "COMMENT = $comment");
+      // Helpers.printLog(
+      //     description: "DASHBOARD_CONTROLLER_CREATE_COMMENT",
+      //     message: "COMMENT = $comment");
       if (comment.isNotEmpty) {
         String quotedComment = '"$comment"';
-        Helpers.printLog(
-            description: "DASHBOARD_CONTROLLER_CREATE_COMMENT",
-            message: "COMMENT = $comment");
+        // Helpers.printLog(
+        //     description: "DASHBOARD_CONTROLLER_CREATE_COMMENT",
+        //     message: "COMMENT = $comment");
         Map<String, dynamic> requestBody = {
           'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
               as String?,
@@ -812,25 +975,6 @@ class DashboardController extends GetxController
       isCommentCreateLoading.value = false;
       shouldCommentsSheetScrollerJumpToPrevious = true;
     }
-  }
-
-  Future<String?> uploadFile(String filePath, String? fileType) async {
-    var uploadMedia = await http.MultipartFile.fromPath('data_file', filePath);
-    Map<String, dynamic> requestBody = {
-      'token':
-          PreferenceManager.getPref(PreferenceManager.prefUserToken) as String?,
-      'extension': fileType ?? '',
-      'data_file': '(binary)',
-      '_comp': 'feed',
-      'format': 'application'
-    };
-    var response = await PostRequests.uploadFile(uploadMedia, requestBody);
-    if (response != null) {
-      return response.src;
-    } else {
-      Get.snackbar('error'.tr, 'message_server_error'.tr);
-    }
-    return null;
   }
 
   void toggleLike(int postId) async {
@@ -912,9 +1056,9 @@ class DashboardController extends GetxController
   }
 
   Future<void> onTapPostImage(int postId, String? tappedImage) async {
-    Helpers.printLog(
-      description: "DASHBOARD_CONTROLLER_ON_TAP_POST_IMAGE_STARTED",
-    );
+    // Helpers.printLog(
+    //   description: "DASHBOARD_CONTROLLER_ON_TAP_POST_IMAGE_STARTED",
+    // );
     var post =
         posts.firstWhereOrNull((post) => post != null && post.id == postId);
     if (post == null) return;
@@ -1027,9 +1171,9 @@ class DashboardController extends GetxController
 
         Get.back();
         if (post.description != null) {
-          Helpers.printLog(
-              description: "DASHBOARD_CONTROLLER_ON_TAP_POST_EDIT",
-              message: "DESCRIPTION_NOT_EMPTY");
+          // Helpers.printLog(
+          //     description: "DASHBOARD_CONTROLLER_ON_TAP_POST_EDIT",
+          //     message: "DESCRIPTION_NOT_EMPTY");
           createPostHtmlEditorContent.value = post.description!;
           if (post.files is String && post.files.isNotEmpty) {
             var decode = json.decode(post.files);
@@ -1049,10 +1193,10 @@ class DashboardController extends GetxController
             showCreateEditPostWidget.value = true;
           });
 
-          Helpers.printLog(
-              description: "DASHBOARD_CONTROLLER_ON_TAP_POST_EDIT",
-              message:
-                  "POST_HTML_EDITOR = ${await createPostHtmlEditorController.getText()}");
+          // Helpers.printLog(
+          //     description: "DASHBOARD_CONTROLLER_ON_TAP_POST_EDIT",
+          //     message:
+          //         "POST_HTML_EDITOR = ${await createPostHtmlEditorController.getText()}");
           var editPostItems =
               await Helpers.convertHTMLToMultimediaContent(post.description!);
           postFieldContent.assignAll(editPostItems);
@@ -1155,7 +1299,7 @@ class DashboardController extends GetxController
           await _commentImagePicker.pickImage(source: ImageSource.camera);
       areCommentFieldFilesLoading.value = true;
       if (image != null) {
-        String? imageUrl = await uploadFile(image.path, null);
+        String? imageUrl = await Helpers.uploadFile(image.path, null);
         if (imageUrl != null && imageUrl.isNotEmpty) {
           commentFieldAttachedImages.add(imageUrl);
           commentFieldAttachedImages.refresh();
@@ -1179,7 +1323,7 @@ class DashboardController extends GetxController
     areCommentFieldFilesLoading.value = true;
     if (images.isNotEmpty) {
       for (var image in images) {
-        String? imageUrl = await uploadFile(image.path, null);
+        String? imageUrl = await Helpers.uploadFile(image.path, null);
         if (imageUrl != null && imageUrl.isNotEmpty) {
           commentFieldAttachedImages.add(imageUrl);
           commentFieldAttachedImages.refresh();
@@ -1198,6 +1342,22 @@ class DashboardController extends GetxController
     }
     areCommentFieldFilesLoading.value = false;
     // handlePostButtonEnable();
+  }
+
+  void pickCommentVideos() async {
+    var video =
+        await _commentImagePicker.pickVideo(source: ImageSource.gallery);
+
+    areCommentFieldFilesLoading.value = true;
+    if (video != null) {
+      String? videoUrl = await Helpers.uploadFile(video.path, null);
+      if (videoUrl != null && videoUrl.isNotEmpty) {
+        commentFieldAttachedDocuments.add(videoUrl);
+        commentFieldAttachedDocuments.refresh();
+      }
+    }
+    areCommentFieldFilesLoading.value = false;
+    handlePostButtonEnable();
   }
 
   void addTextInCommentContent() {
@@ -1233,12 +1393,99 @@ class DashboardController extends GetxController
   void createPostHtmlEditorControllerOnChange(String? value) {
     if (value != null) {
       createPostHtmlEditorContent.value = value;
+      Helpers.printLog(
+          description:
+              "DASHBOARD_CONTROLLER_CREATE_POST_HTML_EDITOR_CONTROLLER_ON_CHANGE",
+          message: "TEXT = $value");
+
+      // RegExp standaloneAtRegex = RegExp(
+      //   r'(?<!<span[^>]*?>)@#(?!(?:[^<]*?>))',
+      //   multiLine: true,
+      // );
+
+      if (value.contains("@#")) {
+        if (searchEmployeesFieldFocusNode != null) {
+          searchEmployeesFieldFocusNode!.dispose();
+          searchEmployeesFieldFocusNode = null;
+        }
+        searchEmployeesFieldFocusNode = FocusNode();
+        employeesSearchTextController.clear();
+        EmployeesDialog.show(
+            searchController: employeesSearchTextController,
+            handleSearchTextChange: handleEmployeesSearchTextChange,
+            showSearchFieldTrailing: showEmployeesSearchFieldTrailing,
+            onTapSearchFieldTrailing: handleClearEmployeesSearchField,
+            employees: employees,
+            areEmployeesLoading: areEmployeesLoading,
+            employeeOnTap: handleCreateEditPostEmployeeOnTap,
+            searchFieldFocusNode: searchEmployeesFieldFocusNode!);
+        searchEmployeesFieldFocusNode!.requestFocus();
+        Helpers.printLog(
+            description:
+                "DASHBOARD_CONTROLLER_CREATE_POST_HTML_EDITOR_CONTROLLER_ON_CHANGE",
+            message: "CURRENT_ROUTE = ${Get.isDialogOpen}");
+      } else {
+        if (Get.isDialogOpen ?? false) {
+          Get.back();
+        }
+      }
     }
   }
 
   void commentFieldHtmlEditorControllerOnChange(String? value) {
     if (value != null) {
       commentFieldHtmlEditorHtmlContent.value = value;
+      Helpers.printLog(
+          description:
+              "DASHBOARD_CONTROLLER_COMMENT_FIELD_HTML_EDITOR_CONTROLLER_ON_CHANGE",
+          message: "TEXT = $value");
+
+      // if (value.endsWith("</span></span></p><p></p>")) {
+      //   showCreateEditPostWidget.value = false;
+      //   Helpers.printLog(
+      //       description:
+      //           "DASHBOARD_CONTROLLER_CREATE_POST_HTML_EDITOR_CONTROLLER_ON_CHANGE",
+      //       message: "NEW_VALUE_ENDS_WITH = </span></span></p><p></p>");
+      //   int lastReplacementIndex = value.lastIndexOf(
+      //       '<span class="dx-mention" spellcheck="false" data-marker="@"');
+      //   if (lastReplacementIndex != -1) {
+      //     int endIndex =
+      //         value.indexOf('</span></span>', lastReplacementIndex) + 14;
+      //     value = value.substring(0, lastReplacementIndex) +
+      //         value.substring(endIndex);
+      //     createPostHtmlEditorContent.value = value;
+      //   }
+      //   Future.delayed(const Duration(milliseconds: 200), () {
+      //     showCreateEditPostWidget.value = true;
+      //   });
+      // }
+      RegExp standaloneAtRegex = RegExp(
+        r'(?<!<span[^>]*?>)@(?!(?:[^<]*?>))',
+        multiLine: true,
+      );
+
+      if (value.contains("@#")) {
+        if (searchEmployeesFieldFocusNode != null) {
+          searchEmployeesFieldFocusNode!.dispose();
+          searchEmployeesFieldFocusNode = null;
+        }
+        searchEmployeesFieldFocusNode = FocusNode();
+        employeesSearchTextController.clear();
+        EmployeesDialog.show(
+            searchController: employeesSearchTextController,
+            handleSearchTextChange: handleEmployeesSearchTextChange,
+            showSearchFieldTrailing: showEmployeesSearchFieldTrailing,
+            onTapSearchFieldTrailing: handleClearEmployeesSearchField,
+            employees: employees,
+            areEmployeesLoading: areEmployeesLoading,
+            employeeOnTap: handleCommentFieldEmployeeOnTap,
+            searchFieldFocusNode: searchEmployeesFieldFocusNode!);
+        searchEmployeesFieldFocusNode!.requestFocus();
+      } else {
+        if (Get.isDialogOpen ?? false) {
+          Get.back();
+        }
+      }
     }
   }
 

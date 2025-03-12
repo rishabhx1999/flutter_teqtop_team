@@ -15,7 +15,7 @@ class SplashPage extends StatelessWidget {
 
   void _moveToNextScreen() {
     var nextScreen =
-        PreferenceManager.isUserLoggedIn() && isTokenExpired() == false
+        PreferenceManager.isUserLoggedIn()
             ? AppRoutes.routeDashboard
             : AppRoutes.routeLogin;
     Get.offNamed(nextScreen);
@@ -48,7 +48,7 @@ class SplashPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 2), () {
       _moveToNextScreen();
     });
 

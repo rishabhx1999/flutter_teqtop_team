@@ -254,17 +254,17 @@ class PostRequests {
     }
   }
 
-  static Future<EditTaskResModel?> editTask(
-      Map<String, dynamic> requestBody) async {
+  static Future<EditTaskResModel?> editTask(Map<String, dynamic> requestBody,
+      Map<String, dynamic> requestBody2) async {
     // Helpers.printLog(description: "POST_REQUESTS_EDIT_TASK_REACHED");
-    var apiResponse = await RemoteService.simplePostWithQueries(
-      ApiUrls.tasksUpdate,
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json;charset=utf-8"
-      },
-      requestBody: requestBody,
-    );
+    var apiResponse = await RemoteService.simplePostWithQueriesAndBody(
+        ApiUrls.tasksUpdate,
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json;charset=utf-8"
+        },
+        requestBody: requestBody,
+        requestBody2: requestBody2);
 
     if (apiResponse != null) {
       return editTaskResModelFromJson(apiResponse.response!);

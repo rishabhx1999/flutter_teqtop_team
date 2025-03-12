@@ -885,7 +885,8 @@ class TaskDetailPage extends StatelessWidget {
                                 taskDetailController.commentFieldContent
                                     .clear();
                                 taskDetailController
-                                    .commentFieldHtmlEditorContent.value = "<p></p>";
+                                    .commentFieldHtmlEditorContent
+                                    .value = "<p></p>";
                                 taskDetailController
                                     .commentFieldAttachedDocuments
                                     .clear();
@@ -963,6 +964,7 @@ class TaskDetailPage extends StatelessWidget {
                                     areAttachedFilesLoading:
                                         taskDetailController
                                             .areCommentFieldFilesLoading,
+                                    pickVideos: taskDetailController.pickVideos,
                                   ),
                                   comments: taskDetailController.comments,
                                   commentCount:

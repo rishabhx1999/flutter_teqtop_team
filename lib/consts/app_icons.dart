@@ -6,6 +6,7 @@ class AppIcons {
   static const String icBell = "assets/icons/ic_bell.png";
   static const String icPhotoCamera = "assets/icons/ic_photo_camera.png";
   static const String icImage = "assets/icons/ic_image.png";
+  static const String icVideo = "assets/icons/ic_video.png";
   static const String icDocument = "assets/icons/ic_document.png";
   static const String icMoreHorizontal = "assets/icons/ic_more_horizontal.png";
   static const String icLike = "assets/icons/ic_like.png";

@@ -58,8 +58,6 @@ class Validations {
     var enteredValue = value?.trim() ?? '';
     if (enteredValue.isEmpty) {
       return "message_enter_portal".tr;
-    } else if (!AppFormatters.validUrlExp.hasMatch(enteredValue)) {
-      return "message_enter_valid_portal".tr;
     } else {
       return null;
     }

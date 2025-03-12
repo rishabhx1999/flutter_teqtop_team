@@ -232,6 +232,7 @@ class DashboardPage extends StatelessWidget {
                                   .createPostAttachedDocuments,
                               areAttachedFilesLoading: dashboardController
                                   .areCreateEditPostFilesLoading,
+                              pickVideos: dashboardController.pickVideos,
                             )
                           : GestureDetector(
                               behavior: HitTestBehavior.opaque,
@@ -261,6 +262,7 @@ class DashboardPage extends StatelessWidget {
                     ),
                     Obx(
                       () => ListView.separated(
+                          addAutomaticKeepAlives: true,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -384,6 +386,8 @@ class DashboardPage extends StatelessWidget {
                                           areAttachedFilesLoading:
                                               dashboardController
                                                   .areCommentFieldFilesLoading,
+                                          pickVideos: dashboardController
+                                              .pickCommentVideos,
                                         ),
                                         commentCount: dashboardController
                                             .currentCommentsLength,

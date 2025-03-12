@@ -167,6 +167,7 @@ class LocalStrings extends Translations {
           'error': 'Error',
           'success': 'Success',
           'message_adding_content_in_between': 'Adding in between',
+          'message_copied_to_clipboard': 'Text copied to clipboard!',
           'message_enter_email': 'Please enter your email address',
           'message_enter_assign_hours': 'Please enter assign hours',
           'message_enter_folder_name': 'Please enter your folder name',

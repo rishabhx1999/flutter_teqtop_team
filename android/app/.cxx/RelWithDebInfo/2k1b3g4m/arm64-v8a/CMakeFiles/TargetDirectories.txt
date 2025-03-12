@@ -1,0 +1,2 @@
+/home/teqtop/Rishabh/Main/Flutter/teqtop_team/android/app/.cxx/RelWithDebInfo/2k1b3g4m/arm64-v8a/CMakeFiles/edit_cache.dir
+/home/teqtop/Rishabh/Main/Flutter/teqtop_team/android/app/.cxx/RelWithDebInfo/2k1b3g4m/arm64-v8a/CMakeFiles/rebuild_cache.dir

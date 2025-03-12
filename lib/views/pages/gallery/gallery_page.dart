@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:teqtop_team/controllers/gallery/gallery_controller.dart';
-import 'package:teqtop_team/utils/helpers.dart';
 
 
 class GalleryPage extends StatelessWidget {
@@ -45,9 +44,9 @@ class GalleryPage extends StatelessWidget {
             },
             builder: (context, index) {
               var urlImage = galleryController.images[index];
-              Helpers.printLog(
-                  description: "GALLERY_PAGE_BUILD_PHOTO_VIEW_GALLERY_BUILDER",
-                  message: "IMAGE = $urlImage");
+              // Helpers.printLog(
+              //     description: "GALLERY_PAGE_BUILD_PHOTO_VIEW_GALLERY_BUILDER",
+              //     message: "IMAGE = $urlImage");
 
               return PhotoViewGalleryPageOptions(
                   imageProvider: NetworkImage(urlImage));

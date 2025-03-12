@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:html/parser.dart' as html_parser;
 
 import 'package:get/get.dart';
-import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/consts/app_images.dart';
@@ -24,9 +24,6 @@ class ProjectDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.white));
-    const inputBorder = OutlineInputBorder(
-        borderRadius: BorderRadius.zero,
-        borderSide: BorderSide(color: Colors.transparent));
 
     return GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -180,8 +177,8 @@ class ProjectDetailPage extends StatelessWidget {
               PopupMenuButton(
                   padding: const EdgeInsets.only(right: 16),
                   menuPadding: EdgeInsets.zero,
-                  shape:
-                      const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero),
                   style: IconButton.styleFrom(
                       splashFactory: NoSplash.splashFactory),
                   icon: Image.asset(
@@ -456,27 +453,13 @@ class ProjectDetailPage extends StatelessWidget {
                                 : GestureDetector(
                                     behavior: HitTestBehavior.opaque,
                                     onTap: () {
-                                      if (projectDetailController
-                                          .accessDetailEditing.value) {
-                                        projectDetailController
-                                            .editAccessDetails();
-                                      } else {
-                                        projectDetailController
-                                            .onTapAccessDetailEdit();
-                                      }
+                                      Get.toNamed(
+                                          AppRoutes.routeEditAccessDetails);
                                     },
-                                    child: projectDetailController
-                                            .accessDetailEditing.value
-                                        ? Text(
-                                            'save'.tr,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium,
-                                          )
-                                        : Image.asset(
-                                            AppIcons.icEdit,
-                                            width: 20,
-                                          ),
+                                    child: Image.asset(
+                                      AppIcons.icEdit,
+                                      width: 20,
+                                    ),
                                   ),
                           ),
                         )
@@ -502,15 +485,7 @@ class ProjectDetailPage extends StatelessWidget {
                         )
                       : Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: projectDetailController
-                                  .accessDetailEditing.value
-                              ? HtmlEditor(
-                                  controller: projectDetailController
-                                      .accessDetailController,
-                                  callbacks: Callbacks(
-                                      onInit: projectDetailController
-                                          .accessDetailHtmlEditorOnInit),
-                                )
+                          child:
                               // TextField(
                               //         controller: projectDetailController
                               //             .accessDetailController,
@@ -543,21 +518,85 @@ class ProjectDetailPage extends StatelessWidget {
                               //         focusNode: projectDetailController
                               //             .accessDetailFocusNode,
                               //       )
-                              : Html(
-                                  data: projectDetailController
-                                                  .projectDetail.value !=
-                                              null &&
-                                          projectDetailController.projectDetail
-                                              .value!.accessDetail is String
-                                      ? projectDetailController
-                                          .projectDetail.value!.accessDetail
-                                      : "",
-                                  onLinkTap: (url, attributes, element) {
-                                    if (url != null) {
-                                      Helpers.openLink(url);
-                                    }
-                                  },
-                                ),
+                                  SelectableText(
+                                projectDetailController.projectDetail.value !=
+                                            null &&
+                                        projectDetailController.projectDetail.value!
+                                            .accessDetail is String
+                                    ? html_parser
+                                            .parse(projectDetailController
+                                                .projectDetail.value!.accessDetail)
+                                            .body
+                                            ?.children
+                                            .map((e) => e.text)
+                                            .join("\n") ??
+                                        ""
+                                    : "",
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                          //     Row(
+                          //   mainAxisSize: MainAxisSize.max,
+                          //   mainAxisAlignment: MainAxisAlignment.start,
+                          //   crossAxisAlignment: CrossAxisAlignment.start,
+                          //   children: [
+                          //     Expanded(
+                          //       child: Html(
+                          //         data: projectDetailController
+                          //                         .projectDetail.value !=
+                          //                     null &&
+                          //                 projectDetailController.projectDetail
+                          //                     .value!.accessDetail is String
+                          //             ? projectDetailController
+                          //                 .projectDetail.value!.accessDetail
+                          //             : "",
+                          //         onLinkTap: (url, attributes, element) {
+                          //           if (url != null) {
+                          //             Helpers.openLink(url);
+                          //           }
+                          //         },
+                          //         style: {
+                          //           "p": Style(fontSize: FontSize.medium),
+                          //         },
+                          //       ),
+                          //     ),
+                          //     const SizedBox(
+                          //       width: 12,
+                          //     ),
+                          //     Visibility(
+                          //       visible: projectDetailController
+                          //                   .projectDetail.value !=
+                          //               null &&
+                          //           projectDetailController.projectDetail.value!
+                          //               .accessDetail is String &&
+                          //           projectDetailController.projectDetail.value!
+                          //               .accessDetail.isNotEmpty,
+                          //       child: GestureDetector(
+                          //         behavior: HitTestBehavior.opaque,
+                          //         onTap: () {
+                          //           String plainText = html_parser
+                          //                   .parse(projectDetailController
+                          //                       .projectDetail
+                          //                       .value!
+                          //                       .accessDetail)
+                          //                   .body
+                          //                   ?.children
+                          //                   .map((e) => e.text)
+                          //                   .join("\n") ??
+                          //               "";
+                          //           Clipboard.setData(
+                          //               ClipboardData(text: plainText));
+                          //           Get.snackbar("success".tr,
+                          //               "message_copied_to_clipboard".tr);
+                          //         },
+                          //         child: const Icon(
+                          //           Icons.copy_rounded,
+                          //           color: Colors.black,
+                          //           size: 24,
+                          //         ),
+                          //       ),
+                          //     )
+                          //   ],
+                          // ),
                         )),
                   const SizedBox(
                     height: 16,

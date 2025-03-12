@@ -94,15 +94,13 @@ class ProjectCreateEditController extends GetxController {
         selectedProjectCategory.value!.name != "select_category".tr;
     showSelectProjectCategoryMessage.value = !isProjectCategorySelected;
 
-    bool isProposalSelected = selectedProposal.value != null &&
-        selectedProposal.value!.title != "select_proposal".tr;
-    showSelectProposalMessage.value = !isProposalSelected;
+    // bool isProposalSelected = selectedProposal.value != null &&
+    //     selectedProposal.value!.title != "select_proposal".tr;
+    // showSelectProposalMessage.value = !isProposalSelected;
 
     bool areTextFieldsFilled = formKey.currentState!.validate();
 
-    return isProjectCategorySelected &&
-        isProposalSelected &&
-        areTextFieldsFilled;
+    return isProjectCategorySelected && areTextFieldsFilled;
   }
 
   void initializeTextEditingControllers() {

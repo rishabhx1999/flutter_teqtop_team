@@ -327,8 +327,6 @@ class ProjectCreateEditPage extends StatelessWidget {
                             label: 'description',
                             maxLines: 4,
                             onChanged: (value) {},
-                            validator:
-                                Validations.checkProjectDescriptionValidations,
                             inputType: TextInputType.text,
                             textInputAction: TextInputAction.done,
                           ),
@@ -427,28 +425,28 @@ class ProjectCreateEditPage extends StatelessWidget {
                             },
                           ),
                   ),
-                  Obx(
-                    () => Visibility(
-                      visible: projectCreateEditController
-                          .showSelectProposalMessage.value,
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.only(top: 4, left: 14, right: 14),
-                        child: Text(
-                          "message_select_proposal".tr,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                  color: Colors.red,
-                                  fontSize:
-                                      AppConsts.commonFontSizeFactor * 12),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Obx(
+                  //   () => Visibility(
+                  //     visible: projectCreateEditController
+                  //         .showSelectProposalMessage.value,
+                  //     child: Padding(
+                  //       padding:
+                  //           const EdgeInsets.only(top: 4, left: 14, right: 14),
+                  //       child: Text(
+                  //         "message_select_proposal".tr,
+                  //         maxLines: 1,
+                  //         overflow: TextOverflow.ellipsis,
+                  //         style: Theme.of(context)
+                  //             .textTheme
+                  //             .bodySmall
+                  //             ?.copyWith(
+                  //                 color: Colors.red,
+                  //                 fontSize:
+                  //                     AppConsts.commonFontSizeFactor * 12),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                   const SizedBox(
                     height: 44,
                   ),

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:get/get.dart';
+
 import '../enum_values.dart';
 import 'data_row_attribute.dart';
 
@@ -52,6 +54,7 @@ class EmployeeModel {
   dynamic remarks;
   dynamic shift;
   bool? isEdit;
+  RxBool multiUse = false.obs;
 
   EmployeeModel({
     this.dtRowAttr,

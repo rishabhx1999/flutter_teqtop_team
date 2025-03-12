@@ -32,6 +32,7 @@ class CommonMultimediaContentCreateWidget extends StatelessWidget {
   final RxList<MediaContentModel> contentItems;
   final Function() clickImage;
   final Function() pickImages;
+  final Function() pickVideos;
   final Function() addText;
   final Function() pickFiles;
   final Function(MediaContentModel) removeContentItem;
@@ -94,7 +95,8 @@ class CommonMultimediaContentCreateWidget extends StatelessWidget {
       required this.removeAttachedImage,
       required this.removeAttachedDocument,
       this.expandEditor,
-      required this.areAttachedFilesLoading});
+      required this.areAttachedFilesLoading,
+      required this.pickVideos});
 
   @override
   Widget build(BuildContext context) {
@@ -286,7 +288,14 @@ class CommonMultimediaContentCreateWidget extends StatelessWidget {
                                 onChangeContent: htmlEditorOnChange),
                             htmlToolbarOptions: HtmlToolbarOptions(
                               defaultToolbarButtons: const [
-                                InsertButtons(picture: true)
+                                InsertButtons(
+                                    link: true,
+                                    picture: true,
+                                    audio: false,
+                                    video: false,
+                                    otherFile: false,
+                                    table: false,
+                                    hr: true)
                               ],
                               mediaLinkInsertInterceptor:
                                   (String url, InsertFileType type) async {
@@ -306,7 +315,14 @@ class CommonMultimediaContentCreateWidget extends StatelessWidget {
                                   onChangeContent: htmlEditorOnChange),
                               htmlToolbarOptions: HtmlToolbarOptions(
                                 defaultToolbarButtons: const [
-                                  InsertButtons(picture: true)
+                                  InsertButtons(
+                                      link: true,
+                                      picture: true,
+                                      audio: false,
+                                      video: false,
+                                      otherFile: false,
+                                      table: false,
+                                      hr: true)
                                 ],
                                 mediaLinkInsertInterceptor:
                                     (String url, InsertFileType type) async {
@@ -440,6 +456,10 @@ class CommonMultimediaContentCreateWidget extends StatelessWidget {
                                                                         .imgInitialUrl +
                                                                     attachedImages[
                                                                         index]));
+                                                        Get.snackbar(
+                                                            "success".tr,
+                                                            "message_copied_to_clipboard"
+                                                                .tr);
                                                       },
                                                       child: Container(
                                                         width: double.infinity,
@@ -586,6 +606,10 @@ class CommonMultimediaContentCreateWidget extends StatelessWidget {
                                                                         .imgInitialUrl +
                                                                     attachedDocuments[
                                                                         index]));
+                                                        Get.snackbar(
+                                                            "success".tr,
+                                                            "message_copied_to_clipboard"
+                                                                .tr);
                                                       },
                                                       child: Container(
                                                         width: double.infinity,
@@ -697,6 +721,25 @@ class CommonMultimediaContentCreateWidget extends StatelessWidget {
                                 child: Center(
                                   child: Image.asset(
                                     AppIcons.icImage,
+                                    width: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: pickVideos,
+                              child: Container(
+                                width: 26,
+                                height: 26,
+                                margin: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                    color: AppColors.colorE67E22
+                                        .withValues(alpha: 0.3),
+                                    shape: BoxShape.circle),
+                                child: Center(
+                                  child: Image.asset(
+                                    AppIcons.icVideo,
                                     width: 16,
                                   ),
                                 ),

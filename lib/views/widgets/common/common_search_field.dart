@@ -10,6 +10,7 @@ class CommonSearchField extends StatelessWidget {
   TextEditingController controller;
   final Function(String) onChanged;
   final String hint;
+  final FocusNode? focusNode;
   final RxBool? isShowTrailing;
   final Function()? onTapTrailing;
   final bool? isShowLeading;
@@ -26,12 +27,14 @@ class CommonSearchField extends StatelessWidget {
     this.onTapTrailing,
     this.isShowLeading,
     this.contentPadding,
+    this.focusNode,
   });
 
   @override
   Widget build(BuildContext context) {
     return Obx(
       () => TextField(
+        focusNode: focusNode,
         controller: controller,
         decoration: InputDecoration(
             fillColor: AppColors.colorD9D9D9.withValues(alpha: 0.2),

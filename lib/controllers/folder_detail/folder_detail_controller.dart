@@ -34,7 +34,6 @@ class FolderDetailController extends GetxController {
     super.onReady();
   }
 
-
   void initializeFilePicker() {
     _filePicker = FilePicker.platform;
   }
@@ -61,6 +60,7 @@ class FolderDetailController extends GetxController {
     String tappedImageString = files[itemIndex].file;
     int? imageIndex;
     imageIndex = images.indexOf(tappedImageString);
+    images = images.map((image) => AppConsts.imgInitialUrl + image).toList();
     Get.toNamed(AppRoutes.routeGallery, arguments: {
       AppConsts.keyImagesURLS: images,
       AppConsts.keyIndex: imageIndex,

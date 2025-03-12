@@ -129,6 +129,7 @@ class TaskCommentsBottomSheetContent extends StatelessWidget {
               Expanded(
                 child: Obx(
                   () => ListView.separated(
+                      addAutomaticKeepAlives: true,
                       controller: scrollController,
                       keyboardDismissBehavior:
                           ScrollViewKeyboardDismissBehavior.onDrag,

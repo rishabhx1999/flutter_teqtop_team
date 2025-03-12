@@ -10,7 +10,6 @@ import 'package:teqtop_team/controllers/task_detail/task_detail_controller.dart'
 import 'package:teqtop_team/model/employees_listing/employee_model.dart';
 import 'package:teqtop_team/model/task_create_edit/task_priority.dart';
 import 'package:teqtop_team/utils/helpers.dart';
-import 'package:http/http.dart' as http;
 
 import '../../config/app_routes.dart';
 import '../../consts/app_consts.dart';
@@ -68,7 +67,7 @@ class TaskCreateEditController extends GetxController {
   RxBool showSelectParticipantsMessage = false.obs;
   RxBool showSelectObserversMessage = false.obs;
   RxBool showAddDescriptionMessage = false.obs;
-  DateTime? selectedStartDate;
+  DateTime? selectedStartDate = DateTime.now();
   DateTime? selectedEndDate;
   RxBool isLoading = false.obs;
   RxBool fromTaskDetail = false.obs;
@@ -134,6 +133,8 @@ class TaskCreateEditController extends GetxController {
     nameController = TextEditingController();
     descriptionHtmlEditorController = HtmlEditorController();
     startDateController = TextEditingController();
+    startDateController.text =
+        DateFormat('MM/dd/yy').format(selectedStartDate!);
     endDateController = TextEditingController();
   }
 
@@ -149,12 +150,15 @@ class TaskCreateEditController extends GetxController {
       isLoading.value = true;
 
       try {
+        List<String> files = [
+          ...descriptionFieldImages,
+          ...descriptionFieldDocuments
+        ];
         Map<String, dynamic> requestBody = {
           'id': editTaskDetail.value!.id,
           'extras': convertToCustomJsonFormat(
               selectedParticipants, selectedObservers),
           'description': await descriptionHtmlEditorController.getText(),
-          'files': [...descriptionFieldImages, ...descriptionFieldDocuments],
           'deadline': selectedEndDate == null
               ? ''
               : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
@@ -167,7 +171,11 @@ class TaskCreateEditController extends GetxController {
           'observer': generateIdsString(selectedObservers),
           'participants': generateIdsString(selectedParticipants),
         };
-        var response = await PostRequests.editTask(requestBody);
+        Map<String, dynamic> requestBody2 = {};
+        if (files.isNotEmpty) {
+          requestBody2 = {'files': files};
+        }
+        var response = await PostRequests.editTask(requestBody, requestBody2);
         if (response != null) {
           if (response.status == "success") {
             Get.back();
@@ -306,25 +314,6 @@ class TaskCreateEditController extends GetxController {
     }
   }
 
-  Future<String?> uploadFile(String filePath, String? fileType) async {
-    var uploadMedia = await http.MultipartFile.fromPath('data_file', filePath);
-    Map<String, dynamic> requestBody = {
-      'token':
-          PreferenceManager.getPref(PreferenceManager.prefUserToken) as String?,
-      'extension': fileType ?? '',
-      'data_file': '(binary)',
-      '_comp': 'feed',
-      'format': 'application'
-    };
-    var response = await PostRequests.uploadFile(uploadMedia, requestBody);
-    if (response != null) {
-      return response.src;
-    } else {
-      Get.snackbar('error'.tr, 'message_server_error'.tr);
-    }
-    return null;
-  }
-
   Future<void> createTask() async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (areRequiredFieldsFilled()) {
@@ -386,23 +375,23 @@ class TaskCreateEditController extends GetxController {
             selectedResponsiblePerson.value!.name != "select_person".tr;
     showSelectResponsiblePersonMessage.value = !isResponsiblePersonSelected;
 
-    bool isPrioritySelected = selectedPriority.value != null &&
-        selectedPriority.value!.priorityText != "select_priority".tr;
-    showSelectPriorityMessage.value = !isPrioritySelected;
+    // bool isPrioritySelected = selectedPriority.value != null &&
+    //     selectedPriority.value!.priorityText != "select_priority".tr;
+    // showSelectPriorityMessage.value = !isPrioritySelected;
 
-    bool areParticipantsSelected = selectedParticipants.isNotEmpty;
-    showSelectParticipantsMessage.value = !areParticipantsSelected;
+    // bool areParticipantsSelected = selectedParticipants.isNotEmpty;
+    // showSelectParticipantsMessage.value = !areParticipantsSelected;
 
-    bool areObserversSelected = selectedObservers.isNotEmpty;
-    showSelectObserversMessage.value = !areObserversSelected;
+    // bool areObserversSelected = selectedObservers.isNotEmpty;
+    // showSelectObserversMessage.value = !areObserversSelected;
 
     bool areTextFieldsFilled = formKey.currentState!.validate();
 
     return isProjectSelected &&
         isResponsiblePersonSelected &&
-        isPrioritySelected &&
-        areParticipantsSelected &&
-        areObserversSelected &&
+        // isPrioritySelected &&
+        // areParticipantsSelected &&
+        // areObserversSelected &&
         areTextFieldsFilled;
   }
 
@@ -510,7 +499,7 @@ class TaskCreateEditController extends GetxController {
       var image = await _imagePicker.pickImage(source: ImageSource.camera);
       areDescriptionFieldFilesLoading.value = true;
       if (image != null) {
-        String? imageUrl = await uploadFile(image.path, null);
+        String? imageUrl = await Helpers.uploadFile(image.path, null);
         if (imageUrl != null && imageUrl.isNotEmpty) {
           descriptionFieldImages.add(imageUrl);
           descriptionFieldImages.refresh();
@@ -534,7 +523,7 @@ class TaskCreateEditController extends GetxController {
     if (images.isEmpty) return;
     areDescriptionFieldFilesLoading.value = true;
     for (var image in images) {
-      String? imageUrl = await uploadFile(image.path, null);
+      String? imageUrl = await Helpers.uploadFile(image.path, null);
       if (imageUrl != null && imageUrl.isNotEmpty) {
         descriptionFieldImages.add(imageUrl);
         descriptionFieldImages.refresh();
@@ -552,6 +541,21 @@ class TaskCreateEditController extends GetxController {
     // handlePostButtonEnable();
   }
 
+  void pickDescriptionVideos() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    var video = await _imagePicker.pickVideo(source: ImageSource.gallery);
+
+    areDescriptionFieldFilesLoading.value = true;
+    if (video != null) {
+      String? videoUrl = await Helpers.uploadFile(video.path, null);
+      if (videoUrl != null && videoUrl.isNotEmpty) {
+        descriptionFieldDocuments.add(videoUrl);
+        descriptionFieldDocuments.refresh();
+      }
+    }
+    areDescriptionFieldFilesLoading.value = false;
+  }
+
   void onChangeProject(var newProject) {
     selectedProject.value = newProject as ProjectModel;
   }
@@ -563,9 +567,14 @@ class TaskCreateEditController extends GetxController {
     areDescriptionFieldFilesLoading.value = true;
     for (var file in files.files) {
       if (file.path == null) continue;
-      String? fileUrl = await uploadFile(file.path!, file.extension);
+      String? fileUrl = await Helpers.uploadFile(file.path!, file.extension);
       if (fileUrl != null && fileUrl.isNotEmpty) {
-        descriptionFieldDocuments.add(fileUrl);
+        if (Helpers.isImage(fileUrl)) {
+          descriptionFieldImages.add(fileUrl);
+        } else {
+          descriptionFieldDocuments.add(fileUrl);
+        }
+        descriptionFieldImages.refresh();
         descriptionFieldDocuments.refresh();
       }
       var mediaContent = (file.extension != null &&

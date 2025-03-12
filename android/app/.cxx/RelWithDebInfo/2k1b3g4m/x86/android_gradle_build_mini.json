@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/home/teqtop/development/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/teqtop/Android/Sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/home/teqtop/Rishabh/Main/Flutter/teqtop_team/android/app/.cxx/RelWithDebInfo/2k1b3g4m/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/teqtop/Android/Sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/home/teqtop/Rishabh/Main/Flutter/teqtop_team/android/app/.cxx/RelWithDebInfo/2k1b3g4m/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

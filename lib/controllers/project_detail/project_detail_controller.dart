@@ -61,9 +61,9 @@ class ProjectDetailController extends GetxController {
   }
 
   void accessDetailHtmlEditorOnInit() {
-    Helpers.printLog(
-        description:
-            "PROJECT_DETAIL_CONTROLLER_ACCESS_DETAIL_HTML_EDITOR_ON_INIT");
+    // Helpers.printLog(
+    //     description:
+    //         "PROJECT_DETAIL_CONTROLLER_ACCESS_DETAIL_HTML_EDITOR_ON_INIT");
     if (projectDetail.value != null &&
         projectDetail.value!.accessDetail is String) {
       accessDetailController.insertHtml(projectDetail.value!.accessDetail);
@@ -128,10 +128,10 @@ class ProjectDetailController extends GetxController {
       isAccessDetailEditLoading.value = true;
 
       try {
-        Helpers.printLog(
-            description: "PROJECT_DETAIL_CONTROLLER",
-            message:
-                "ACCESS_DETAIL = ${await accessDetailController.getText()}");
+        // Helpers.printLog(
+        //     description: "PROJECT_DETAIL_CONTROLLER",
+        //     message:
+        //         "ACCESS_DETAIL = ${await accessDetailController.getText()}");
         Map<String, dynamic> requestBody = {
           'access_detail': await accessDetailController.getText(),
           'id': projectId
@@ -146,6 +146,7 @@ class ProjectDetailController extends GetxController {
             }
             accessDetailEditing.value = false;
             accessDetailController.clear();
+            Get.back();
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }

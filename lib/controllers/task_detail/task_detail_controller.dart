@@ -12,7 +12,6 @@ import 'package:teqtop_team/model/employees_listing/employee_model.dart';
 import 'package:teqtop_team/model/global_search/task_model.dart';
 import 'package:teqtop_team/model/media_content_model.dart';
 import 'package:teqtop_team/utils/helpers.dart';
-import 'package:http/http.dart' as http;
 
 import '../../config/app_routes.dart';
 import '../../consts/app_consts.dart';
@@ -23,6 +22,7 @@ import '../../utils/permission_handler.dart';
 import '../../utils/preference_manager.dart';
 import '../../views/bottom_sheets/task_comments_bottom_sheet.dart';
 import '../../views/dialogs/common/common_alert_dialog.dart';
+import '../../views/dialogs/employees_dialog.dart';
 import '../../views/widgets/common/common_multimedia_content_create_widget.dart';
 import '../global_search/global_search_controller.dart';
 
@@ -66,6 +66,14 @@ class TaskDetailController extends GetxController {
   bool shouldCommentsSheetScrollerJumpToPrevious = true;
   FocusNode wholePageFocus = FocusNode();
   Timer? commentFieldContentTimer;
+  double commentsListPreviousOffset = 0;
+  final TextEditingController employeesSearchTextController =
+      TextEditingController();
+  RxBool showEmployeesSearchFieldTrailing = false.obs;
+  late Worker employeesSearchTextChangeListenerWorker;
+  RxBool areEmployeesLoading = false.obs;
+  RxList<EmployeeModel?> employeesForMention = <EmployeeModel>[].obs;
+  FocusNode? searchEmployeesFieldFocusNode;
 
   @override
   void onInit() {
@@ -75,6 +83,8 @@ class TaskDetailController extends GetxController {
     addListenerToScrollController();
     initializeImagePicker();
     initializeFilePicker();
+    setupEmployeesSearchTextChangeListener();
+    getEmployeesForMention('');
 
     super.onInit();
   }
@@ -94,7 +104,116 @@ class TaskDetailController extends GetxController {
     if (commentFieldContentTimer != null) {
       commentFieldContentTimer!.cancel();
     }
+    employeesSearchTextChangeListenerWorker.dispose();
+    employeesSearchTextController.dispose();
     super.onClose();
+  }
+
+  void setupEmployeesSearchTextChangeListener() {
+    RxString searchText = ''.obs;
+    employeesSearchTextChangeListenerWorker = debounce(
+        searchText, (callback) => getEmployeesForMention(searchText.value));
+
+    employeesSearchTextController.addListener(() {
+      searchText.value = employeesSearchTextController.text.toString().trim();
+    });
+  }
+
+  void handleEmployeesSearchTextChange(String text) {
+    showEmployeesSearchFieldTrailing.value = text.isNotEmpty;
+  }
+
+  void handleClearEmployeesSearchField() {
+    employeesSearchTextController.clear();
+    showEmployeesSearchFieldTrailing.value = false;
+  }
+
+  void handleEmployeeOnTap(int? id) {
+    if (id == null) return;
+    var requiredEmployee = employeesForMention
+        .firstWhereOrNull((employee) => employee != null && employee.id == id);
+    if (requiredEmployee == null ||
+        requiredEmployee.name == null ||
+        requiredEmployee.name!.isEmpty) {
+      return;
+    }
+
+    requiredEmployee.multiUse.value = true;
+    showCreateCommentWidget.value = false;
+    commentFieldHtmlEditorContent.value = Helpers.mentionPersonInHTML(
+        commentFieldHtmlEditorContent.value,
+        requiredEmployee.name!,
+        requiredEmployee.id.toString());
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      showCreateCommentWidget.value = true;
+      requiredEmployee.multiUse.value = false;
+      Get.back();
+    });
+  }
+
+  Future<void> getEmployeesForMention(String searchText) async {
+    Map<String, String> requestBody = {
+      // 'draw': '20',
+      // 'columns%5B0%5D%5Bdata%5D': 'DT_RowIndex',
+      // 'columns%5B0%5D%5Bname%5D': '',
+      // 'columns%5B0%5D%5Bsearchable%5D': 'true',
+      // 'columns%5B0%5D%5Borderable%5D': 'true',
+      // 'columns%5B0%5D%5Bsearch%5D%5Bvalue%5D': '',
+      // 'columns%5B0%5D%5Bsearch%5D%5Bregex%5D': 'false',
+      // 'columns%5B1%5D%5Bdata%5D': 'employee_id',
+      // 'columns%5B1%5D%5Bname%5D': '',
+      // 'columns%5B1%5D%5Bsearchable%5D': 'true',
+      // 'columns%5B1%5D%5Borderable%5D': 'true',
+      // 'columns%5B1%5D%5Bsearch%5D%5Bvalue%5D': '',
+      // 'columns%5B1%5D%5Bsearch%5D%5Bregex%5D': 'false',
+      // 'columns%5B2%5D%5Bdata%5D': 'name',
+      // 'columns%5B2%5D%5Bname%5D': 'name',
+      // 'columns%5B2%5D%5Bsearchable%5D': 'true',
+      // 'columns%5B2%5D%5Borderable%5D': 'true',
+      // 'columns%5B2%5D%5Bsearch%5D%5Bvalue%5D': '',
+      // 'columns%5B2%5D%5Bsearch%5D%5Bregex%5D': 'false',
+      // 'columns%5B3%5D%5Bdata%5D': 'registered',
+      // 'columns%5B3%5D%5Bname%5D': 'registered',
+      // 'columns%5B3%5D%5Borderable%5D': 'true',
+      // 'columns%5B3%5D%5Bsearch%5D%5Bvalue%5D': '',
+      // 'columns%5B3%5D%5Bsearch%5D%5Bregex%5D': 'false',
+      // 'columns%5B4%5D%5Bdata%5D': 'roles',
+      // 'columns%5B4%5D%5Bname%5D': '',
+      // 'columns%5B4%5D%5Bsearchable%5D': 'true',
+      // 'columns%5B4%5D%5Borderable%5D': 'true',
+      // 'columns%5B4%5D%5Bsearch%5D%5Bvalue%5D': '',
+      // 'columns%5B4%5D%5Bsearch%5D%5Bregex%5D': 'false',
+      // 'columns%5B5%5D%5Bdata%5D': 'status',
+      // 'columns%5B5%5D%5Bname%5D': '',
+      // 'columns%5B5%5D%5Bsearchable%5D': 'true',
+      // 'columns%5B5%5D%5Borderable%5D': 'true',
+      // 'columns%5B5%5D%5Bsearch%5D%5Bvalue%5D': '',
+      // 'columns%5B5%5D%5Bsearch%5D%5Bregex%5D': 'false',
+      // 'columns%5B6%5D%5Bdata%5D': 'action',
+      // 'columns%5B6%5D%5Bname%5D': '',
+      // 'columns%5B6%5D%5Bsearchable%5D': 'false',
+      // 'columns%5B6%5D%5Borderable%5D': 'false',
+      // 'columns%5B6%5D%5Bsearch%5D%5Bvalue%5D': '',
+      // 'columns%5B6%5D%5Bsearch%5D%5Bregex%5D': 'false',
+      'order%5B0%5D%5Bcolumn%5D': '0',
+      'order%5B0%5D%5Bdir%5D': 'DESC',
+      'start': '0',
+      'length': '-1',
+      'search%5Bvalue%5D': searchText,
+      'search%5Bregex%5D': 'false'
+    };
+    areEmployeesLoading.value = true;
+    try {
+      var response = await GetRequests.getEmployees(requestBody);
+      if (response != null) {
+        if (response.data != null) {
+          employeesForMention.assignAll(response.data!.toList());
+        }
+      }
+    } finally {
+      areEmployeesLoading.value = false;
+    }
   }
 
   void commentFieldHtmlEditorOnInit() {
@@ -109,6 +228,33 @@ class TaskDetailController extends GetxController {
   void commentFieldHtmlEditorControllerOnChange(String? value) {
     if (value != null) {
       commentFieldHtmlEditorContent.value = value;
+      RegExp standaloneAtRegex = RegExp(
+        r'(?<!<span[^>]*?>)@(?!(?:[^<]*?>))',
+        multiLine: true,
+      );
+
+      if (value.contains("@#")) {
+        if (searchEmployeesFieldFocusNode != null) {
+          searchEmployeesFieldFocusNode!.dispose();
+          searchEmployeesFieldFocusNode = null;
+        }
+        searchEmployeesFieldFocusNode = FocusNode();
+        employeesSearchTextController.clear();
+        EmployeesDialog.show(
+            searchController: employeesSearchTextController,
+            handleSearchTextChange: handleEmployeesSearchTextChange,
+            showSearchFieldTrailing: showEmployeesSearchFieldTrailing,
+            onTapSearchFieldTrailing: handleClearEmployeesSearchField,
+            employees: employeesForMention,
+            areEmployeesLoading: areEmployeesLoading,
+            employeeOnTap: handleEmployeeOnTap,
+            searchFieldFocusNode: searchEmployeesFieldFocusNode!);
+        searchEmployeesFieldFocusNode!.requestFocus();
+      } else {
+        if (Get.isDialogOpen ?? false) {
+          Get.back();
+        }
+      }
     }
   }
 
@@ -164,7 +310,7 @@ class TaskDetailController extends GetxController {
       var image = await _imagePicker.pickImage(source: ImageSource.camera);
       areCommentFieldFilesLoading.value = true;
       if (image != null) {
-        String? imageUrl = await uploadFile(image.path, null);
+        String? imageUrl = await Helpers.uploadFile(image.path, null);
         if (imageUrl != null && imageUrl.isNotEmpty) {
           commentFieldAttachedImages.add(imageUrl);
           commentFieldAttachedImages.refresh();
@@ -191,7 +337,7 @@ class TaskDetailController extends GetxController {
     if (images.isNotEmpty) {
       areCommentFieldFilesLoading.value = true;
       for (var image in images) {
-        String? imageUrl = await uploadFile(image.path, null);
+        String? imageUrl = await Helpers.uploadFile(image.path, null);
         if (imageUrl != null && imageUrl.isNotEmpty) {
           commentFieldAttachedImages.add(imageUrl);
           commentFieldAttachedImages.refresh();
@@ -212,6 +358,20 @@ class TaskDetailController extends GetxController {
     // handlePostButtonEnable();
   }
 
+  void pickVideos() async {
+    var video = await _imagePicker.pickVideo(source: ImageSource.gallery);
+
+    areCommentFieldFilesLoading.value = true;
+    if (video != null) {
+      String? videoUrl = await Helpers.uploadFile(video.path, null);
+      if (videoUrl != null && videoUrl.isNotEmpty) {
+        commentFieldAttachedDocuments.add(videoUrl);
+        commentFieldAttachedDocuments.refresh();
+      }
+    }
+    areCommentFieldFilesLoading.value = false;
+  }
+
   void pickDocuments() async {
     var files = await _filePicker.pickFiles(allowMultiple: true);
     if (files == null) return;
@@ -219,9 +379,14 @@ class TaskDetailController extends GetxController {
     areCommentFieldFilesLoading.value = true;
     for (var file in files.files) {
       if (file.path == null) continue;
-      String? fileUrl = await uploadFile(file.path!, file.extension);
+      String? fileUrl = await Helpers.uploadFile(file.path!, file.extension);
       if (fileUrl != null && fileUrl.isNotEmpty) {
-        commentFieldAttachedDocuments.add(fileUrl);
+        if (Helpers.isImage(fileUrl)) {
+          commentFieldAttachedImages.add(fileUrl);
+        } else {
+          commentFieldAttachedDocuments.add(fileUrl);
+        }
+        commentFieldAttachedImages.refresh();
         commentFieldAttachedDocuments.refresh();
       }
       var mediaContent = (file.extension != null &&
@@ -275,6 +440,8 @@ class TaskDetailController extends GetxController {
             if (response.task!.description != null) {
               response.task!.description =
                   Helpers.updateHtmlAttributes(response.task!.description!);
+              response.task!.description =
+                  Helpers.updateImgStyles(response.task!.description!);
             }
             if (response.task!.files != null &&
                 response.task!.files!.isNotEmpty) {
@@ -329,7 +496,6 @@ class TaskDetailController extends GetxController {
   }
 
   Future<void> getComments() async {
-    double? previousOffset;
     int commentsPerPage = 10;
     int maxPage = (commentsLength.value / commentsPerPage).ceil();
     int commentsPage = (comments.length / commentsPerPage).ceil() + 1;
@@ -342,8 +508,9 @@ class TaskDetailController extends GetxController {
 
     if (taskId != null &&
         (commentsPage <= maxPage || commentsRefreshNeeded == true)) {
-      if (commentsSheetScrollController.hasClients) {
-        previousOffset = commentsSheetScrollController.offset;
+      if (commentsSheetScrollController.hasClients &&
+          commentsListPreviousOffset == 0) {
+        commentsListPreviousOffset = commentsSheetScrollController.offset;
       }
       Map<String, dynamic> requestBody = {
         'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
@@ -394,10 +561,12 @@ class TaskDetailController extends GetxController {
             // for (var comment in newComments) {
             //   comment.editController = TextEditingController();
             // }
-            if (previousOffset != null &&
+            if (commentsListPreviousOffset != 0 &&
                 shouldCommentsSheetScrollerJumpToPrevious == true) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                commentsSheetScrollController.jumpTo(previousOffset!);
+                commentsSheetScrollController
+                    .jumpTo(commentsListPreviousOffset);
+                commentsListPreviousOffset = 0;
               });
             }
 
@@ -588,25 +757,6 @@ class TaskDetailController extends GetxController {
     }
   }
 
-  Future<String?> uploadFile(String filePath, String? fileType) async {
-    var uploadMedia = await http.MultipartFile.fromPath('data_file', filePath);
-    Map<String, dynamic> requestBody = {
-      'token':
-          PreferenceManager.getPref(PreferenceManager.prefUserToken) as String?,
-      'extension': fileType ?? '',
-      'data_file': '(binary)',
-      '_comp': 'feed',
-      'format': 'application'
-    };
-    var response = await PostRequests.uploadFile(uploadMedia, requestBody);
-    if (response != null) {
-      return response.src;
-    } else {
-      Get.snackbar('error'.tr, 'message_server_error'.tr);
-    }
-    return null;
-  }
-
   Future<void> getEmployees() async {
     Map<String, String> requestBody = {
       // 'draw': '20',
@@ -777,8 +927,8 @@ class TaskDetailController extends GetxController {
         commentFieldHtmlEditorContent.value == "<p></p>" &&
         commentFieldAttachedImages.isEmpty &&
         commentFieldAttachedDocuments.isEmpty) {
-      Helpers.printLog(
-          description: "TASK_DETAIL_CONTROLLER_HANDLE_COMMENT_ON_EDIT");
+      // Helpers.printLog(
+      //     description: "TASK_DETAIL_CONTROLLER_HANDLE_COMMENT_ON_EDIT");
       showCreateCommentWidget.value = false;
       var editComment = comments.firstWhereOrNull(
           (comment) => comment != null && comment.id == commentId);
@@ -807,9 +957,9 @@ class TaskDetailController extends GetxController {
               editComment.files != null &&
               editComment.files.isNotEmpty) {
             var decode = json.decode(editComment.files);
-            Helpers.printLog(
-                description: "TASK_DETAIL_CONTROLLER_HANDLE_COMMENT_ON_EDIT",
-                message: "EXISTING_COMMENT_FILES = ${decode.toString()}");
+            // Helpers.printLog(
+            //     description: "TASK_DETAIL_CONTROLLER_HANDLE_COMMENT_ON_EDIT",
+            //     message: "EXISTING_COMMENT_FILES = ${decode.toString()}");
             if (decode != null) {
               var files = List<String>.from(decode);
               for (var file in files) {
@@ -1051,6 +1201,7 @@ class TaskDetailController extends GetxController {
           removeAttachedImage: removeCommentFieldAttachedImage,
           removeAttachedDocument: removeCommentFieldAttachedDocument,
           areAttachedFilesLoading: areCommentFieldFilesLoading,
+          pickVideos: pickVideos,
         ),
         comments: comments,
         commentCount: commentsLength,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:get/get.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/config/app_route_observer.dart';
@@ -9,12 +11,14 @@ import 'package:teqtop_team/config/app_theme.dart';
 import 'package:teqtop_team/config/local_strings.dart';
 import 'package:teqtop_team/config/size_config.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
+import 'package:teqtop_team/utils/helpers.dart';
 import 'package:teqtop_team/utils/preference_manager.dart';
 import 'package:teqtop_team/views/pages/assign_hours_listing/assign_hours_listing_page.dart';
 import 'package:teqtop_team/views/pages/create_edit_employee_assigned_projects_hours/create_edit_employee_assigned_projects_hours_page.dart';
 import 'package:teqtop_team/views/pages/daily_reports_listing/daily_reports_listing_page.dart';
 import 'package:teqtop_team/views/pages/dashboard/dashboard_page.dart';
 import 'package:teqtop_team/views/pages/drive_detail/drive_detail_page.dart';
+import 'package:teqtop_team/views/pages/edit_access_details/edit_access_details_page.dart';
 import 'package:teqtop_team/views/pages/edit_employee_information/edit_employee_information_page.dart';
 import 'package:teqtop_team/views/pages/edit_profile/edit_profile_page.dart';
 import 'package:teqtop_team/views/pages/employee_assigned_projects_hours/employee_assigned_projects_hours_page.dart';
@@ -57,6 +61,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     FlutterNativeSplash.remove();
+    Helpers.printLog(
+        description: "MAIN_FUNCTION",
+        message: Helpers.modifyHtmlWithClass(
+            "<p>abc <strong>Browse <span>Categories</span></strong></p>"));
 
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
@@ -68,6 +76,12 @@ class MyApp extends StatelessWidget {
               selectionHandleColor: AppColors.kPrimaryColor,
             ),
             child: GetMaterialApp(
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                FlutterQuillLocalizations.delegate,
+              ],
               translations: LocalStrings(),
               locale: const Locale('en', 'US'),
               debugShowCheckedModeBanner: false,
@@ -175,6 +189,10 @@ class MyApp extends StatelessWidget {
                 GetPage(
                   name: AppRoutes.routeGallery,
                   page: () => GalleryPage(),
+                ),
+                GetPage(
+                  name: AppRoutes.routeEditAccessDetails,
+                  page: () => EditAccessDetailsPage(),
                 ),
               ],
               navigatorObservers: [AppRouteObserver()],

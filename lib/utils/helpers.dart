@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:html/dom.dart' as html_dom;
 import 'package:html/parser.dart';
-import 'package:html/parser.dart' as htmlParser;
-import 'package:image_picker/image_picker.dart';
 import 'package:open_file/open_file.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'dart:typed_data' as typed_data;
@@ -16,6 +16,7 @@ import 'package:html/parser.dart' as html_parser;
 import 'package:http/http.dart' as http;
 import 'package:teqtop_team/utils/preference_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:video_compress/video_compress.dart';
 
 import '../model/media_content_model.dart';
 import '../network/post_requests.dart';
@@ -88,13 +89,29 @@ class Helpers {
     return imageUrls;
   }
 
+  static bool isMedia(String file) {
+    return isImage(file) || isVideo(file);
+  }
+
   static bool isImage(String file) {
-    return (file.endsWith('.jpg') ||
+    return file.endsWith('.jpg') ||
         file.endsWith('.jpeg') ||
         file.endsWith('.png') ||
         file.endsWith('.gif') ||
         file.endsWith('.bmp') ||
-        file.endsWith('.svg'));
+        file.endsWith('.svg') ||
+        file.endsWith('.heic') ||
+        file.endsWith('.heif');
+  }
+
+  static bool isVideo(String file) {
+    return file.endsWith('.mp4') ||
+        file.endsWith('.mov') ||
+        file.endsWith('.avi') ||
+        file.endsWith('.mkv') ||
+        file.endsWith('.flv') ||
+        file.endsWith('.wmv') ||
+        file.endsWith('.webm');
   }
 
   static String capitalizeFirstLetter(String text) {
@@ -196,6 +213,42 @@ class Helpers {
     return lines.join('\n');
   }
 
+  static String updateImgStyles(String htmlString) {
+    var document = html_parser.parse(htmlString);
+
+    for (var img in document.getElementsByTagName('img')) {
+      img.attributes.remove('style');
+
+      img.attributes['style'] = 'max-width: 100%;';
+    }
+
+    return document.body?.innerHtml ?? htmlString;
+  }
+
+  static void applyClassToPureTextElements(
+      html_dom.Element element, String className) {
+    bool isPureText =
+        element.children.isEmpty && element.text.trim().isNotEmpty;
+
+    if (isPureText) {
+      element.classes.add(className);
+    } else {
+      for (var child in element.children) {
+        applyClassToPureTextElements(child, className);
+      }
+    }
+  }
+
+  static String modifyHtmlWithClass(String htmlContent) {
+    html_dom.Document document = html_parser.parse(htmlContent);
+
+    for (var element in document.body?.children ?? []) {
+      applyClassToPureTextElements(element, "selectable-copyable");
+    }
+
+    return document.body?.innerHtml ?? '';
+  }
+
   static List<String> extractFilesURLs(String input) {
     if (input.startsWith('[') && input.endsWith(']')) {
       return input
@@ -261,8 +314,26 @@ class Helpers {
     }
   }
 
+  static String addUserSelectToTextElements(String htmlString) {
+    // Parse the HTML string into a document
+    html_dom.Document document = html_parser.parse(htmlString);
+
+    // Find all elements
+    document.body?.querySelectorAll('*').forEach((element) {
+      // Check if the element contains visible text
+      if (element.nodes.any(
+          (node) => node is html_dom.Text && node.text.trim().isNotEmpty)) {
+        element.attributes['style'] =
+            '${element.attributes['style'] ?? ''} user-select: text;';
+      }
+    });
+
+    // Return the modified HTML as a string
+    return document.body!.innerHtml;
+  }
+
   static String updateHtmlAttributes(String htmlContent) {
-    html_dom.Document document = htmlParser.parse(htmlContent);
+    html_dom.Document document = html_parser.parse(htmlContent);
 
     document.querySelectorAll('img').forEach((element) {
       String? src = element.attributes['src'];
@@ -431,7 +502,19 @@ class Helpers {
   }
 
   static Future<String?> uploadFile(String filePath, String? fileType) async {
-    var uploadMedia = await http.MultipartFile.fromPath('data_file', filePath);
+    // printLog(description: "HELPERS_UPLOAD_FILE_STARTED");
+    File file = File(filePath);
+
+    File finalFile = File(filePath);
+
+    if (isImage(filePath)) {
+      finalFile = await compressImageIfNeeded(file);
+    } else if (isVideo(filePath)) {
+      finalFile = await compressVideoIfNeeded(file);
+    }
+
+    var uploadMedia =
+        await http.MultipartFile.fromPath('data_file', finalFile.path);
     Map<String, dynamic> requestBody = {
       'token':
           PreferenceManager.getPref(PreferenceManager.prefUserToken) as String?,
@@ -440,6 +523,7 @@ class Helpers {
       '_comp': 'feed',
       'format': 'application'
     };
+
     var response = await PostRequests.uploadFile(uploadMedia, requestBody);
     if (response != null) {
       return response.src;
@@ -447,6 +531,111 @@ class Helpers {
       Get.snackbar('error'.tr, 'message_server_error'.tr);
     }
     return null;
+  }
+
+  static String mentionPersonInHTML(String input, String name, String id) {
+    String replacement =
+        '<span class="dx-mention" spellcheck="false" data-marker="@" data-mention-value="$name" data-id="$id"><span contenteditable="false"><span>@</span>$name</span></span>&nbsp;';
+
+    int lastIndex = input.lastIndexOf('@#');
+    if (lastIndex == -1) return input;
+
+    return input.substring(0, lastIndex) +
+        replacement +
+        input.substring(lastIndex + 2);
+  }
+
+  static String cleanMentions(String htmlContent) {
+    RegExp mentionRegex = RegExp(
+        r'(<span class="dx-mention"[^>]*?>.*?<\/span>)([^<]*)',
+        caseSensitive: false,
+        dotAll: true);
+
+    StringBuffer cleanedHtml = StringBuffer();
+    int lastMatchEnd = 0;
+
+    mentionRegex.allMatches(htmlContent).forEach((match) {
+      String mention = match.group(1)!; // Properly formatted mention
+      String extraText =
+          match.group(2)!.trim(); // Extra text that shouldn't be here
+
+      // Append everything before the match
+      cleanedHtml.write(htmlContent.substring(lastMatchEnd, match.start));
+
+      // Append mention first
+      cleanedHtml.write(mention);
+
+      // Move extra text before or after mentions
+      if (extraText.isNotEmpty) {
+        cleanedHtml.write(" " + extraText);
+      }
+
+      lastMatchEnd = match.end;
+    });
+
+    // Append any remaining part of the content
+    cleanedHtml.write(htmlContent.substring(lastMatchEnd));
+
+    return cleanedHtml.toString();
+  }
+
+  static Future<File> compressImageIfNeeded(File file) async {
+    int maxSize = 512 * 1024;
+
+    if (file.lengthSync() > maxSize) {
+      // printLog(
+      //     description: "HELPERS_COMPRESS_IF_NEEDED",
+      //     message: "FILE_SIZE = ${file.lengthSync()}");
+      file = await compressImage(file);
+    }
+    return file;
+  }
+
+  static Future<File> compressVideoIfNeeded(File file) async {
+    int maxSize = 1024 * 1024;
+    int maxSize2 = 5 * 1024 * 1024;
+
+    if (file.lengthSync() > maxSize2) {
+      // printLog(
+      //     description: "HELPERS_COMPRESS_IF_NEEDED",
+      //     message: "FILE_SIZE = ${file.lengthSync()}");
+      file = await compressVideo(file, videoQuality: VideoQuality.LowQuality);
+    }
+    if (file.lengthSync() > maxSize) {
+      file = await compressVideo(file);
+    }
+    return file;
+  }
+
+  static Future<File> compressVideo(File file,
+      {VideoQuality videoQuality = VideoQuality.MediumQuality}) async {
+    try {
+      final MediaInfo? compressedVideo = await VideoCompress.compressVideo(
+        file.path,
+        quality: videoQuality,
+        deleteOrigin: false,
+      );
+
+      return compressedVideo?.file ?? file;
+    } catch (e) {
+      printLog(
+          description: "HELPERS_COMPRESS_VIDEO",
+          message: "ERROR COMPRESSING VIDEO: $e");
+      return file;
+    }
+  }
+
+  static Future<File> compressImage(File file) async {
+    final dir = await getTemporaryDirectory();
+    final targetPath = join(dir.path, "compressed_${basename(file.path)}");
+
+    XFile? compressedXFile = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      targetPath,
+      quality: 50,
+    );
+
+    return File(compressedXFile?.path ?? file.path);
   }
 
   static Future<String> convertMultimediaContentToHTML(

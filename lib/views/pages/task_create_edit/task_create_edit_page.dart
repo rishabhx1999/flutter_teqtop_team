@@ -608,7 +608,8 @@ class TaskCreateEditPage extends StatelessWidget {
                                     decoration: BoxDecoration(
                                         color: AppColors.kPrimaryColor,
                                         borderRadius: BorderRadius.circular(8)),
-                                    padding: const EdgeInsets.only(left: 8, right: 4),
+                                    padding: const EdgeInsets.only(
+                                        left: 8, right: 4),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       mainAxisAlignment:
@@ -797,7 +798,8 @@ class TaskCreateEditPage extends StatelessWidget {
                                     decoration: BoxDecoration(
                                         color: AppColors.kPrimaryColor,
                                         borderRadius: BorderRadius.circular(8)),
-                                    padding: const EdgeInsets.only(left: 8, right: 4),
+                                    padding: const EdgeInsets.only(
+                                        left: 8, right: 4),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       mainAxisAlignment:
@@ -877,10 +879,10 @@ class TaskCreateEditPage extends StatelessWidget {
                                     label: "start_date",
                                     borderWidth: 0,
                                     inputType: TextInputType.datetime,
-                                    validator: taskCreateEditController
-                                            .fromTaskDetail.value
-                                        ? null
-                                        : Validations.checkStartDateValidations,
+                                    // validator: taskCreateEditController
+                                    //         .fromTaskDetail.value
+                                    //     ? null
+                                    //     : Validations.checkStartDateValidations,
                                     textInputAction: TextInputAction.done,
                                     fillColor: AppColors.colorF9F9F9,
                                     borderColor: Colors.transparent,
@@ -920,8 +922,8 @@ class TaskCreateEditPage extends StatelessWidget {
                                   label: "end_date",
                                   borderWidth: 0,
                                   inputType: TextInputType.datetime,
-                                  validator:
-                                      Validations.checkEndDateValidations,
+                                  // validator:
+                                  //     Validations.checkEndDateValidations,
                                   textInputAction: TextInputAction.done,
                                   fillColor: AppColors.colorF9F9F9,
                                   borderColor: Colors.transparent,
@@ -1019,7 +1021,10 @@ class TaskCreateEditPage extends StatelessWidget {
                                 .removeDescriptionFieldImage,
                             removeAttachedDocument: taskCreateEditController
                                 .removeDescriptionFieldDocument,
-                            areAttachedFilesLoading: taskCreateEditController.areDescriptionFieldFilesLoading,
+                            areAttachedFilesLoading: taskCreateEditController
+                                .areDescriptionFieldFilesLoading,
+                            pickVideos:
+                                taskCreateEditController.pickDescriptionVideos,
                           ),
                     // Container(
                     //     padding: const EdgeInsets.only(top: 16),
