@@ -433,61 +433,65 @@ class TaskDetailController extends GetxController {
     if (taskId != null) {
       isLoading.value = true;
       try {
-        Map<String, String> requestBody = {};
-        var response = await GetRequests.getTaskDetail(taskId!, requestBody);
-        if (response != null) {
-          if (response.task != null) {
-            if (response.task!.description != null) {
-              response.task!.description =
-                  Helpers.updateHtmlAttributes(response.task!.description!);
-              response.task!.description =
-                  Helpers.updateImgStyles(response.task!.description!);
-            }
-            if (response.task!.files != null &&
-                response.task!.files!.isNotEmpty) {
-              var decode = json.decode(response.task!.files!);
-              if (decode != null) {
-                var files = List<String>.from(decode);
-                for (var file in files) {
-                  if (Helpers.isImage(file)) {
-                    taskImages.add(file);
-                  } else {
-                    taskDocuments.add(FileModel(file: file));
+        if (await Helpers.isInternetWorking()) {
+          Map<String, String> requestBody = {};
+          var response = await GetRequests.getTaskDetail(taskId!, requestBody);
+          if (response != null) {
+            if (response.task != null) {
+              if (response.task!.description != null) {
+                response.task!.description =
+                    Helpers.updateHtmlAttributes(response.task!.description!);
+                response.task!.description =
+                    Helpers.updateImgStyles(response.task!.description!);
+              }
+              if (response.task!.files != null &&
+                  response.task!.files!.isNotEmpty) {
+                var decode = json.decode(response.task!.files!);
+                if (decode != null) {
+                  var files = List<String>.from(decode);
+                  for (var file in files) {
+                    if (Helpers.isImage(file)) {
+                      taskImages.add(file);
+                    } else {
+                      taskDocuments.add(FileModel(file: file));
+                    }
                   }
                 }
               }
+              taskDetail.value = response.task;
+              // if (html != null && html.isNotEmpty) {
+              //   var items = await Helpers.convertHTMLToMultimediaContent(html);
+              //   descriptionItems.assignAll(items);
+              //   for (var item in descriptionItems) {
+              //     if (item.imageString != null && item.imageString!.isNotEmpty) {
+              //       // Helpers.printLog(
+              //       //     description: "TASK_DETAIL_CONTROLLER_GET_TASK_DETAIL",
+              //       //     message: "IMAGE_STRING = ${item.imageString}");
+              //       if (Helpers.isBase64DataUrl(item.imageString!)) {
+              //         item.downloadedImage =
+              //             await Helpers.convertDataUrlToFile(item.imageString!);
+              //       } else {
+              //         item.downloadedImage = await Helpers.downloadFile(
+              //             AppConsts.imgInitialUrl + item.imageString!,
+              //             item.imageString!.split("/").last);
+              //       }
+              //     }
+              //     // Helpers.printLog(
+              //     //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
+              //     //     message: "ITEM = ${item.toString()}");
+              //   }
+              // }
+              getEmployees();
+              commentsLength.value = taskDetail.value!.commentsCount ?? 0;
+              openComments();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
             }
-            taskDetail.value = response.task;
-            // if (html != null && html.isNotEmpty) {
-            //   var items = await Helpers.convertHTMLToMultimediaContent(html);
-            //   descriptionItems.assignAll(items);
-            //   for (var item in descriptionItems) {
-            //     if (item.imageString != null && item.imageString!.isNotEmpty) {
-            //       // Helpers.printLog(
-            //       //     description: "TASK_DETAIL_CONTROLLER_GET_TASK_DETAIL",
-            //       //     message: "IMAGE_STRING = ${item.imageString}");
-            //       if (Helpers.isBase64DataUrl(item.imageString!)) {
-            //         item.downloadedImage =
-            //             await Helpers.convertDataUrlToFile(item.imageString!);
-            //       } else {
-            //         item.downloadedImage = await Helpers.downloadFile(
-            //             AppConsts.imgInitialUrl + item.imageString!,
-            //             item.imageString!.split("/").last);
-            //       }
-            //     }
-            //     // Helpers.printLog(
-            //     //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
-            //     //     message: "ITEM = ${item.toString()}");
-            //   }
-            // }
-            getEmployees();
-            commentsLength.value = taskDetail.value!.commentsCount ?? 0;
-            openComments();
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isLoading.value = false;
@@ -522,60 +526,65 @@ class TaskDetailController extends GetxController {
 
       areCommentsLoading.value = true;
       try {
-        var response = await PostRequests.getTaskComments(requestBody);
-        if (response != null) {
-          if (response.comments != null) {
-            Set<int?> existingCommentIds = comments.map((c) => c?.id).toSet();
+        if (await Helpers.isInternetWorking()) {
+          var response = await PostRequests.getTaskComments(requestBody);
+          if (response != null) {
+            if (response.comments != null) {
+              Set<int?> existingCommentIds = comments.map((c) => c?.id).toSet();
 
-            List newComments = response.comments!
-                .where((c) => !existingCommentIds.contains(c?.id))
-                .toList();
+              List newComments = response.comments!
+                  .where((c) => !existingCommentIds.contains(c?.id))
+                  .toList();
 
-            comments.addAll(newComments as Iterable<CommentList?>);
-            // for (var comment in comments) {
-            //   if (comment != null && comment.commentItems.isEmpty) {
-            //     String? html = comment.comment;
-            //     if (html != null && html.isNotEmpty) {
-            //       var items =
-            //           await Helpers.convertHTMLToMultimediaContent(html);
-            //       comment.commentItems.assignAll(items);
-            //       for (var item in comment.commentItems) {
-            //         if (item.imageString != null &&
-            //             item.imageString!.isNotEmpty) {
-            //           item.downloadedImage = await Helpers.downloadFile(
-            //               AppConsts.imgInitialUrl + item.imageString!,
-            //               item.imageString!.split("/").last);
-            //         }
-            //         // Helpers.printLog(
-            //         //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
-            //         //     message: "ITEM = ${item.toString()}");
-            //       }
-            //     }
-            //   }
-            // }
+              comments.addAll(newComments as Iterable<CommentList?>);
+              // for (var comment in comments) {
+              //   if (comment != null && comment.commentItems.isEmpty) {
+              //     String? html = comment.comment;
+              //     if (html != null && html.isNotEmpty) {
+              //       var items =
+              //           await Helpers.convertHTMLToMultimediaContent(html);
+              //       comment.commentItems.assignAll(items);
+              //       for (var item in comment.commentItems) {
+              //         if (item.imageString != null &&
+              //             item.imageString!.isNotEmpty) {
+              //           item.downloadedImage = await Helpers.downloadFile(
+              //               AppConsts.imgInitialUrl + item.imageString!,
+              //               item.imageString!.split("/").last);
+              //         }
+              //         // Helpers.printLog(
+              //         //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
+              //         //     message: "ITEM = ${item.toString()}");
+              //       }
+              //     }
+              //   }
+              // }
 
-            if (editCommentPreviousValue != null && editCommentIndex != null) {
-              comments.removeAt(editCommentIndex!);
+              if (editCommentPreviousValue != null &&
+                  editCommentIndex != null) {
+                comments.removeAt(editCommentIndex!);
+              }
+
+              // for (var comment in newComments) {
+              //   comment.editController = TextEditingController();
+              // }
+              if (commentsListPreviousOffset != 0 &&
+                  shouldCommentsSheetScrollerJumpToPrevious == true) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  commentsSheetScrollController
+                      .jumpTo(commentsListPreviousOffset);
+                  commentsListPreviousOffset = 0;
+                });
+              }
+
+              comments.refresh();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
             }
-
-            // for (var comment in newComments) {
-            //   comment.editController = TextEditingController();
-            // }
-            if (commentsListPreviousOffset != 0 &&
-                shouldCommentsSheetScrollerJumpToPrevious == true) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                commentsSheetScrollController
-                    .jumpTo(commentsListPreviousOffset);
-                commentsListPreviousOffset = 0;
-              });
-            }
-
-            comments.refresh();
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         areCommentsLoading.value = false;
@@ -600,45 +609,50 @@ class TaskDetailController extends GetxController {
         String? comment = await commentFieldHtmlEditorController.getText();
         comment = comment.replaceAll('"', r'\"');
         if (comment.isNotEmpty) {
-          String quotedComment = '"$comment"';
-          Map<String, dynamic> requestBody = {
-            'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-                as String?,
-            'component_id': taskId,
-            'component': 'task',
-            'comment': quotedComment,
-            'files': [
-              ...commentFieldAttachedImages,
-              ...commentFieldAttachedDocuments
-            ]
-          };
-          var response = await PostRequests.createTaskComment(requestBody);
-          if (response != null) {
-            if (response.latestComment != null) {
-              comments.add(response.latestComment);
-              commentFieldHtmlEditorContent.value = "<p></p>";
-              commentFieldAttachedImages.clear();
-              commentFieldAttachedDocuments.clear();
-              showCreateCommentWidget.value = false;
-              commentFieldContent.clear();
-              isCommentFieldTextEmpty.value = true;
-              commentsLength.value += 1;
-              commentsLength.refresh();
-              commentsRefreshNeeded = true;
-              comments.clear();
+          if (await Helpers.isInternetWorking()) {
+            String quotedComment = '"$comment"';
+            Map<String, dynamic> requestBody = {
+              'token':
+                  PreferenceManager.getPref(PreferenceManager.prefUserToken)
+                      as String?,
+              'component_id': taskId,
+              'component': 'task',
+              'comment': quotedComment,
+              'files': [
+                ...commentFieldAttachedImages,
+                ...commentFieldAttachedDocuments
+              ]
+            };
+            var response = await PostRequests.createTaskComment(requestBody);
+            if (response != null) {
+              if (response.latestComment != null) {
+                comments.add(response.latestComment);
+                commentFieldHtmlEditorContent.value = "<p></p>";
+                commentFieldAttachedImages.clear();
+                commentFieldAttachedDocuments.clear();
+                showCreateCommentWidget.value = false;
+                commentFieldContent.clear();
+                isCommentFieldTextEmpty.value = true;
+                commentsLength.value += 1;
+                commentsLength.refresh();
+                commentsRefreshNeeded = true;
+                comments.clear();
 
-              shouldCommentsSheetScrollerJumpToPrevious = false;
-              await getComments();
-              commentsSheetScrollController.animateTo(
-                0.0,
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.easeInOut,
-              );
+                shouldCommentsSheetScrollerJumpToPrevious = false;
+                await getComments();
+                commentsSheetScrollController.animateTo(
+                  0.0,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                );
+              } else {
+                Get.snackbar("error".tr, "message_server_error".tr);
+              }
             } else {
               Get.snackbar("error".tr, "message_server_error".tr);
             }
           } else {
-            Get.snackbar("error".tr, "message_server_error".tr);
+            Get.snackbar("error".tr, "message_check_internet".tr);
           }
         }
       }
@@ -694,49 +708,53 @@ class TaskDetailController extends GetxController {
         String? comment = await commentFieldHtmlEditorController.getText();
         comment = comment.replaceAll('"', r'\"');
         if (comment.isNotEmpty) {
-          String quotedComment = '"$comment"';
-          Map<String, dynamic> requestBody = {
-            'component_id': taskId,
-            'component': 'task',
-            'comment': quotedComment,
-            'id': editCommentPreviousValue!.id,
-          };
-          Map<String, dynamic> requestBody2 = {
-            'files': [
-              ...commentFieldAttachedImages,
-              ...commentFieldAttachedDocuments
-            ]
-          };
-          var response =
-              await PostRequests.editTaskComment(requestBody, requestBody2);
-          if (response != null) {
-            if (response.status == "true") {
-              editCommentPreviousValue!.comment =
-                  await commentFieldHtmlEditorController.getText();
-              editCommentPreviousValue!.files = json.encode([
+          if (await Helpers.isInternetWorking()) {
+            String quotedComment = '"$comment"';
+            Map<String, dynamic> requestBody = {
+              'component_id': taskId,
+              'component': 'task',
+              'comment': quotedComment,
+              'id': editCommentPreviousValue!.id,
+            };
+            Map<String, dynamic> requestBody2 = {
+              'files': [
                 ...commentFieldAttachedImages,
                 ...commentFieldAttachedDocuments
-              ]);
-              // if (html != null && html.isNotEmpty) {
-              //   var items = await Helpers.convertHTMLToMultimediaContent(html);
-              //   editCommentPreviousValue!.commentItems.assignAll(items);
-              //   for (var item in editCommentPreviousValue!.commentItems) {
-              //     if (item.imageString != null &&
-              //         item.imageString!.isNotEmpty) {
-              //       item.downloadedImage = await Helpers.downloadFile(
-              //           AppConsts.imgInitialUrl + item.imageString!,
-              //           item.imageString!.split("/").last);
-              //     }
-              //     // Helpers.printLog(
-              //     //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
-              //     //     message: "ITEM = ${item.toString()}");
-              //   }
-              // }
+              ]
+            };
+            var response =
+                await PostRequests.editTaskComment(requestBody, requestBody2);
+            if (response != null) {
+              if (response.status == "true") {
+                editCommentPreviousValue!.comment =
+                    await commentFieldHtmlEditorController.getText();
+                editCommentPreviousValue!.files = json.encode([
+                  ...commentFieldAttachedImages,
+                  ...commentFieldAttachedDocuments
+                ]);
+                // if (html != null && html.isNotEmpty) {
+                //   var items = await Helpers.convertHTMLToMultimediaContent(html);
+                //   editCommentPreviousValue!.commentItems.assignAll(items);
+                //   for (var item in editCommentPreviousValue!.commentItems) {
+                //     if (item.imageString != null &&
+                //         item.imageString!.isNotEmpty) {
+                //       item.downloadedImage = await Helpers.downloadFile(
+                //           AppConsts.imgInitialUrl + item.imageString!,
+                //           item.imageString!.split("/").last);
+                //     }
+                //     // Helpers.printLog(
+                //     //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
+                //     //     message: "ITEM = ${item.toString()}");
+                //   }
+                // }
+              } else {
+                Get.snackbar("error".tr, "message_server_error".tr);
+              }
             } else {
               Get.snackbar("error".tr, "message_server_error".tr);
             }
           } else {
-            Get.snackbar("error".tr, "message_server_error".tr);
+            Get.snackbar("error".tr, "message_check_internet".tr);
           }
         }
       } finally {
@@ -811,17 +829,21 @@ class TaskDetailController extends GetxController {
 
     isLoading.value = true;
     try {
-      var response = await GetRequests.getEmployees(requestBody);
-      if (response != null) {
-        if (response.data != null) {
-          employees.assignAll(response.data as Iterable<EmployeeModel>);
-          responsiblePerson.value = null;
-          participants.clear();
-          observers.clear();
-          setTaskConcernedPeople();
+      if (await Helpers.isInternetWorking()) {
+        var response = await GetRequests.getEmployees(requestBody);
+        if (response != null) {
+          if (response.data != null) {
+            employees.assignAll(response.data as Iterable<EmployeeModel>);
+            responsiblePerson.value = null;
+            participants.clear();
+            observers.clear();
+            setTaskConcernedPeople();
+          }
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       isLoading.value = false;
@@ -952,7 +974,9 @@ class TaskDetailController extends GetxController {
           var editCommentItems = await Helpers.convertHTMLToMultimediaContent(
               editComment.comment!);
           commentFieldContent.assignAll(editCommentItems);
-          commentFieldHtmlEditorContent.value = editComment.comment!;
+
+          var comment = Helpers.updateDxMentionSpans(editComment.comment!);
+          commentFieldHtmlEditorContent.value = comment;
           if (editComment.files is String? &&
               editComment.files != null &&
               editComment.files.isNotEmpty) {
@@ -1001,19 +1025,23 @@ class TaskDetailController extends GetxController {
       };
       areCommentsLoading.value = true;
       try {
-        var response = await PostRequests.deleteTaskComment(requestBody);
-        if (response != null) {
-          if (response.status == "success") {
-            commentsLength.value -= 1;
-            commentsLength.refresh();
-            commentsRefreshNeeded = true;
-            comments.clear();
-            getComments();
+        if (await Helpers.isInternetWorking()) {
+          var response = await PostRequests.deleteTaskComment(requestBody);
+          if (response != null) {
+            if (response.status == "success") {
+              commentsLength.value -= 1;
+              commentsLength.refresh();
+              commentsRefreshNeeded = true;
+              comments.clear();
+              getComments();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
+            }
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         areCommentsLoading.value = false;
@@ -1053,20 +1081,24 @@ class TaskDetailController extends GetxController {
     if (taskId != null) {
       isLoading.value = true;
       try {
-        var response = await GetRequests.deleteTask(taskId!);
-        if (response != null) {
-          if (response.status == "success") {
-            // Helpers.printLog(
-            //   description: "TASK_DETAIL_CONTROLLER_DELETE_TASK",
-            //   message: "PREVIOUS_ROUTE = ${Get.previousRoute}",
-            // );
-            Get.back();
-            refreshPreviousPageData();
+        if (await Helpers.isInternetWorking()) {
+          var response = await GetRequests.deleteTask(taskId!);
+          if (response != null) {
+            if (response.status == "success") {
+              // Helpers.printLog(
+              //   description: "TASK_DETAIL_CONTROLLER_DELETE_TASK",
+              //   message: "PREVIOUS_ROUTE = ${Get.previousRoute}",
+              // );
+              Get.back();
+              refreshPreviousPageData();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
+            }
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isLoading.value = false;

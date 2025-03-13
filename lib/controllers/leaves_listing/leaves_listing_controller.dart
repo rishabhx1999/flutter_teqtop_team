@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:teqtop_team/model/employee_detail/leave_model.dart';
 import '../../network/get_requests.dart';
+import '../../utils/helpers.dart';
 import '../../utils/preference_manager.dart';
 import '../dashboard/dashboard_controller.dart';
 
@@ -141,16 +142,20 @@ class LeavesListingController extends GetxController {
 
     isLoading.value = true;
     try {
-      var response = await GetRequests.getLeaves(requestBody);
-      if (response != null) {
-        if (response.data != null) {
-          leaves.assignAll(response.data!.toList());
-          groupLeavesByMonth();
+      if (await Helpers.isInternetWorking()) {
+        var response = await GetRequests.getLeaves(requestBody);
+        if (response != null) {
+          if (response.data != null) {
+            leaves.assignAll(response.data!.toList());
+            groupLeavesByMonth();
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
+          }
         } else {
           Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       isLoading.value = false;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:html/parser.dart' as html_parser;
 
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -68,79 +69,6 @@ class TaskDetailPage extends StatelessWidget {
           titleSpacing: 0,
           elevation: 0,
           actions: [
-            // Padding(
-            //   padding: const EdgeInsets.only(right: 8),
-            //   child: GestureDetector(
-            //     behavior: HitTestBehavior.opaque,
-            //     onTap: () {
-            //     },
-            //     child: Container(
-            //       width: 68,
-            //       height: 28,
-            //       decoration: BoxDecoration(
-            //           color: AppColors.colorF9F9F9,
-            //           border: Border.all(
-            //               color: Colors.black.withValues(alpha: 0.1),
-            //               width: 0.5)),
-            //       child: Row(
-            //         mainAxisSize: MainAxisSize.min,
-            //         mainAxisAlignment: MainAxisAlignment.center,
-            //         crossAxisAlignment: CrossAxisAlignment.center,
-            //         children: [
-            //           Image.asset(
-            //             AppIcons.icEdit,
-            //             width: 24,
-            //           ),
-            //           const SizedBox(
-            //             width: 4,
-            //           ),
-            //           Text(
-            //             "delete".tr,
-            //             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            //                 fontSize: AppConsts.commonFontSizeFactor * 14),
-            //           )
-            //         ],
-            //       ),
-            //     ),
-            //   ),
-            // ),
-            // Padding(
-            //   padding: const EdgeInsets.only(right: 8),
-            //   child: GestureDetector(
-            //     behavior: HitTestBehavior.opaque,
-            //     onTap: () {
-            //       Get.toNamed(AppRoutes.routeTaskCreateEdit);
-            //     },
-            //     child: Container(
-            //       width: 68,
-            //       height: 28,
-            //       decoration: BoxDecoration(
-            //           color: AppColors.colorF9F9F9,
-            //           border: Border.all(
-            //               color: Colors.black.withValues(alpha: 0.1),
-            //               width: 0.5)),
-            //       child: Row(
-            //         mainAxisSize: MainAxisSize.min,
-            //         mainAxisAlignment: MainAxisAlignment.center,
-            //         crossAxisAlignment: CrossAxisAlignment.center,
-            //         children: [
-            //           Image.asset(
-            //             AppIcons.icEdit,
-            //             width: 24,
-            //           ),
-            //           const SizedBox(
-            //             width: 4,
-            //           ),
-            //           Text(
-            //             "edit".tr,
-            //             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            //                 fontSize: AppConsts.commonFontSizeFactor * 14),
-            //           )
-            //         ],
-            //       ),
-            //     ),
-            //   ),
-            // ),
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: GestureDetector(
@@ -428,22 +356,70 @@ class TaskDetailPage extends StatelessWidget {
                                                     .value!
                                                     .description!
                                                     .isNotEmpty
-                                            ? Html(
-                                                data: taskDetailController
-                                                            .taskDetail.value !=
-                                                        null
-                                                    ? taskDetailController
-                                                            .taskDetail
-                                                            .value!
-                                                            .description ??
-                                                        ""
-                                                    : "",
-                                                onLinkTap:
-                                                    (url, attributes, element) {
-                                                  if (url != null) {
-                                                    Helpers.openLink(url);
-                                                  }
-                                                },
+                                            ? Row(
+                                                mainAxisSize: MainAxisSize.max,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Expanded(
+                                                    child: SelectionArea(
+                                                      child: Html(
+                                                        data: taskDetailController
+                                                                    .taskDetail
+                                                                    .value !=
+                                                                null
+                                                            ? taskDetailController
+                                                                    .taskDetail
+                                                                    .value!
+                                                                    .description ??
+                                                                ""
+                                                            : "",
+                                                        onLinkTap: (url,
+                                                            attributes,
+                                                            element) {
+                                                          if (url != null) {
+                                                            Helpers.openLink(
+                                                                url);
+                                                          }
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  // const SizedBox(
+                                                  //   width: 12,
+                                                  // ),
+                                                  // GestureDetector(
+                                                  //   behavior:
+                                                  //       HitTestBehavior.opaque,
+                                                  //   onTap: () {
+                                                  //     String plainText = html_parser
+                                                  //             .parse(taskDetailController
+                                                  //                 .taskDetail
+                                                  //                 .value!
+                                                  //                 .description)
+                                                  //             .body
+                                                  //             ?.children
+                                                  //             .map(
+                                                  //                 (e) => e.text)
+                                                  //             .join("\n") ??
+                                                  //         "";
+                                                  //     Clipboard.setData(
+                                                  //         ClipboardData(
+                                                  //             text: plainText));
+                                                  //     Get.snackbar(
+                                                  //         "success".tr,
+                                                  //         "message_copied_to_clipboard"
+                                                  //             .tr);
+                                                  //   },
+                                                  //   child: const Icon(
+                                                  //     Icons.copy_rounded,
+                                                  //     color: Colors.black,
+                                                  //     size: 24,
+                                                  //   ),
+                                                  // )
+                                                ],
                                               )
                                             : const SizedBox(),
                                         Visibility(
@@ -541,105 +517,142 @@ class TaskDetailPage extends StatelessWidget {
                                                     right: 10,
                                                     top: 10),
                                                 itemBuilder: (context, index) {
-                                                  return GestureDetector(
-                                                    behavior:
-                                                        HitTestBehavior.opaque,
-                                                    onTap: () async {
-                                                      taskDetailController
+                                                  return Obx(() => taskDetailController
                                                           .taskDocuments[index]
                                                           .isLoading
-                                                          .value = true;
-                                                      await Helpers.openFile(
-                                                          path:
-                                                              taskDetailController
-                                                                  .taskDocuments[
-                                                                      index]
-                                                                  .file,
-                                                          fileName:
-                                                              taskDetailController
-                                                                  .taskDocuments[
-                                                                      index]
-                                                                  .file
-                                                                  .split("/")
-                                                                  .last);
-                                                      taskDetailController
-                                                          .taskDocuments[index]
-                                                          .isLoading
-                                                          .value = false;
-                                                    },
-                                                    child: Container(
-                                                      width: double.infinity,
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 10,
-                                                              right: 10,
-                                                              top: 10,
-                                                              bottom: 10),
-                                                      decoration: BoxDecoration(
-                                                          color: AppColors
-                                                              .kPrimaryColor
-                                                              .withValues(
-                                                                  alpha: 0.1)),
-                                                      child: Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.max,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Expanded(
-                                                            child: Text(
-                                                              taskDetailController
-                                                                  .taskDocuments[
-                                                                      index]
-                                                                  .file
-                                                                  .split("/")
-                                                                  .last,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              maxLines: 2,
-                                                              style: Theme.of(
-                                                                      context)
-                                                                  .textTheme
-                                                                  .bodySmall
-                                                                  ?.copyWith(
-                                                                    color: AppColors
-                                                                        .kPrimaryColor,
+                                                          .value
+                                                      ? Shimmer.fromColors(
+                                                          baseColor: AppColors
+                                                              .shimmerBaseColor,
+                                                          highlightColor: AppColors
+                                                              .shimmerHighlightColor,
+                                                          child: Container(
+                                                            width:
+                                                                double.infinity,
+                                                            height: 50,
+                                                            color: AppColors
+                                                                .shimmerBaseColor,
+                                                          ))
+                                                      : GestureDetector(
+                                                          behavior:
+                                                              HitTestBehavior
+                                                                  .opaque,
+                                                          onTap: () async {
+                                                            taskDetailController
+                                                                .taskDocuments[
+                                                                    index]
+                                                                .isLoading
+                                                                .value = true;
+                                                            await Helpers.openFile(
+                                                                path: taskDetailController
+                                                                    .taskDocuments[
+                                                                        index]
+                                                                    .file,
+                                                                fileName: taskDetailController
+                                                                    .taskDocuments[
+                                                                        index]
+                                                                    .file
+                                                                    .split("/")
+                                                                    .last);
+                                                            taskDetailController
+                                                                .taskDocuments[
+                                                                    index]
+                                                                .isLoading
+                                                                .value = false;
+                                                          },
+                                                          child: Container(
+                                                            width:
+                                                                double.infinity,
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    left: 10,
+                                                                    right: 10,
+                                                                    top: 10,
+                                                                    bottom: 10),
+                                                            decoration: BoxDecoration(
+                                                                color: AppColors
+                                                                    .kPrimaryColor
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.1)),
+                                                            child: Row(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .max,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .start,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Expanded(
+                                                                  child: Text(
+                                                                    taskDetailController
+                                                                        .taskDocuments[
+                                                                            index]
+                                                                        .file
+                                                                        .split(
+                                                                            "/")
+                                                                        .last,
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis,
+                                                                    maxLines: 2,
+                                                                    style: Theme.of(
+                                                                            context)
+                                                                        .textTheme
+                                                                        .bodySmall
+                                                                        ?.copyWith(
+                                                                          color:
+                                                                              AppColors.kPrimaryColor,
+                                                                        ),
                                                                   ),
+                                                                ),
+                                                                const SizedBox(
+                                                                  width: 4,
+                                                                ),
+                                                                // Obx(() => taskDetailController
+                                                                //         .taskDocuments[
+                                                                //             index]
+                                                                //         .isLoading
+                                                                //         .value
+                                                                //     ? Padding(
+                                                                //         padding: const EdgeInsets
+                                                                //             .all(
+                                                                //             6.0),
+                                                                //         child:
+                                                                //             SizedBox(
+                                                                //           width:
+                                                                //               20,
+                                                                //           height:
+                                                                //               20,
+                                                                //           child: CircularProgressIndicator(
+                                                                //               strokeWidth: 2,
+                                                                //               color: AppColors.kPrimaryColor),
+                                                                //         ),
+                                                                //       )
+                                                                //     : GestureDetector(
+                                                                //         behavior:
+                                                                //             HitTestBehavior.opaque,
+                                                                //         child:
+                                                                //             Padding(
+                                                                //           padding: const EdgeInsets
+                                                                //               .all(
+                                                                //               6.0),
+                                                                //           child:
+                                                                //               Image.asset(
+                                                                //             AppIcons.icDownload,
+                                                                //             width:
+                                                                //                 20,
+                                                                //           ),
+                                                                //         ),
+                                                                //       ))
+                                                              ],
                                                             ),
                                                           ),
-                                                          const SizedBox(
-                                                            width: 10,
-                                                          ),
-                                                          Obx(() =>
-                                                              taskDetailController
-                                                                      .taskDocuments[
-                                                                          index]
-                                                                      .isLoading
-                                                                      .value
-                                                                  ? SizedBox(
-                                                                      width: 20,
-                                                                      height:
-                                                                          20,
-                                                                      child: CircularProgressIndicator(
-                                                                          strokeWidth:
-                                                                              2,
-                                                                          color:
-                                                                              AppColors.kPrimaryColor),
-                                                                    )
-                                                                  : Image.asset(
-                                                                      AppIcons
-                                                                          .icDownload,
-                                                                      width: 20,
-                                                                    ))
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  );
+                                                        ));
                                                 },
                                                 separatorBuilder:
                                                     (context, index) {
@@ -650,192 +663,7 @@ class TaskDetailPage extends StatelessWidget {
                                                 itemCount: taskDetailController
                                                     .taskDocuments.length)),
                                       ],
-                                    )
-                              // ListView.separated(
-                              //         physics: NeverScrollableScrollPhysics(),
-                              //         shrinkWrap: true,
-                              //         itemBuilder: (context, index) {
-                              //           return taskDetailController
-                              //                       .descriptionItems[index]
-                              //                       .text !=
-                              //                   null
-                              //               ? SelectableText(
-                              //                   taskDetailController
-                              //                       .descriptionItems[index]
-                              //                       .text!,
-                              //                   textAlign: TextAlign.start,
-                              //                   style: Theme.of(context)
-                              //                       .textTheme
-                              //                       .bodyMedium,
-                              //                 )
-                              //               : taskDetailController
-                              //                               .descriptionItems[
-                              //                                   index]
-                              //                               .imageString !=
-                              //                           null &&
-                              //                       taskDetailController
-                              //                               .descriptionItems[
-                              //                                   index]
-                              //                               .downloadedImage !=
-                              //                           null
-                              //                   ? GestureDetector(
-                              //                       behavior:
-                              //                           HitTestBehavior.opaque,
-                              //                       onTap: () {
-                              //                         taskDetailController
-                              //                             .onTapDescriptionImage(
-                              //                                 index);
-                              //                       },
-                              //                       child: Image.file(
-                              //                         taskDetailController
-                              //                             .descriptionItems[
-                              //                                 index]
-                              //                             .downloadedImage!,
-                              //                         height: 250,
-                              //                         fit: BoxFit.contain,
-                              //                       ),
-                              //                     )
-                              //                   : taskDetailController
-                              //                               .descriptionItems[
-                              //                                   index]
-                              //                               .fileString !=
-                              //                           null
-                              //                       ? GestureDetector(
-                              //                           behavior:
-                              //                               HitTestBehavior
-                              //                                   .opaque,
-                              //                           onTap: () async {
-                              //                             if (taskDetailController
-                              //                                 .descriptionItems[
-                              //                                     index]
-                              //                                 .fileString!
-                              //                                 .isNotEmpty) {
-                              //                               taskDetailController
-                              //                                   .descriptionItems[
-                              //                                       index]
-                              //                                   .isFileLoading
-                              //                                   .value = true;
-                              //                               taskDetailController
-                              //                                   .descriptionItems[
-                              //                                       index]
-                              //                                   .isFileLoading
-                              //                                   .refresh();
-                              //                               await Helpers.openFile(
-                              //                                   path: taskDetailController
-                              //                                       .descriptionItems[
-                              //                                           index]
-                              //                                       .fileString!,
-                              //                                   fileName: taskDetailController
-                              //                                       .descriptionItems[
-                              //                                           index]
-                              //                                       .fileString!
-                              //                                       .split("/")
-                              //                                       .last);
-                              //                               taskDetailController
-                              //                                   .descriptionItems[
-                              //                                       index]
-                              //                                   .isFileLoading
-                              //                                   .value = false;
-                              //                               taskDetailController
-                              //                                   .descriptionItems[
-                              //                                       index]
-                              //                                   .isFileLoading
-                              //                                   .refresh();
-                              //                             }
-                              //                           },
-                              //                           child: Container(
-                              //                             padding: EdgeInsets
-                              //                                 .fromLTRB(14, 10,
-                              //                                     10, 10),
-                              //                             width:
-                              //                                 double.infinity,
-                              //                             decoration: BoxDecoration(
-                              //                                 color: AppColors
-                              //                                     .kPrimaryColor
-                              //                                     .withValues(
-                              //                                         alpha:
-                              //                                             0.1)),
-                              //                             child: Row(
-                              //                               mainAxisSize:
-                              //                                   MainAxisSize
-                              //                                       .max,
-                              //                               mainAxisAlignment:
-                              //                                   MainAxisAlignment
-                              //                                       .start,
-                              //                               crossAxisAlignment:
-                              //                                   CrossAxisAlignment
-                              //                                       .center,
-                              //                               children: [
-                              //                                 Expanded(
-                              //                                   child: Text(
-                              //                                     taskDetailController
-                              //                                         .descriptionItems[
-                              //                                             index]
-                              //                                         .fileString!
-                              //                                         .split(
-                              //                                             "/")
-                              //                                         .last,
-                              //                                     style: Theme.of(
-                              //                                             context)
-                              //                                         .textTheme
-                              //                                         .bodySmall
-                              //                                         ?.copyWith(
-                              //                                           color: AppColors
-                              //                                               .kPrimaryColor,
-                              //                                         ),
-                              //                                   ),
-                              //                                 ),
-                              //                                 const SizedBox(
-                              //                                   width: 12,
-                              //                                 ),
-                              //                                 Padding(
-                              //                                   padding:
-                              //                                       const EdgeInsets
-                              //                                           .all(
-                              //                                           4.0),
-                              //                                   child: Obx(() => taskDetailController
-                              //                                           .descriptionItems[
-                              //                                               index]
-                              //                                           .isFileLoading
-                              //                                           .value
-                              //                                       ? Container(
-                              //                                           height:
-                              //                                               24,
-                              //                                           width:
-                              //                                               24,
-                              //                                           padding:
-                              //                                               EdgeInsets.all(4),
-                              //                                           child:
-                              //                                               CircularProgressIndicator(
-                              //                                             strokeWidth:
-                              //                                                 2,
-                              //                                             color:
-                              //                                                 AppColors.kPrimaryColor,
-                              //                                           ),
-                              //                                         )
-                              //                                       : Image
-                              //                                           .asset(
-                              //                                           AppIcons
-                              //                                               .icDownload,
-                              //                                           width:
-                              //                                               24,
-                              //                                           color: AppColors.kPrimaryColor,
-                              //                                         )),
-                              //                                 ),
-                              //                               ],
-                              //                             ),
-                              //                           ),
-                              //                         )
-                              //                       : const SizedBox();
-                              //         },
-                              //         separatorBuilder: (context, index) {
-                              //           return const SizedBox(
-                              //             height: 10,
-                              //           );
-                              //         },
-                              //         itemCount: taskDetailController
-                              //             .descriptionItems.length)
-                              ,
+                                    ),
                             )
                           ],
                         ),

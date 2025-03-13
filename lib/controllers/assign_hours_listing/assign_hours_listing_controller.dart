@@ -131,20 +131,24 @@ class AssignHoursListingController extends GetxController {
 
     areProjectsLoading.value = true;
     try {
-      var response = await GetRequests.getProjects(requestBody);
-      if (response != null) {
-        if (response.data != null) {
-          response.data!.removeWhere((element) =>
-              element != null &&
-              element.trash != null &&
-              element.trash!.toLowerCase().contains("trash"));
+      if (await Helpers.isInternetWorking()) {
+        var response = await GetRequests.getProjects(requestBody);
+        if (response != null) {
+          if (response.data != null) {
+            response.data!.removeWhere((element) =>
+                element != null &&
+                element.trash != null &&
+                element.trash!.toLowerCase().contains("trash"));
 
-          projects.assignAll(response.data!.toList());
-          projects.insert(0, ProjectModel(name: "select_project".tr));
-          selectedProject.value = projects[0];
+            projects.assignAll(response.data!.toList());
+            projects.insert(0, ProjectModel(name: "select_project".tr));
+            selectedProject.value = projects[0];
+          }
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       areProjectsLoading.value = false;
@@ -241,15 +245,19 @@ class AssignHoursListingController extends GetxController {
 
     areUsersLoading.value = true;
     try {
-      var response = await GetRequests.getEmployees(requestBody);
-      if (response != null) {
-        if (response.data != null) {
-          users.assignAll(response.data!.toList());
-          users.insert(0, EmployeeModel(name: "select_user".tr));
-          selectedUser.value = users[0];
+      if (await Helpers.isInternetWorking()) {
+        var response = await GetRequests.getEmployees(requestBody);
+        if (response != null) {
+          if (response.data != null) {
+            users.assignAll(response.data!.toList());
+            users.insert(0, EmployeeModel(name: "select_user".tr));
+            selectedUser.value = users[0];
+          }
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       areUsersLoading.value = false;
@@ -325,100 +333,107 @@ class AssignHoursListingController extends GetxController {
   Future<void> getAssignHours() async {
     areAssignHoursLoading.value = true;
     try {
-      Map<String, String> requestBody = {
-        'order%5B0%5D%5Bcolumn%5D': '0',
-        'order%5B0%5D%5Bdir%5D': 'DESC',
-        'start': '0',
-        'length': '-1',
-        'search%5Bvalue%5D': searchText.value,
-        'search%5Bregex%5D': 'false'
-      };
+      if (await Helpers.isInternetWorking()) {
+        Map<String, String> requestBody = {
+          'order%5B0%5D%5Bcolumn%5D': '0',
+          'order%5B0%5D%5Bdir%5D': 'DESC',
+          'start': '0',
+          'length': '-1',
+          'search%5Bvalue%5D': searchText.value,
+          'search%5Bregex%5D': 'false'
+        };
 
-      if (filterData) {
-        if (selectedUser.value != null &&
-            selectedUser.value!.name != "select_user".tr) {
-          var user = users.firstWhereOrNull(
-              (user) => user != null && user.id == selectedUser.value!.id);
-          if (user != null) {
-            requestBody.addIf(true, 'user', user.id.toString());
+        if (filterData) {
+          if (selectedUser.value != null &&
+              selectedUser.value!.name != "select_user".tr) {
+            var user = users.firstWhereOrNull(
+                (user) => user != null && user.id == selectedUser.value!.id);
+            if (user != null) {
+              requestBody.addIf(true, 'user', user.id.toString());
+            }
+          }
+
+          if (selectedProject.value != null &&
+              selectedProject.value!.name != "select_project".tr) {
+            var project = projects.firstWhereOrNull((project) =>
+                project != null && project.id == selectedProject.value!.id);
+            if (project != null) {
+              requestBody.addIf(true, 'project', project.id.toString());
+            }
+          }
+
+          if (selectedTime.value != null &&
+              selectedTime.value!.time != "value_time".tr) {
+            if (selectedTime.value!.time == "today".tr) {
+              requestBody.addIf(selectedTime.value!.time == "today".tr, 'date',
+                  DateFormat('y-M-d').format(DateTime.now()));
+            }
+
+            if (selectedTime.value!.time == "yesterday".tr) {
+              requestBody.addIf(
+                  selectedTime.value!.time == "yesterday".tr,
+                  'date',
+                  DateFormat('y-M-d').format(
+                      DateTime.now().subtract(const Duration(days: 1))));
+            }
+
+            if (selectedTime.value!.time == "current_week".tr) {
+              requestBody.addIf(
+                  selectedTime.value!.time == "current_week".tr,
+                  '_begin',
+                  DateFormat('y-M-d').format(Helpers.getLastSundayDate()));
+              requestBody.addIf(
+                  selectedTime.value!.time == "current_week".tr,
+                  '_end',
+                  DateFormat('y-M-d').format(Helpers.getNextSaturday()));
+            }
+
+            if (selectedTime.value!.time == "current_month".tr) {
+              requestBody.addIf(
+                  selectedTime.value!.time == "current_month".tr,
+                  '_begin',
+                  DateFormat('y-M-d')
+                      .format(Helpers.getFirstDayOfCurrentMonth()));
+              requestBody.addIf(
+                  selectedTime.value!.time == "current_month".tr,
+                  '_end',
+                  DateFormat('y-M-d')
+                      .format(Helpers.getLastDayOfCurrentMonth()));
+            }
+
+            if (selectedTime.value!.time == "last_month".tr) {
+              requestBody.addIf(
+                  selectedTime.value!.time == "last_month".tr,
+                  '_begin',
+                  DateFormat('y-M-d').format(Helpers.getFirstDayOfLastMonth()));
+              requestBody.addIf(
+                  selectedTime.value!.time == "last_month".tr,
+                  '_end',
+                  DateFormat('y-M-d').format(Helpers.getLastDayOfLastMonth()));
+            }
+
+            if (selectedTime.value!.time == "select_date".tr &&
+                selectedStartDate != null &&
+                selectedEndDate != null) {
+              requestBody.addIf(selectedTime.value!.time == "select_date".tr,
+                  '_begin', DateFormat('y-M-d').format(selectedStartDate!));
+              requestBody.addIf(selectedTime.value!.time == "select_date".tr,
+                  '_end', DateFormat('y-M-d').format(selectedEndDate!));
+            }
           }
         }
-
-        if (selectedProject.value != null &&
-            selectedProject.value!.name != "select_project".tr) {
-          var project = projects.firstWhereOrNull((project) =>
-              project != null && project.id == selectedProject.value!.id);
-          if (project != null) {
-            requestBody.addIf(true, 'project', project.id.toString());
+        var response = await GetRequests.getAssignHoursList(requestBody);
+        if (response != null) {
+          if (response.data != null) {
+            assignHoursList.assignAll(response.data as Iterable<AssignHours?>);
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
           }
-        }
-
-        if (selectedTime.value != null &&
-            selectedTime.value!.time != "value_time".tr) {
-          if (selectedTime.value!.time == "today".tr) {
-            requestBody.addIf(selectedTime.value!.time == "today".tr, 'date',
-                DateFormat('y-M-d').format(DateTime.now()));
-          }
-
-          if (selectedTime.value!.time == "yesterday".tr) {
-            requestBody.addIf(
-                selectedTime.value!.time == "yesterday".tr,
-                'date',
-                DateFormat('y-M-d')
-                    .format(DateTime.now().subtract(const Duration(days: 1))));
-          }
-
-          if (selectedTime.value!.time == "current_week".tr) {
-            requestBody.addIf(
-                selectedTime.value!.time == "current_week".tr,
-                '_begin',
-                DateFormat('y-M-d').format(Helpers.getLastSundayDate()));
-            requestBody.addIf(selectedTime.value!.time == "current_week".tr,
-                '_end', DateFormat('y-M-d').format(Helpers.getNextSaturday()));
-          }
-
-          if (selectedTime.value!.time == "current_month".tr) {
-            requestBody.addIf(
-                selectedTime.value!.time == "current_month".tr,
-                '_begin',
-                DateFormat('y-M-d')
-                    .format(Helpers.getFirstDayOfCurrentMonth()));
-            requestBody.addIf(
-                selectedTime.value!.time == "current_month".tr,
-                '_end',
-                DateFormat('y-M-d').format(Helpers.getLastDayOfCurrentMonth()));
-          }
-
-          if (selectedTime.value!.time == "last_month".tr) {
-            requestBody.addIf(
-                selectedTime.value!.time == "last_month".tr,
-                '_begin',
-                DateFormat('y-M-d').format(Helpers.getFirstDayOfLastMonth()));
-            requestBody.addIf(
-                selectedTime.value!.time == "last_month".tr,
-                '_end',
-                DateFormat('y-M-d').format(Helpers.getLastDayOfLastMonth()));
-          }
-
-          if (selectedTime.value!.time == "select_date".tr &&
-              selectedStartDate != null &&
-              selectedEndDate != null) {
-            requestBody.addIf(selectedTime.value!.time == "select_date".tr,
-                '_begin', DateFormat('y-M-d').format(selectedStartDate!));
-            requestBody.addIf(selectedTime.value!.time == "select_date".tr,
-                '_end', DateFormat('y-M-d').format(selectedEndDate!));
-          }
-        }
-      }
-      var response = await GetRequests.getAssignHoursList(requestBody);
-      if (response != null) {
-        if (response.data != null) {
-          assignHoursList.assignAll(response.data as Iterable<AssignHours?>);
         } else {
           Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       areAssignHoursLoading.value = false;

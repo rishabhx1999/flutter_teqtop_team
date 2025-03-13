@@ -84,11 +84,15 @@ class ProjectDetailController extends GetxController {
     if (projectId != null) {
       isLoading.value = true;
       try {
-        var response = await GetRequests.getProjectDetail(projectId!);
-        if (response != null) {
-          projectDetail.value = response;
+        if (await Helpers.isInternetWorking()) {
+          var response = await GetRequests.getProjectDetail(projectId!);
+          if (response != null) {
+            projectDetail.value = response;
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
+          }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isLoading.value = false;
@@ -128,33 +132,38 @@ class ProjectDetailController extends GetxController {
       isAccessDetailEditLoading.value = true;
 
       try {
-        // Helpers.printLog(
-        //     description: "PROJECT_DETAIL_CONTROLLER",
-        //     message:
-        //         "ACCESS_DETAIL = ${await accessDetailController.getText()}");
-        Map<String, dynamic> requestBody = {
-          'access_detail': await accessDetailController.getText(),
-          'id': projectId
-        };
-        var response = await PostRequests.editProjectAccessDetails(
-            projectId!, requestBody);
-        if (response != null) {
-          if (response.accessDetail != null &&
-              response.accessDetail!.isNotEmpty) {
-            if (projectDetail.value != null) {
-              projectDetail.value!.accessDetail = response.accessDetail;
+        if (await Helpers.isInternetWorking()) {
+          // Helpers.printLog(
+          //     description: "PROJECT_DETAIL_CONTROLLER",
+          //     message:
+          //         "ACCESS_DETAIL = ${await accessDetailController.getText()}");
+          Map<String, dynamic> requestBody = {
+            'access_detail': await accessDetailController.getText(),
+            'id': projectId
+          };
+          var response = await PostRequests.editProjectAccessDetails(
+              projectId!, requestBody);
+          if (response != null) {
+            if (response.accessDetail != null &&
+                response.accessDetail!.isNotEmpty) {
+              if (projectDetail.value != null) {
+                projectDetail.value!.accessDetail = response.accessDetail;
+              }
+              accessDetailEditing.value = false;
+              accessDetailController.clear();
+              Get.back();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
             }
-            accessDetailEditing.value = false;
-            accessDetailController.clear();
-            Get.back();
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isAccessDetailEditLoading.value = false;
+        projectDetail.refresh();
       }
     }
   }
@@ -205,17 +214,21 @@ class ProjectDetailController extends GetxController {
       };
       isLoading.value = true;
       try {
-        var response =
-            await PostRequests.deleteProject(projectId!, requestBody);
-        if (response != null) {
-          if (response.status == "success") {
-            Get.back();
-            refreshPreviousPageData();
+        if (await Helpers.isInternetWorking()) {
+          var response =
+              await PostRequests.deleteProject(projectId!, requestBody);
+          if (response != null) {
+            if (response.status == "success") {
+              Get.back();
+              refreshPreviousPageData();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
+            }
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isLoading.value = false;

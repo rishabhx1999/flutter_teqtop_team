@@ -171,15 +171,19 @@ class DailyReportsListingController extends GetxController {
 
     areUsersLoading.value = true;
     try {
-      var response = await GetRequests.getEmployees(requestBody);
-      if (response != null) {
-        if (response.data != null) {
-          users.assignAll(response.data!.toList());
-          users.insert(0, EmployeeModel(name: "select_user".tr));
-          selectedUser.value = users[0];
+      if (await Helpers.isInternetWorking()) {
+        var response = await GetRequests.getEmployees(requestBody);
+        if (response != null) {
+          if (response.data != null) {
+            users.assignAll(response.data!.toList());
+            users.insert(0, EmployeeModel(name: "select_user".tr));
+            selectedUser.value = users[0];
+          }
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       areUsersLoading.value = false;
@@ -276,20 +280,24 @@ class DailyReportsListingController extends GetxController {
 
     areDailyReportsLoading.value = true;
     try {
-      var response = await GetRequests.getDailyReports(requestBody);
-      if (response != null) {
-        if (response.data != null) {
-          for (var existingReport in dailyReports) {
-            response.data!.removeWhere((report) =>
-                report != null &&
-                existingReport != null &&
-                report.id == existingReport.id);
-          }
+      if (await Helpers.isInternetWorking()) {
+        var response = await GetRequests.getDailyReports(requestBody);
+        if (response != null) {
+          if (response.data != null) {
+            for (var existingReport in dailyReports) {
+              response.data!.removeWhere((report) =>
+                  report != null &&
+                  existingReport != null &&
+                  report.id == existingReport.id);
+            }
 
-          dailyReports.addAll(response.data as Iterable<DailyReport?>);
+            dailyReports.addAll(response.data as Iterable<DailyReport?>);
+          }
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       areDailyReportsLoading.value = false;

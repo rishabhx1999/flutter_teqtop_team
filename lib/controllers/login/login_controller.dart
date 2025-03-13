@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:teqtop_team/network/post_requests.dart';
+import 'package:teqtop_team/utils/helpers.dart';
 import 'package:teqtop_team/utils/preference_manager.dart';
 
 import '../../config/app_routes.dart';
@@ -49,17 +50,21 @@ class LoginController extends GetxController {
 
       isLoading.value = true;
       try {
-        var response = await PostRequests.loginUser(requestBody);
-        if (response != null) {
-          if (response.accessToken != null &&
-              response.accessToken!.isNotEmpty) {
-            saveDataToPref(response);
+        if (await Helpers.isInternetWorking()) {
+          var response = await PostRequests.loginUser(requestBody);
+          if (response != null) {
+            if (response.accessToken != null &&
+                response.accessToken!.isNotEmpty) {
+              saveDataToPref(response);
+            } else {
+              Get.snackbar(
+                  "error".tr, response.error ?? "message_server_error".tr);
+            }
           } else {
-            Get.snackbar(
-                "error".tr, response.error ?? "message_server_error".tr);
+            Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isLoading.value = false;

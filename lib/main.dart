@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:flutter_quill/flutter_quill.dart';
 import 'package:get/get.dart';
 import 'package:teqtop_team/config/app_colors.dart';
 import 'package:teqtop_team/config/app_route_observer.dart';
@@ -61,10 +59,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     FlutterNativeSplash.remove();
-    Helpers.printLog(
-        description: "MAIN_FUNCTION",
-        message: Helpers.modifyHtmlWithClass(
-            "<p>abc <strong>Browse <span>Categories</span></strong></p>"));
 
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
@@ -76,12 +70,6 @@ class MyApp extends StatelessWidget {
               selectionHandleColor: AppColors.kPrimaryColor,
             ),
             child: GetMaterialApp(
-              localizationsDelegates: const [
-                GlobalMaterialLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                FlutterQuillLocalizations.delegate,
-              ],
               translations: LocalStrings(),
               locale: const Locale('en', 'US'),
               debugShowCheckedModeBanner: false,

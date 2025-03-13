@@ -102,18 +102,22 @@ class DriveDetailController extends GetxController {
     if (id != null) {
       isLoading.value = true;
       try {
-        Map<String, dynamic> requestBody = {
-          'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-              as String?,
-          'id': id,
-          'parent': driveURL.split('/').last
-        };
-        var response = await PostRequests.deleteDriveFolder(requestBody);
-        if (response != null) {
-          driveDetail = response;
-          getDataFromDriveDetail();
+        if (await Helpers.isInternetWorking()) {
+          Map<String, dynamic> requestBody = {
+            'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+                as String?,
+            'id': id,
+            'parent': driveURL.split('/').last
+          };
+          var response = await PostRequests.deleteDriveFolder(requestBody);
+          if (response != null) {
+            driveDetail = response;
+            getDataFromDriveDetail();
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
+          }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isLoading.value = false;
@@ -174,13 +178,17 @@ class DriveDetailController extends GetxController {
 
         isFolderCreating.value = true;
         try {
-          var response = await PostRequests.createDriveFolder(requestBody);
-          if (response != null) {
-            newFolderNameController.clear();
-            Get.back();
-            getDriveDetail();
+          if (await Helpers.isInternetWorking()) {
+            var response = await PostRequests.createDriveFolder(requestBody);
+            if (response != null) {
+              newFolderNameController.clear();
+              Get.back();
+              getDriveDetail();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
+            }
           } else {
-            Get.snackbar("error".tr, "message_server_error".tr);
+            Get.snackbar("error".tr, "message_check_internet".tr);
           }
         } finally {
           isFolderCreating.value = false;
@@ -193,12 +201,16 @@ class DriveDetailController extends GetxController {
     if (driveURL.isNotEmpty) {
       isLoading.value = true;
       try {
-        var response = await GetRequests.getDriveDetail(driveURL);
-        if (response != null) {
-          driveDetail = response;
-          getDataFromDriveDetail();
+        if (await Helpers.isInternetWorking()) {
+          var response = await GetRequests.getDriveDetail(driveURL);
+          if (response != null) {
+            driveDetail = response;
+            getDataFromDriveDetail();
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
+          }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isLoading.value = false;
@@ -251,12 +263,16 @@ class DriveDetailController extends GetxController {
     if (files.isNotEmpty) {
       isLoading.value = true;
       try {
-        var response = await PostRequests.addDriveFiles(
-            files: files, parentURL: driveURL.split("/").last);
-        if (response != null) {
-          getDriveDetail();
+        if (await Helpers.isInternetWorking()) {
+          var response = await PostRequests.addDriveFiles(
+              files: files, parentURL: driveURL.split("/").last);
+          if (response != null) {
+            getDriveDetail();
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
+          }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isLoading.value = false;

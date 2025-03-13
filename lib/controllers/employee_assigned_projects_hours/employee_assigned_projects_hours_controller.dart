@@ -8,6 +8,7 @@ import 'package:html/dom.dart';
 import '../../consts/app_consts.dart';
 import '../../network/get_requests.dart';
 import '../../network/post_requests.dart';
+import '../../utils/helpers.dart';
 import '../../views/dialogs/common/common_alert_dialog.dart';
 import '../dashboard/dashboard_controller.dart';
 
@@ -122,21 +123,25 @@ class EmployeeAssignedProjectsHoursController extends GetxController {
     if (project == null) return;
     project.isPaused.value = value;
 
-    Map<String, dynamic> requestBody = {
-      'hour': id,
-      'value': value ? '1' : '0',
-    };
-    var response = await PostRequests.playPauseProject(requestBody);
-    if (response != null) {
-      if (response.status == "success") {
-        refreshPreviousPageData();
+    if (await Helpers.isInternetWorking()) {
+      Map<String, dynamic> requestBody = {
+        'hour': id,
+        'value': value ? '1' : '0',
+      };
+      var response = await PostRequests.playPauseProject(requestBody);
+      if (response != null) {
+        if (response.status == "success") {
+          refreshPreviousPageData();
+        } else {
+          project.isPaused.value = !value;
+          Get.snackbar("error".tr, "message_server_error".tr);
+        }
       } else {
         project.isPaused.value = !value;
         Get.snackbar("error".tr, "message_server_error".tr);
       }
     } else {
-      project.isPaused.value = !value;
-      Get.snackbar("error".tr, "message_server_error".tr);
+      Get.snackbar("error".tr, "message_check_internet".tr);
     }
   }
 
@@ -157,17 +162,21 @@ class EmployeeAssignedProjectsHoursController extends GetxController {
     if (employeeAssignedProjectsHoursId != null) {
       isDeleteLoading.value = true;
       try {
-        var response = await GetRequests.deleteEmployeeAssignedProjectsHours(
-            employeeAssignedProjectsHoursId!);
-        if (response != null) {
-          if (response.status == "success") {
-            refreshPreviousPageData();
-            Get.back();
+        if (await Helpers.isInternetWorking()) {
+          var response = await GetRequests.deleteEmployeeAssignedProjectsHours(
+              employeeAssignedProjectsHoursId!);
+          if (response != null) {
+            if (response.status == "success") {
+              refreshPreviousPageData();
+              Get.back();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
+            }
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isDeleteLoading.value = false;

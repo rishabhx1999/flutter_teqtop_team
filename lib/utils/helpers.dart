@@ -230,7 +230,7 @@ class Helpers {
     bool isPureText =
         element.children.isEmpty && element.text.trim().isNotEmpty;
 
-    if (isPureText) {
+    if (isPureText && !element.classes.contains(className)) {
       element.classes.add(className);
     } else {
       for (var child in element.children) {
@@ -239,7 +239,8 @@ class Helpers {
     }
   }
 
-  static String modifyHtmlWithClass(String htmlContent) {
+  static String applySelectableCopyableClassToPureTextElements(
+      String htmlContent) {
     html_dom.Document document = html_parser.parse(htmlContent);
 
     for (var element in document.body?.children ?? []) {
@@ -513,29 +514,33 @@ class Helpers {
       finalFile = await compressVideoIfNeeded(file);
     }
 
-    var uploadMedia =
-        await http.MultipartFile.fromPath('data_file', finalFile.path);
-    Map<String, dynamic> requestBody = {
-      'token':
-          PreferenceManager.getPref(PreferenceManager.prefUserToken) as String?,
-      'extension': fileType ?? '',
-      'data_file': '(binary)',
-      '_comp': 'feed',
-      'format': 'application'
-    };
+    if (await isInternetWorking()) {
+      var uploadMedia =
+          await http.MultipartFile.fromPath('data_file', finalFile.path);
+      Map<String, dynamic> requestBody = {
+        'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+            as String?,
+        'extension': fileType ?? '',
+        'data_file': '(binary)',
+        '_comp': 'feed',
+        'format': 'application'
+      };
 
-    var response = await PostRequests.uploadFile(uploadMedia, requestBody);
-    if (response != null) {
-      return response.src;
+      var response = await PostRequests.uploadFile(uploadMedia, requestBody);
+      if (response != null) {
+        return response.src;
+      } else {
+        Get.snackbar('error'.tr, 'message_server_error'.tr);
+      }
     } else {
-      Get.snackbar('error'.tr, 'message_server_error'.tr);
+      Get.snackbar("error".tr, "message_check_internet".tr);
     }
     return null;
   }
 
   static String mentionPersonInHTML(String input, String name, String id) {
     String replacement =
-        '<span class="dx-mention" spellcheck="false" data-marker="@" data-mention-value="$name" data-id="$id"><span contenteditable="false"><span>@</span>$name</span></span>&nbsp;';
+        '<span class="dx-mention" contenteditable="false" spellcheck="false" data-marker="@" data-mention-value="$name" data-id="$id"><span contenteditable="false"><span>@</span>$name</span></span>&nbsp;';
 
     int lastIndex = input.lastIndexOf('@#');
     if (lastIndex == -1) return input;
@@ -543,6 +548,48 @@ class Helpers {
     return input.substring(0, lastIndex) +
         replacement +
         input.substring(lastIndex + 2);
+  }
+
+  static String updateDxMentionSpans(String htmlString) {
+    html_dom.Document document = html_parser.parse(htmlString);
+
+    document.querySelectorAll('span.dx-mention').forEach((span) {
+      if (span.attributes['contenteditable'] != 'false') {
+        span.attributes['contenteditable'] = 'false';
+      }
+    });
+
+    return document.body!.innerHtml;
+  }
+
+  static Future<void> downloadFileInDownloads(
+      {required String remoteEndPath}) async {
+    try {
+      var time = DateTime.now().millisecondsSinceEpoch;
+      var devicePath =
+          "/storage/emulated/0/Download/$time.${extension(remoteEndPath).replaceFirst('.', '')}";
+      var file = File(devicePath);
+
+      var response =
+          await http.get(Uri.parse(AppConsts.imgInitialUrl + remoteEndPath));
+
+      if (response.statusCode == 200) {
+        await file.writeAsBytes(response.bodyBytes);
+
+        if (await file.exists()) {
+          Get.snackbar("success".tr,
+              "Please check $time.${extension(remoteEndPath).replaceFirst('.', '')} in downloads.");
+        } else {
+          Get.snackbar("error".tr, "message_download_failed".tr);
+        }
+      } else {
+        Get.snackbar("error".tr, "message_download_failed".tr);
+      }
+    } catch (e) {
+      printLog(
+          description: "HELPERS_DOWNLOAD_FILE_IN_DOWNLOADS",
+          message: "ERROR = ${e.toString()}");
+    }
   }
 
   static String cleanMentions(String htmlContent) {
@@ -672,5 +719,19 @@ class Helpers {
     }
 
     return htmlParts.join("").replaceAll('"', r'\"');
+  }
+
+  static Future<bool> isInternetWorking() async {
+    try {
+      final result = await InternetAddress.lookup('teqtop.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        return true;
+      }
+    } on SocketException catch (e) {
+      printLog(
+          description: "HELPERS_IS_INTERNET_WORKING",
+          message: "ERROR = ${e.toString()}");
+    }
+    return false;
   }
 }

@@ -518,85 +518,86 @@ class ProjectDetailPage extends StatelessWidget {
                               //         focusNode: projectDetailController
                               //             .accessDetailFocusNode,
                               //       )
-                                  SelectableText(
-                                projectDetailController.projectDetail.value !=
-                                            null &&
-                                        projectDetailController.projectDetail.value!
-                                            .accessDetail is String
-                                    ? html_parser
-                                            .parse(projectDetailController
-                                                .projectDetail.value!.accessDetail)
-                                            .body
-                                            ?.children
-                                            .map((e) => e.text)
-                                            .join("\n") ??
-                                        ""
-                                    : "",
-                                style: Theme.of(context).textTheme.bodyMedium,
+                              //     SelectableText(
+                              //   projectDetailController.projectDetail.value !=
+                              //               null &&
+                              //           projectDetailController.projectDetail.value!
+                              //               .accessDetail is String
+                              //       ? html_parser
+                              //               .parse(projectDetailController
+                              //                   .projectDetail.value!.accessDetail)
+                              //               .body
+                              //               ?.children
+                              //               .map((e) => e.text)
+                              //               .join("\n") ??
+                              //           ""
+                              //       : "",
+                              //   style: Theme.of(context).textTheme.bodyMedium,
+                              // ),
+                              Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: SelectionArea(
+                                  child: Html(
+                                    data: projectDetailController
+                                                    .projectDetail.value !=
+                                                null &&
+                                            projectDetailController
+                                                .projectDetail
+                                                .value!
+                                                .accessDetail is String
+                                        ? projectDetailController
+                                            .projectDetail.value!.accessDetail
+                                        : "",
+                                    onLinkTap: (url, attributes, element) {
+                                      if (url != null) {
+                                        Helpers.openLink(url);
+                                      }
+                                    },
+                                  ),
+                                ),
                               ),
-                          //     Row(
-                          //   mainAxisSize: MainAxisSize.max,
-                          //   mainAxisAlignment: MainAxisAlignment.start,
-                          //   crossAxisAlignment: CrossAxisAlignment.start,
-                          //   children: [
-                          //     Expanded(
-                          //       child: Html(
-                          //         data: projectDetailController
-                          //                         .projectDetail.value !=
-                          //                     null &&
-                          //                 projectDetailController.projectDetail
-                          //                     .value!.accessDetail is String
-                          //             ? projectDetailController
-                          //                 .projectDetail.value!.accessDetail
-                          //             : "",
-                          //         onLinkTap: (url, attributes, element) {
-                          //           if (url != null) {
-                          //             Helpers.openLink(url);
-                          //           }
-                          //         },
-                          //         style: {
-                          //           "p": Style(fontSize: FontSize.medium),
-                          //         },
-                          //       ),
-                          //     ),
-                          //     const SizedBox(
-                          //       width: 12,
-                          //     ),
-                          //     Visibility(
-                          //       visible: projectDetailController
-                          //                   .projectDetail.value !=
-                          //               null &&
-                          //           projectDetailController.projectDetail.value!
-                          //               .accessDetail is String &&
-                          //           projectDetailController.projectDetail.value!
-                          //               .accessDetail.isNotEmpty,
-                          //       child: GestureDetector(
-                          //         behavior: HitTestBehavior.opaque,
-                          //         onTap: () {
-                          //           String plainText = html_parser
-                          //                   .parse(projectDetailController
-                          //                       .projectDetail
-                          //                       .value!
-                          //                       .accessDetail)
-                          //                   .body
-                          //                   ?.children
-                          //                   .map((e) => e.text)
-                          //                   .join("\n") ??
-                          //               "";
-                          //           Clipboard.setData(
-                          //               ClipboardData(text: plainText));
-                          //           Get.snackbar("success".tr,
-                          //               "message_copied_to_clipboard".tr);
-                          //         },
-                          //         child: const Icon(
-                          //           Icons.copy_rounded,
-                          //           color: Colors.black,
-                          //           size: 24,
-                          //         ),
-                          //       ),
-                          //     )
-                          //   ],
-                          // ),
+                              // const SizedBox(
+                              //   width: 12,
+                              // ),
+                              // Visibility(
+                              //   visible: projectDetailController
+                              //               .projectDetail.value !=
+                              //           null &&
+                              //       projectDetailController.projectDetail.value!
+                              //           .accessDetail is String &&
+                              //       projectDetailController.projectDetail.value!
+                              //           .accessDetail.isNotEmpty,
+                              //   child: GestureDetector(
+                              //     behavior: HitTestBehavior.opaque,
+                              //     onTap: () {
+                              //       String plainText = html_parser
+                              //               .parse(projectDetailController
+                              //                   .projectDetail
+                              //                   .value!
+                              //                   .accessDetail)
+                              //               .body
+                              //               ?.children
+                              //               .map((e) => e.text)
+                              //               .join("\n") ??
+                              //           "";
+                              //       Clipboard.setData(
+                              //           ClipboardData(text: plainText));
+                              //       Get.snackbar("success".tr,
+                              //           "message_copied_to_clipboard".tr);
+                              //     },
+                              //     child: const Icon(
+                              //       Icons.copy_rounded,
+                              //       color: Colors.black,
+                              //       size: 24,
+                              //     ),
+                              //   ),
+                              // )
+                            ],
+                          ),
                         )),
                   const SizedBox(
                     height: 16,

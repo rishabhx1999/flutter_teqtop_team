@@ -58,8 +58,7 @@ class CreateEditEmployeeAssignedProjectsHoursPage extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 16, right: 16),
                   child: Image.asset(
                     AppIcons.icBack,
-                    color:
-                        Colors.black,
+                    color: Colors.black,
                   ),
                 )),
             leadingWidth: 40,
@@ -78,8 +77,7 @@ class CreateEditEmployeeAssignedProjectsHoursPage extends StatelessWidget {
                     child: Image.asset(
                       AppIcons.icSearch,
                       width: 24,
-                      color:
-                          Colors.black,
+                      color: Colors.black,
                     )),
               ),
               GestureDetector(
@@ -383,8 +381,9 @@ class CreateEditEmployeeAssignedProjectsHoursPage extends StatelessWidget {
                                         .copyWith(color: Colors.white),
                                   ),
                                   Image.asset(
-                                    AppIcons.icDropdownWhite,
+                                    AppIcons.icDropdown,
                                     width: 16,
+                                    color: Colors.white,
                                   )
                                 ],
                               ),

@@ -6,6 +6,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:html/parser.dart' as html_parser;
 
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/model/drive_detail/file_model.dart';
 import 'package:teqtop_team/utils/helpers.dart';
@@ -205,38 +206,40 @@ class _CommentWidgetState extends State<CommentWidget>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Html(
-                          data: widget.commentData.comment,
-                          onLinkTap: (url, attributes, element) {
-                            if (url != null) {
-                              Helpers.openLink(url);
-                            }
-                          },
+                        child: SelectionArea(
+                          child: Html(
+                            data: widget.commentData.comment,
+                            onLinkTap: (url, attributes, element) {
+                              if (url != null) {
+                                Helpers.openLink(url);
+                              }
+                            },
+                          ),
                         ),
                       ),
-                      const SizedBox(
-                        width: 12,
-                      ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          String plainText = html_parser
-                                  .parse(widget.commentData.comment)
-                                  .body
-                                  ?.children
-                                  .map((e) => e.text)
-                                  .join("\n") ??
-                              "";
-                          Clipboard.setData(ClipboardData(text: plainText));
-                          Get.snackbar(
-                              "success".tr, "message_copied_to_clipboard".tr);
-                        },
-                        child: const Icon(
-                          Icons.copy_rounded,
-                          color: Colors.black,
-                          size: 24,
-                        ),
-                      )
+                      // const SizedBox(
+                      //   width: 12,
+                      // ),
+                      // GestureDetector(
+                      //   behavior: HitTestBehavior.opaque,
+                      //   onTap: () {
+                      //     String plainText = html_parser
+                      //             .parse(widget.commentData.comment)
+                      //             .body
+                      //             ?.children
+                      //             .map((e) => e.text)
+                      //             .join("\n") ??
+                      //         "";
+                      //     Clipboard.setData(ClipboardData(text: plainText));
+                      //     Get.snackbar(
+                      //         "success".tr, "message_copied_to_clipboard".tr);
+                      //   },
+                      //   child: const Icon(
+                      //     Icons.copy_rounded,
+                      //     color: Colors.black,
+                      //     size: 24,
+                      //   ),
+                      // )
                     ],
                   ),
                 )
@@ -305,59 +308,80 @@ class _CommentWidgetState extends State<CommentWidget>
                     shrinkWrap: true,
                     padding: const EdgeInsets.only(top: 10),
                     itemBuilder: (context, index) {
-                      return GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () async {
-                          documents[index].isLoading.value = true;
-                          await Helpers.openFile(
-                              path: documents[index].file,
-                              fileName: documents[index].file.split("/").last);
-                          documents[index].isLoading.value = false;
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.only(
-                              left: 10, right: 10, top: 10, bottom: 10),
-                          decoration: BoxDecoration(
-                              color: AppColors.kPrimaryColor
-                                  .withValues(alpha: 0.1)),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  documents[index].file.split("/").last,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: AppColors.kPrimaryColor,
+                      return Obx(() => documents[index].isLoading.value
+                          ? Shimmer.fromColors(
+                              baseColor: AppColors.shimmerBaseColor,
+                              highlightColor: AppColors.shimmerHighlightColor,
+                              child: Container(
+                                width: double.infinity,
+                                height: 50,
+                                color: AppColors.shimmerBaseColor,
+                              ))
+                          : GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () async {
+                                documents[index].isLoading.value = true;
+                                await Helpers.openFile(
+                                    path: documents[index].file,
+                                    fileName:
+                                        documents[index].file.split("/").last);
+                                documents[index].isLoading.value = false;
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.only(
+                                    left: 10, right: 10, top: 10, bottom: 10),
+                                decoration: BoxDecoration(
+                                    color: AppColors.kPrimaryColor
+                                        .withValues(alpha: 0.1)),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        documents[index].file.split("/").last,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: AppColors.kPrimaryColor,
+                                            ),
                                       ),
+                                    ),
+                                    const SizedBox(
+                                      width: 4,
+                                    ),
+                                    // Obx(() => documents[index].isLoading.value
+                                    //     ? Padding(
+                                    //         padding: const EdgeInsets.all(6.0),
+                                    //         child: SizedBox(
+                                    //           width: 20,
+                                    //           height: 20,
+                                    //           child: CircularProgressIndicator(
+                                    //               strokeWidth: 2,
+                                    //               color:
+                                    //                   AppColors.kPrimaryColor),
+                                    //         ),
+                                    //       )
+                                    //     : GestureDetector(
+                                    //         behavior: HitTestBehavior.opaque,
+                                    //         child: Padding(
+                                    //           padding:
+                                    //               const EdgeInsets.all(6.0),
+                                    //           child: Image.asset(
+                                    //             AppIcons.icDownload,
+                                    //             width: 20,
+                                    //           ),
+                                    //         ),
+                                    //       ))
+                                  ],
                                 ),
                               ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Obx(() => documents[index].isLoading.value
-                                  ? SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: AppColors.kPrimaryColor),
-                                    )
-                                  : Image.asset(
-                                      AppIcons.icDownload,
-                                      width: 20,
-                                    ))
-                            ],
-                          ),
-                        ),
-                      );
+                            ));
                     },
                     separatorBuilder: (context, index) {
                       return const SizedBox(

@@ -35,7 +35,6 @@ class EmployeeDetailController extends GetxController
     super.onInit();
   }
 
-
   @override
   void onClose() {
     disposeTabController();
@@ -62,12 +61,16 @@ class EmployeeDetailController extends GetxController
     if (id != null) {
       isEmployeeDetailLoading.value = true;
       try {
-        var response = await GetRequests.getEmployeeDetails(id!);
-        if (response != null) {
-          employeeDetail.value = response;
-          await extractEmployeeDocuments();
+        if (await Helpers.isInternetWorking()) {
+          var response = await GetRequests.getEmployeeDetails(id!);
+          if (response != null) {
+            employeeDetail.value = response;
+            await extractEmployeeDocuments();
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
+          }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isEmployeeDetailLoading.value = false;
@@ -142,14 +145,18 @@ class EmployeeDetailController extends GetxController
 
       areEmployeeLeavesLoading.value = true;
       try {
-        var response = await GetRequests.getLeaves(requestBody);
-        if (response != null) {
-          if (response.data != null) {
-            leaves.assignAll(response.data as Iterable<LeaveModel?>);
-            groupLeavesByMonth();
+        if (await Helpers.isInternetWorking()) {
+          var response = await GetRequests.getLeaves(requestBody);
+          if (response != null) {
+            if (response.data != null) {
+              leaves.assignAll(response.data as Iterable<LeaveModel?>);
+              groupLeavesByMonth();
+            }
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         areEmployeeLeavesLoading.value = false;

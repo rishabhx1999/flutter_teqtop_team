@@ -8,6 +8,7 @@ import '../../model/global_search/drive_model.dart';
 import '../../model/global_search/project_model.dart';
 import '../../model/global_search/task_model.dart';
 import '../../network/post_requests.dart';
+import '../../utils/helpers.dart';
 import '../../utils/preference_manager.dart';
 
 class GlobalSearchController extends GetxController {
@@ -83,19 +84,27 @@ class GlobalSearchController extends GetxController {
     if (searchText.isNotEmpty) {
       isLoading.value = true;
       try {
-        Map<String, dynamic> requestBody = {
-          'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-              as String?,
-          'search': searchText.value,
-        };
-        var response = await PostRequests.searchGlobal(requestBody);
-        if (response != null) {
-          employees.assignAll(response.members as Iterable<EmployeeModel?>);
-          tasks.assignAll(response.tasks as Iterable<TaskModel?>);
-          projects.assignAll(response.projects as Iterable<ProjectModel?>);
-          drives.assignAll(response.drives as Iterable<DriveModel?>);
+        if (await Helpers.isInternetWorking()) {
+          Map<String, dynamic> requestBody = {
+            'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+                as String?,
+            'search': searchText.value,
+          };
+          var response = await PostRequests.searchGlobal(requestBody);
+          if (response != null) {
+            employees.assignAll(response.members as Iterable<EmployeeModel?>);
+            tasks.assignAll(response.tasks as Iterable<TaskModel?>);
+            projects.assignAll(response.projects as Iterable<ProjectModel?>);
+            drives.assignAll(response.drives as Iterable<DriveModel?>);
+            employees.refresh();
+            tasks.refresh();
+            projects.refresh();
+            drives.refresh();
+          } else {
+            Get.snackbar('error'.tr, 'message_server_error'.tr);
+          }
         } else {
-          Get.snackbar('error'.tr, 'message_server_error'.tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isLoading.value = false;

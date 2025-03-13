@@ -4,6 +4,7 @@ import 'package:teqtop_team/model/global_search/task_model.dart';
 import '../../config/app_routes.dart';
 import '../../consts/app_consts.dart';
 import '../../network/get_requests.dart';
+import '../../utils/helpers.dart';
 import '../../utils/preference_manager.dart';
 import '../dashboard/dashboard_controller.dart';
 
@@ -188,21 +189,24 @@ class TasksListingController extends GetxController {
 
       isLoading.value = true;
       try {
-        var response = await GetRequests.getTasks(requestBody);
-        if (response != null) {
-          if (response.data != null) {
+        if (await Helpers.isInternetWorking()) {
+          var response = await GetRequests.getTasks(requestBody);
+          if (response != null) {
+            if (response.data != null) {
+              for (var existingTask in tasks) {
+                response.data!.removeWhere((task) =>
+                    task != null &&
+                    existingTask != null &&
+                    task.id == existingTask.id);
+              }
 
-            for (var existingTask in tasks) {
-              response.data!.removeWhere((task) =>
-              task != null &&
-                  existingTask != null &&
-                  task.id == existingTask.id);
+              tasks.addAll(response.data as Iterable<TaskModel?>);
             }
-
-            tasks.addAll(response.data as Iterable<TaskModel?>);
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isLoading.value = false;

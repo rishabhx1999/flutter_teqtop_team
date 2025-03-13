@@ -5,6 +5,7 @@ import 'package:teqtop_team/controllers/employee_detail/employee_detail_controll
 
 import '../../model/employees_listing/employee_model.dart';
 import '../../network/put_requests.dart';
+import '../../utils/helpers.dart';
 
 class EditEmployeeInformationController extends GetxController {
   final GlobalKey<FormState> formKey = GlobalKey();
@@ -94,19 +95,23 @@ class EditEmployeeInformationController extends GetxController {
 
       isLoading.value = true;
       try {
-        var response = await PutRequests.editEmployeeInfo(
-            requestBody, employeeDetail!.userId!);
-        if (response != null) {
-          if (response.status == "success") {
-            final employeeDetailController =
-                Get.find<EmployeeDetailController>();
-            employeeDetailController.getEmployeeDetails();
-            Get.back();
+        if (await Helpers.isInternetWorking()) {
+          var response = await PutRequests.editEmployeeInfo(
+              requestBody, employeeDetail!.userId!);
+          if (response != null) {
+            if (response.status == "success") {
+              final employeeDetailController =
+                  Get.find<EmployeeDetailController>();
+              employeeDetailController.getEmployeeDetails();
+              Get.back();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
+            }
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         // isLoading.value = false;

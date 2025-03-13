@@ -166,6 +166,7 @@ class LocalStrings extends Translations {
           //
           'error': 'Error',
           'success': 'Success',
+          'message_download_failed': 'Download failed! Try again.',
           'message_adding_content_in_between': 'Adding in between',
           'message_copied_to_clipboard': 'Text copied to clipboard!',
           'message_enter_email': 'Please enter your email address',
@@ -236,6 +237,7 @@ class LocalStrings extends Translations {
           'message_logout': 'Are you sure you want to log Out?',
           'message_pause_project': 'Are you want to pause this project',
           'message_enter_something': 'Please enter something',
+          'message_check_internet': 'Please check internet connection.'
         }
       };
 }

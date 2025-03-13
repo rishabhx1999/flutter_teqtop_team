@@ -13,6 +13,7 @@ import '../../model/employees_listing/employee_model.dart';
 import '../../model/global_search/project_model.dart';
 import '../../network/get_requests.dart';
 import '../../network/put_requests.dart';
+import '../../utils/helpers.dart';
 import '../../utils/preference_manager.dart';
 import '../dashboard/dashboard_controller.dart';
 
@@ -122,15 +123,19 @@ class CreateEditEmployeeAssignedProjectsHoursController extends GetxController {
 
       areUsersLoading.value = true;
       try {
-        var response = await GetRequests.getEmployees(requestBody);
-        if (response != null) {
-          if (response.data != null) {
-            users.assignAll(response.data!.toList());
-            users.insert(0, EmployeeModel(name: "select_user".tr));
-            selectedUser.value = users[0];
+        if (await Helpers.isInternetWorking()) {
+          var response = await GetRequests.getEmployees(requestBody);
+          if (response != null) {
+            if (response.data != null) {
+              users.assignAll(response.data!.toList());
+              users.insert(0, EmployeeModel(name: "select_user".tr));
+              selectedUser.value = users[0];
+            }
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         areUsersLoading.value = false;
@@ -245,26 +250,30 @@ class CreateEditEmployeeAssignedProjectsHoursController extends GetxController {
 
     areProjectsLoading.value = true;
     try {
-      var response = await GetRequests.getProjects(requestBody);
-      if (response != null) {
-        if (response.data != null) {
-          response.data!.removeWhere((element) =>
-              element != null &&
-              element.trash != null &&
-              element.trash!.toLowerCase().contains("trash"));
-          for (var employeeAssignedProject in employeeAssignedProjectsHours) {
-            var project = response.data!.firstWhereOrNull((project) =>
-                project != null &&
-                project.id != null &&
-                project.id == employeeAssignedProject.projectId);
-            if (project != null) {
-              project.multiUse.value = true;
+      if (await Helpers.isInternetWorking()) {
+        var response = await GetRequests.getProjects(requestBody);
+        if (response != null) {
+          if (response.data != null) {
+            response.data!.removeWhere((element) =>
+                element != null &&
+                element.trash != null &&
+                element.trash!.toLowerCase().contains("trash"));
+            for (var employeeAssignedProject in employeeAssignedProjectsHours) {
+              var project = response.data!.firstWhereOrNull((project) =>
+                  project != null &&
+                  project.id != null &&
+                  project.id == employeeAssignedProject.projectId);
+              if (project != null) {
+                project.multiUse.value = true;
+              }
             }
+            projects.assignAll(response.data!.toList());
           }
-          projects.assignAll(response.data!.toList());
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       areProjectsLoading.value = false;
@@ -396,25 +405,29 @@ class CreateEditEmployeeAssignedProjectsHoursController extends GetxController {
         employeeAssignedProjectsHours.isNotEmpty) {
       isCreateUpdateLoading.value = true;
       try {
-        Map<String, dynamic> requestBody = {
-          'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-              as String?,
-          'check': 'true',
-          'details': json,
-          'removed': removeEmployeeAssignedProjectsHours,
-          '_method': '"PUT"',
-        };
-        var response = await PutRequests.editEmployeeAssignedProjectsHours(
-            requestBody, employeeAssignedProjectsHoursId!);
-        if (response != null) {
-          if (response.status == "success") {
-            await refreshPreviousPageData();
-            Get.back();
+        if (await Helpers.isInternetWorking()) {
+          Map<String, dynamic> requestBody = {
+            'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+                as String?,
+            'check': 'true',
+            'details': json,
+            'removed': removeEmployeeAssignedProjectsHours,
+            '_method': '"PUT"',
+          };
+          var response = await PutRequests.editEmployeeAssignedProjectsHours(
+              requestBody, employeeAssignedProjectsHoursId!);
+          if (response != null) {
+            if (response.status == "success") {
+              await refreshPreviousPageData();
+              Get.back();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
+            }
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isCreateUpdateLoading.value = false;
@@ -440,21 +453,25 @@ class CreateEditEmployeeAssignedProjectsHoursController extends GetxController {
         selectedUser.value!.id != null) {
       isCreateUpdateLoading.value = true;
       try {
-        Map<String, dynamic> requestBody = {
-          'project': json,
-          'user': selectedUser.value!.id.toString()
-        };
-        var response =
-            await PostRequests.createEmployeeAssignedProjectsHours(requestBody);
-        if (response != null) {
-          if (response.status == "success") {
-            await refreshPreviousPageData();
-            Get.back();
+        if (await Helpers.isInternetWorking()) {
+          Map<String, dynamic> requestBody = {
+            'project': json,
+            'user': selectedUser.value!.id.toString()
+          };
+          var response = await PostRequests.createEmployeeAssignedProjectsHours(
+              requestBody);
+          if (response != null) {
+            if (response.status == "success") {
+              await refreshPreviousPageData();
+              Get.back();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
+            }
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isCreateUpdateLoading.value = false;

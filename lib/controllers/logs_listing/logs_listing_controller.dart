@@ -4,6 +4,7 @@ import 'package:teqtop_team/model/logs_listing/log_model.dart';
 import '../../config/app_routes.dart';
 import '../../consts/app_consts.dart';
 import '../../network/get_requests.dart';
+import '../../utils/helpers.dart';
 import '../../utils/preference_manager.dart';
 import '../dashboard/dashboard_controller.dart';
 
@@ -109,15 +110,19 @@ class LogsListingController extends GetxController {
 
     isLoading.value = true;
     try {
-      var response = await GetRequests.getLogs(requestBody);
-      if (response != null) {
-        if (response.data != null) {
-          logs.assignAll(response.data as Iterable<LogModel?>);
+      if (await Helpers.isInternetWorking()) {
+        var response = await GetRequests.getLogs(requestBody);
+        if (response != null) {
+          if (response.data != null) {
+            logs.assignAll(response.data as Iterable<LogModel?>);
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
+          }
         } else {
           Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       isLoading.value = false;

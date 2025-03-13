@@ -324,43 +324,47 @@ class DashboardController extends GetxController
     arePostsLoading.value = true;
     arePostsLoading.refresh();
     try {
-      Map<String, String> requestBody = {};
-      var response = await GetRequests.getPosts(requestBody);
-      if (response != null) {
-        if (response.feeds != null) {
-          posts.assignAll(response.feeds!.toList());
-          // for (var post in posts) {
-          //   if (post != null && post.feedItems.isEmpty) {
-          //     String? html = post.description;
-          //     if (html != null && html.isNotEmpty) {
-          //       var items = await Helpers.convertHTMLToMultimediaContent(html);
-          //       post.feedItems.assignAll(items);
-          //       for (var item in post.feedItems) {
-          //         if (item.imageString != null &&
-          //             item.imageString!.isNotEmpty) {
-          //           item.downloadedImage = await Helpers.downloadFile(
-          //               AppConsts.imgInitialUrl + item.imageString!,
-          //               item.imageString!.split("/").last);
-          //         }
-          //         // Helpers.printLog(
-          //         //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
-          //         //     message: "ITEM = ${item.toString()}");
-          //       }
-          //     }
-          //   }
-          // }
-          if (editPostPreviousValue != null &&
-              editPostPreviousValue!.id != null) {
-            posts.removeWhere(
-                (post) => post != null && post.id == editPostPreviousValue!.id);
-          }
+      if (await Helpers.isInternetWorking()) {
+        Map<String, String> requestBody = {};
+        var response = await GetRequests.getPosts(requestBody);
+        if (response != null) {
+          if (response.feeds != null) {
+            posts.assignAll(response.feeds!.toList());
+            // for (var post in posts) {
+            //   if (post != null && post.feedItems.isEmpty) {
+            //     String? html = post.description;
+            //     if (html != null && html.isNotEmpty) {
+            //       var items = await Helpers.convertHTMLToMultimediaContent(html);
+            //       post.feedItems.assignAll(items);
+            //       for (var item in post.feedItems) {
+            //         if (item.imageString != null &&
+            //             item.imageString!.isNotEmpty) {
+            //           item.downloadedImage = await Helpers.downloadFile(
+            //               AppConsts.imgInitialUrl + item.imageString!,
+            //               item.imageString!.split("/").last);
+            //         }
+            //         // Helpers.printLog(
+            //         //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
+            //         //     message: "ITEM = ${item.toString()}");
+            //       }
+            //     }
+            //   }
+            // }
+            if (editPostPreviousValue != null &&
+                editPostPreviousValue!.id != null) {
+              posts.removeWhere((post) =>
+                  post != null && post.id == editPostPreviousValue!.id);
+            }
 
-          feedPage++;
+            feedPage++;
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
+          }
         } else {
           Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       arePostsLoading.value = false;
@@ -391,54 +395,58 @@ class DashboardController extends GetxController
   Future<void> getMorePosts() async {
     areMorePostsLoading.value = true;
     try {
-      Map<String, dynamic> requestBody = {
-        'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-            as String?,
-        'search': '',
-        'page': feedPage.toString(),
-      };
+      if (await Helpers.isInternetWorking()) {
+        Map<String, dynamic> requestBody = {
+          'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+              as String?,
+          'search': '',
+          'page': feedPage.toString(),
+        };
 
-      var response = await PostRequests.getMorePosts(requestBody);
-      if (response != null) {
-        if (response.feeds != null) {
-          Set<int?> existingPostIds = posts.map((c) => c?.id).toSet();
+        var response = await PostRequests.getMorePosts(requestBody);
+        if (response != null) {
+          if (response.feeds != null) {
+            Set<int?> existingPostIds = posts.map((c) => c?.id).toSet();
 
-          List newPosts = response.feeds!
-              .where((c) => !existingPostIds.contains(c?.id))
-              .toList();
+            List newPosts = response.feeds!
+                .where((c) => !existingPostIds.contains(c?.id))
+                .toList();
 
-          posts.addAll(newPosts as Iterable<FeedModel?>);
-          // for (var post in posts) {
-          //   if (post != null && post.feedItems.isEmpty) {
-          //     String? html = post.description;
-          //     if (html != null && html.isNotEmpty) {
-          //       var items = await Helpers.convertHTMLToMultimediaContent(html);
-          //       post.feedItems.assignAll(items);
-          //       for (var item in post.feedItems) {
-          //         if (item.imageString != null &&
-          //             item.imageString!.isNotEmpty) {
-          //           item.downloadedImage = await Helpers.downloadFile(
-          //               AppConsts.imgInitialUrl + item.imageString!,
-          //               item.imageString!.split("/").last);
-          //         }
-          //         // Helpers.printLog(
-          //         //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
-          //         //     message: "ITEM = ${item.toString()}");
-          //       }
-          //     }
-          //   }
-          // }
-          if (editPostPreviousValue != null &&
-              editPostPreviousValue!.id != null) {
-            posts.removeWhere(
-                (post) => post != null && post.id == editPostPreviousValue!.id);
+            posts.addAll(newPosts as Iterable<FeedModel?>);
+            // for (var post in posts) {
+            //   if (post != null && post.feedItems.isEmpty) {
+            //     String? html = post.description;
+            //     if (html != null && html.isNotEmpty) {
+            //       var items = await Helpers.convertHTMLToMultimediaContent(html);
+            //       post.feedItems.assignAll(items);
+            //       for (var item in post.feedItems) {
+            //         if (item.imageString != null &&
+            //             item.imageString!.isNotEmpty) {
+            //           item.downloadedImage = await Helpers.downloadFile(
+            //               AppConsts.imgInitialUrl + item.imageString!,
+            //               item.imageString!.split("/").last);
+            //         }
+            //         // Helpers.printLog(
+            //         //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
+            //         //     message: "ITEM = ${item.toString()}");
+            //       }
+            //     }
+            //   }
+            // }
+            if (editPostPreviousValue != null &&
+                editPostPreviousValue!.id != null) {
+              posts.removeWhere((post) =>
+                  post != null && post.id == editPostPreviousValue!.id);
+            }
+            feedPage++;
+          } else {
+            // Get.snackbar("error".tr, "message_server_error".tr);
           }
-          feedPage++;
         } else {
           // Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        // Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       areMorePostsLoading.value = false;
@@ -447,7 +455,7 @@ class DashboardController extends GetxController
   }
 
   Future<void> getComments() async {
-    Helpers.printLog(description: "DASHBOARD_CONTROLLER_GET_COMMENTS");
+    // Helpers.printLog(description: "DASHBOARD_CONTROLLER_GET_COMMENTS");
     int commentsPerPage = 10;
     int maxPage = (currentCommentsLength.value / commentsPerPage).ceil();
     int singlePostCommentsPage =
@@ -465,73 +473,78 @@ class DashboardController extends GetxController
       if (commentsSheetScrollController.hasClients &&
           commentsListPreviousOffset == 0) {
         commentsListPreviousOffset = commentsSheetScrollController.offset;
-        Helpers.printLog(
-            description: "DASHBOARD_CONTROLLER_GET_COMMENTS",
-            message:
-                "PREVIOUS_OFFSET = ${commentsListPreviousOffset.toString()}");
+        // Helpers.printLog(
+        //     description: "DASHBOARD_CONTROLLER_GET_COMMENTS",
+        //     message:
+        //         "PREVIOUS_OFFSET = ${commentsListPreviousOffset.toString()}");
       }
       areCommentsLoading.value = true;
       try {
-        Map<String, dynamic> requestBody = {
-          'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-              as String?,
-          'component_id': currentCommentsPostID,
-          'component': 'feed',
-          'pager': singlePostCommentsPage,
-        };
+        if (await Helpers.isInternetWorking()) {
+          Map<String, dynamic> requestBody = {
+            'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+                as String?,
+            'component_id': currentCommentsPostID,
+            'component': 'feed',
+            'pager': singlePostCommentsPage,
+          };
 
-        var response = await PostRequests.getComments(requestBody);
-        if (response != null) {
-          if (response.status == "success") {
-            if (response.comments != null) {
-              Set<int?> existingCommentIds =
-                  singlePostComments.map((c) => c?.id).toSet();
+          var response = await PostRequests.getComments(requestBody);
+          if (response != null) {
+            if (response.status == "success") {
+              if (response.comments != null) {
+                Set<int?> existingCommentIds =
+                    singlePostComments.map((c) => c?.id).toSet();
 
-              List newComments = response.comments!
-                  .where((c) => !existingCommentIds.contains(c?.id))
-                  .toList();
+                List newComments = response.comments!
+                    .where((c) => !existingCommentIds.contains(c?.id))
+                    .toList();
 
-              singlePostComments.addAll(newComments as Iterable<CommentList?>);
-              // for (var comment in singlePostComments) {
-              //   if (comment != null && comment.commentItems.isEmpty) {
-              //     String? html = comment.comment;
-              //     if (html != null && html.isNotEmpty) {
-              //       var items =
-              //           await Helpers.convertHTMLToMultimediaContent(html);
-              //       comment.commentItems.assignAll(items);
-              //       for (var item in comment.commentItems) {
-              //         if (item.imageString != null &&
-              //             item.imageString!.isNotEmpty) {
-              //           item.downloadedImage = await Helpers.downloadFile(
-              //               AppConsts.imgInitialUrl + item.imageString!,
-              //               item.imageString!.split("/").last);
-              //         }
-              //         // Helpers.printLog(
-              //         //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
-              //         //     message: "ITEM = ${item.toString()}");
-              //       }
-              //     }
-              //   }
-              // }
+                singlePostComments
+                    .addAll(newComments as Iterable<CommentList?>);
+                // for (var comment in singlePostComments) {
+                //   if (comment != null && comment.commentItems.isEmpty) {
+                //     String? html = comment.comment;
+                //     if (html != null && html.isNotEmpty) {
+                //       var items =
+                //           await Helpers.convertHTMLToMultimediaContent(html);
+                //       comment.commentItems.assignAll(items);
+                //       for (var item in comment.commentItems) {
+                //         if (item.imageString != null &&
+                //             item.imageString!.isNotEmpty) {
+                //           item.downloadedImage = await Helpers.downloadFile(
+                //               AppConsts.imgInitialUrl + item.imageString!,
+                //               item.imageString!.split("/").last);
+                //         }
+                //         // Helpers.printLog(
+                //         //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
+                //         //     message: "ITEM = ${item.toString()}");
+                //       }
+                //     }
+                //   }
+                // }
 
-              // for (var comment in newComments) {
-              //   comment.editController = TextEditingController();
-              // }
-              singlePostComments.refresh();
-              if (commentsListPreviousOffset != 0 &&
-                  shouldCommentsSheetScrollerJumpToPrevious == true) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  commentsSheetScrollController
-                      .jumpTo(commentsListPreviousOffset);
-                  commentsListPreviousOffset = 0;
-                });
+                // for (var comment in newComments) {
+                //   comment.editController = TextEditingController();
+                // }
+                singlePostComments.refresh();
+                if (commentsListPreviousOffset != 0 &&
+                    shouldCommentsSheetScrollerJumpToPrevious == true) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    commentsSheetScrollController
+                        .jumpTo(commentsListPreviousOffset);
+                    commentsListPreviousOffset = 0;
+                  });
+                }
               }
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
             }
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         areCommentsLoading.value = false;
@@ -542,16 +555,20 @@ class DashboardController extends GetxController
 
   Future<void> getLoggedInUser() async {
     // Helpers.printLog(description: 'DASHBOARD_CONTROLLER_GET_LOGGED_IN_USER');
-    var response = await GetRequests.getLoggedInUserData();
-    if (response != null) {
-      if (response.user != null) {
-        loggedInUser.value = response.user;
-        saveProfileDataToPref(response.user!);
+    if (await Helpers.isInternetWorking()) {
+      var response = await GetRequests.getLoggedInUserData();
+      if (response != null) {
+        if (response.user != null) {
+          loggedInUser.value = response.user;
+          saveProfileDataToPref(response.user!);
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
+        }
       } else {
         Get.snackbar("error".tr, "message_server_error".tr);
       }
     } else {
-      Get.snackbar("error".tr, "message_server_error".tr);
+      Get.snackbar("error".tr, "message_check_internet".tr);
     }
   }
 
@@ -807,27 +824,31 @@ class DashboardController extends GetxController
     isPostCreateEditLoading.value = true;
     isPostCreateEditLoading.refresh();
     try {
-      Map<String, dynamic> requestBody = {
-        'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-            as String?,
-        'feed': await createPostHtmlEditorController.getText(),
-        'files': [...createPostAttachedImages, ...createPostAttachedDocuments]
-      };
-      var response = await PostRequests.createPost(requestBody);
-      if (response != null && response.status == "success") {
-        createPostHtmlEditorContent.value = "<p></p>";
-        createPostAttachedImages.clear();
-        createPostAttachedDocuments.clear();
-        postFieldContent.clear();
-        isPostFieldTextEmpty.value = true;
-        showCreateEditPostWidget.value = false;
+      if (await Helpers.isInternetWorking()) {
+        Map<String, dynamic> requestBody = {
+          'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+              as String?,
+          'feed': await createPostHtmlEditorController.getText(),
+          'files': [...createPostAttachedImages, ...createPostAttachedDocuments]
+        };
+        var response = await PostRequests.createPost(requestBody);
+        if (response != null && response.status == "success") {
+          createPostHtmlEditorContent.value = "<p></p>";
+          createPostAttachedImages.clear();
+          createPostAttachedDocuments.clear();
+          postFieldContent.clear();
+          isPostFieldTextEmpty.value = true;
+          showCreateEditPostWidget.value = false;
 
-        handlePostButtonEnable();
-        posts.clear();
-        feedPage = 1;
-        getPosts();
+          handlePostButtonEnable();
+          posts.clear();
+          feedPage = 1;
+          getPosts();
+        } else {
+          Get.snackbar('error'.tr, 'message_server_error'.tr);
+        }
       } else {
-        Get.snackbar('error'.tr, 'message_server_error'.tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       isPostCreateEditLoading.value = false;
@@ -851,35 +872,42 @@ class DashboardController extends GetxController
         editPostIndex != null) {
       isPostCreateEditLoading.value = true;
       try {
-        Map<String, dynamic> requestBody = {
-          'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-              as String?,
-          'feed': await createPostHtmlEditorController.getText(),
-          'files': [...createPostAttachedImages, ...createPostAttachedDocuments]
-        };
-        var response = await PostRequests.editPost(requestBody, editPostId!);
-        if (response != null && response.status == "success") {
-          editPostPreviousValue!.description =
-              await createPostHtmlEditorController.getText();
-          editPostPreviousValue!.files = json.encode(
-              [...createPostAttachedImages, ...createPostAttachedDocuments]);
-          String? html = editPostPreviousValue!.description;
-          if (html != null && html.isNotEmpty) {
-            var items = await Helpers.convertHTMLToMultimediaContent(html);
-            editPostPreviousValue!.feedItems.assignAll(items);
-            for (var item in editPostPreviousValue!.feedItems) {
-              if (item.imageString != null && item.imageString!.isNotEmpty) {
-                item.downloadedImage = await Helpers.downloadFile(
-                    AppConsts.imgInitialUrl + item.imageString!,
-                    item.imageString!.split("/").last);
+        if (await Helpers.isInternetWorking()) {
+          Map<String, dynamic> requestBody = {
+            'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+                as String?,
+            'feed': await createPostHtmlEditorController.getText(),
+            'files': [
+              ...createPostAttachedImages,
+              ...createPostAttachedDocuments
+            ]
+          };
+          var response = await PostRequests.editPost(requestBody, editPostId!);
+          if (response != null && response.status == "success") {
+            editPostPreviousValue!.description =
+                await createPostHtmlEditorController.getText();
+            editPostPreviousValue!.files = json.encode(
+                [...createPostAttachedImages, ...createPostAttachedDocuments]);
+            String? html = editPostPreviousValue!.description;
+            if (html != null && html.isNotEmpty) {
+              var items = await Helpers.convertHTMLToMultimediaContent(html);
+              editPostPreviousValue!.feedItems.assignAll(items);
+              for (var item in editPostPreviousValue!.feedItems) {
+                if (item.imageString != null && item.imageString!.isNotEmpty) {
+                  item.downloadedImage = await Helpers.downloadFile(
+                      AppConsts.imgInitialUrl + item.imageString!,
+                      item.imageString!.split("/").last);
+                }
+                // Helpers.printLog(
+                //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
+                //     message: "ITEM = ${item.toString()}");
               }
-              // Helpers.printLog(
-              //     description: "COMMENT_WIDGET_GET_COMMENT_ITEMS",
-              //     message: "ITEM = ${item.toString()}");
             }
+          } else {
+            Get.snackbar('error'.tr, 'message_server_error'.tr);
           }
         } else {
-          Get.snackbar('error'.tr, 'message_server_error'.tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         posts.insert(editPostIndex!, editPostPreviousValue);
@@ -917,58 +945,62 @@ class DashboardController extends GetxController
       //     description: "DASHBOARD_CONTROLLER_CREATE_COMMENT",
       //     message: "COMMENT = $comment");
       if (comment.isNotEmpty) {
-        String quotedComment = '"$comment"';
-        // Helpers.printLog(
-        //     description: "DASHBOARD_CONTROLLER_CREATE_COMMENT",
-        //     message: "COMMENT = $comment");
-        Map<String, dynamic> requestBody = {
-          'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-              as String?,
-          'component_id': currentCommentsPostID,
-          'component': 'feed',
-          'comment': quotedComment,
-          'files': [
-            ...commentFieldAttachedImages,
-            ...commentFieldAttachedDocuments
-          ]
-        };
-        var response = await PostRequests.createComment(requestBody);
-        if (response != null) {
-          commentFieldHtmlEditorHtmlContent.value = "<p></p>";
-          commentFieldAttachedImages.clear();
-          commentFieldAttachedDocuments.clear();
-          commentFieldContent.clear();
-          isCommentFieldTextEmpty.value = true;
-          showCreateCommentWidget.value = false;
+        if (await Helpers.isInternetWorking()) {
+          String quotedComment = '"$comment"';
+          // Helpers.printLog(
+          //     description: "DASHBOARD_CONTROLLER_CREATE_COMMENT",
+          //     message: "COMMENT = $comment");
+          Map<String, dynamic> requestBody = {
+            'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+                as String?,
+            'component_id': currentCommentsPostID,
+            'component': 'feed',
+            'comment': quotedComment,
+            'files': [
+              ...commentFieldAttachedImages,
+              ...commentFieldAttachedDocuments
+            ]
+          };
+          var response = await PostRequests.createComment(requestBody);
+          if (response != null) {
+            commentFieldHtmlEditorHtmlContent.value = "<p></p>";
+            commentFieldAttachedImages.clear();
+            commentFieldAttachedDocuments.clear();
+            commentFieldContent.clear();
+            isCommentFieldTextEmpty.value = true;
+            showCreateCommentWidget.value = false;
 
-          var post = posts.firstWhereOrNull(
-              (post) => post != null && post.id == currentCommentsPostID);
-          if (post != null) {
-            if (post.commentCount == null) {
-              post.commentCount = [
-                CommentCount(componentId: currentCommentsPostID)
-              ];
-            } else {
-              post.commentCount!
-                  .add(CommentCount(componentId: currentCommentsPostID));
+            var post = posts.firstWhereOrNull(
+                (post) => post != null && post.id == currentCommentsPostID);
+            if (post != null) {
+              if (post.commentCount == null) {
+                post.commentCount = [
+                  CommentCount(componentId: currentCommentsPostID)
+                ];
+              } else {
+                post.commentCount!
+                    .add(CommentCount(componentId: currentCommentsPostID));
+              }
+              posts.refresh();
+
+              currentCommentsLength.value += 1;
+              currentCommentsLength.refresh();
             }
-            posts.refresh();
+            currentCommentsRefreshNeeded = true;
+            singlePostComments.clear();
 
-            currentCommentsLength.value += 1;
-            currentCommentsLength.refresh();
+            shouldCommentsSheetScrollerJumpToPrevious = false;
+            await getComments();
+            commentsSheetScrollController.animateTo(
+              0.0,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
+            );
+          } else {
+            Get.snackbar('error'.tr, 'message_server_error'.tr);
           }
-          currentCommentsRefreshNeeded = true;
-          singlePostComments.clear();
-
-          shouldCommentsSheetScrollerJumpToPrevious = false;
-          await getComments();
-          commentsSheetScrollController.animateTo(
-            0.0,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeInOut,
-          );
         } else {
-          Get.snackbar('error'.tr, 'message_server_error'.tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       }
     } finally {
@@ -1171,10 +1203,11 @@ class DashboardController extends GetxController
 
         Get.back();
         if (post.description != null) {
+          var description = Helpers.updateDxMentionSpans(post.description!);
           // Helpers.printLog(
           //     description: "DASHBOARD_CONTROLLER_ON_TAP_POST_EDIT",
           //     message: "DESCRIPTION_NOT_EMPTY");
-          createPostHtmlEditorContent.value = post.description!;
+          createPostHtmlEditorContent.value = description;
           if (post.files is String && post.files.isNotEmpty) {
             var decode = json.decode(post.files);
             if (decode != null) {
@@ -1213,18 +1246,22 @@ class DashboardController extends GetxController
     arePostsLoading.refresh();
     bool refreshPosts = false;
     try {
-      Map<String, dynamic> requestBody = {
-        'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-            as String?,
-        'id': postId,
-      };
-      // Helpers.printLog(
-      //     description: "DASHBOARD_CONTROLLER_DELETE_POST", message: "");
-      var response = await PostRequests.deletePost(requestBody);
-      if (response != null) {
-        refreshPosts = true;
+      if (await Helpers.isInternetWorking()) {
+        Map<String, dynamic> requestBody = {
+          'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+              as String?,
+          'id': postId,
+        };
+        // Helpers.printLog(
+        //     description: "DASHBOARD_CONTROLLER_DELETE_POST", message: "");
+        var response = await PostRequests.deletePost(requestBody);
+        if (response != null) {
+          refreshPosts = true;
+        } else {
+          Get.snackbar('error'.tr, 'message_server_error'.tr);
+        }
       } else {
-        Get.snackbar('error'.tr, 'message_server_error'.tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       arePostsLoading.value = false;
@@ -1260,28 +1297,32 @@ class DashboardController extends GetxController
     };
     areCommentsLoading.value = true;
     try {
-      var response = await PostRequests.deletePostComment(requestBody);
-      if (response != null) {
-        if (response.status == "success") {
-          var deleteComment = singlePostComments.firstWhereOrNull(
-              (comment) => comment != null && comment.id == commentId);
-          var post = posts.firstWhereOrNull(
-              (post) => post != null && post.id == currentCommentsPostID);
-          if (post != null && post.commentCount!.isNotEmpty) {
-            post.commentCount!.removeLast();
-            posts.refresh();
+      if (await Helpers.isInternetWorking()) {
+        var response = await PostRequests.deletePostComment(requestBody);
+        if (response != null) {
+          if (response.status == "success") {
+            var deleteComment = singlePostComments.firstWhereOrNull(
+                (comment) => comment != null && comment.id == commentId);
+            var post = posts.firstWhereOrNull(
+                (post) => post != null && post.id == currentCommentsPostID);
+            if (post != null && post.commentCount!.isNotEmpty) {
+              post.commentCount!.removeLast();
+              posts.refresh();
 
-            currentCommentsLength.value -= 1;
-            currentCommentsLength.refresh();
+              currentCommentsLength.value -= 1;
+              currentCommentsLength.refresh();
+            }
+            currentCommentsRefreshNeeded = true;
+            singlePostComments.clear();
+            getComments();
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
           }
-          currentCommentsRefreshNeeded = true;
-          singlePostComments.clear();
-          getComments();
         } else {
           Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       areCommentsLoading.value = false;

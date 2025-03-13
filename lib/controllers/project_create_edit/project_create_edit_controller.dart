@@ -10,6 +10,7 @@ import 'package:teqtop_team/network/put_requests.dart';
 
 import '../../network/get_requests.dart';
 import '../../network/post_requests.dart';
+import '../../utils/helpers.dart';
 import '../../utils/preference_manager.dart';
 
 class ProjectCreateEditController extends GetxController {
@@ -139,19 +140,23 @@ class ProjectCreateEditController extends GetxController {
 
       isLoading.value = true;
       try {
-        var response = await PostRequests.createProject(requestBody);
-        if (response != null) {
-          if (response.status == "success") {
-            Get.back();
-            final projectsListingController =
-                Get.find<ProjectsListingController>();
-            projectsListingController.projects.clear();
-            projectsListingController.getProjects();
+        if (await Helpers.isInternetWorking()) {
+          var response = await PostRequests.createProject(requestBody);
+          if (response != null) {
+            if (response.status == "success") {
+              Get.back();
+              final projectsListingController =
+                  Get.find<ProjectsListingController>();
+              projectsListingController.projects.clear();
+              projectsListingController.getProjects();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
+            }
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isLoading.value = false;
@@ -178,18 +183,23 @@ class ProjectCreateEditController extends GetxController {
 
       isLoading.value = true;
       try {
-        var response = await PutRequests.editProject(
-            requestBody, editProjectDetail.value!.id!);
-        if (response != null) {
-          if (response.status == "success") {
-            Get.back();
-            final projectDetailController = Get.find<ProjectDetailController>();
-            projectDetailController.getProjectDetail();
+        if (await Helpers.isInternetWorking()) {
+          var response = await PutRequests.editProject(
+              requestBody, editProjectDetail.value!.id!);
+          if (response != null) {
+            if (response.status == "success") {
+              Get.back();
+              final projectDetailController =
+                  Get.find<ProjectDetailController>();
+              projectDetailController.getProjectDetail();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
+            }
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isLoading.value = false;
@@ -200,27 +210,32 @@ class ProjectCreateEditController extends GetxController {
   Future<void> getProjectCategoriesAndProposals() async {
     areProjectCategoriesAndProposalLoading.value = true;
     try {
-      var response = await GetRequests.getProjectCategoriesAndProposals();
-      if (response != null) {
-        if (response.proposals != null || response.categories != null) {
-          if (response.proposals != null) {
-            proposals.assignAll(response.proposals! as Iterable<ProposalModel>);
-            proposals.insert(0, ProposalModel(title: "select_proposal".tr));
-            selectedProposal.value = proposals[0];
+      if (await Helpers.isInternetWorking()) {
+        var response = await GetRequests.getProjectCategoriesAndProposals();
+        if (response != null) {
+          if (response.proposals != null || response.categories != null) {
+            if (response.proposals != null) {
+              proposals
+                  .assignAll(response.proposals! as Iterable<ProposalModel>);
+              proposals.insert(0, ProposalModel(title: "select_proposal".tr));
+              selectedProposal.value = proposals[0];
+            }
+            if (response.categories != null) {
+              projectCategories.assignAll(
+                  response.categories! as Iterable<ProjectCategoryModel>);
+              projectCategories.insert(
+                  0, ProjectCategoryModel(name: "select_category".tr));
+              selectedProjectCategory.value = projectCategories[0];
+            }
+            setInitialFieldValues();
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
           }
-          if (response.categories != null) {
-            projectCategories.assignAll(
-                response.categories! as Iterable<ProjectCategoryModel>);
-            projectCategories.insert(
-                0, ProjectCategoryModel(name: "select_category".tr));
-            selectedProjectCategory.value = projectCategories[0];
-          }
-          setInitialFieldValues();
         } else {
           Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       areProjectCategoriesAndProposalLoading.value = false;

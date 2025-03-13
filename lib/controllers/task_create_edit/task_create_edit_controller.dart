@@ -149,7 +149,7 @@ class TaskCreateEditController extends GetxController {
     if (areRequiredFieldsFilled() && editTaskDetail.value!.id != null) {
       isLoading.value = true;
 
-      try {
+      try {if (await Helpers.isInternetWorking()) {
         List<String> files = [
           ...descriptionFieldImages,
           ...descriptionFieldDocuments
@@ -187,6 +187,9 @@ class TaskCreateEditController extends GetxController {
         } else {
           Get.snackbar("error".tr, "message_server_error".tr);
         }
+      } else {
+      Get.snackbar("error".tr, "message_check_internet".tr);
+    }
       } finally {
         isLoading.value = false;
       }
@@ -319,45 +322,49 @@ class TaskCreateEditController extends GetxController {
     if (areRequiredFieldsFilled()) {
       isLoading.value = true;
       try {
-        Map<String, dynamic> requestBody = {
-          'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
-              as String?,
-          'name': nameController.text.toString().trim(),
-          'project': selectedProject.value!.id,
-          'responsible': selectedResponsiblePerson.value!.id,
-          'priority': selectedPriority.value!.priorityNumber,
-          'observer': generateIdsString(selectedObservers),
-          'participants': generateIdsString(selectedParticipants),
-          'extras': convertToCustomJsonFormat(
-              selectedParticipants, selectedObservers),
-          'description': await descriptionHtmlEditorController.getText(),
-          'files': [...descriptionFieldImages, ...descriptionFieldDocuments],
-          'deadline': selectedEndDate == null
-              ? ''
-              : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
-          'created_at': selectedStartDate == null
-              ? ''
-              : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
-                  selectedStartDate!.year,
-                  selectedStartDate!.month,
-                  selectedStartDate!.day,
-                  DateTime.now().hour,
-                  DateTime.now().minute,
-                  DateTime.now().second,
-                )),
-        };
-        var response = await PostRequests.createTask(requestBody);
-        if (response != null) {
-          if (response.status == "Added a new task") {
-            Get.back();
-            final tasksListingController = Get.find<TasksListingController>();
-            tasksListingController.tasks.clear();
-            tasksListingController.getTasks();
+        if (await Helpers.isInternetWorking()) {
+          Map<String, dynamic> requestBody = {
+            'token': PreferenceManager.getPref(PreferenceManager.prefUserToken)
+                as String?,
+            'name': nameController.text.toString().trim(),
+            'project': selectedProject.value!.id,
+            'responsible': selectedResponsiblePerson.value!.id,
+            'priority': selectedPriority.value!.priorityNumber,
+            'observer': generateIdsString(selectedObservers),
+            'participants': generateIdsString(selectedParticipants),
+            'extras': convertToCustomJsonFormat(
+                selectedParticipants, selectedObservers),
+            'description': await descriptionHtmlEditorController.getText(),
+            'files': [...descriptionFieldImages, ...descriptionFieldDocuments],
+            'deadline': selectedEndDate == null
+                ? ''
+                : DateFormat('yyyy-MM-dd').format(selectedEndDate!),
+            'created_at': selectedStartDate == null
+                ? ''
+                : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
+                    selectedStartDate!.year,
+                    selectedStartDate!.month,
+                    selectedStartDate!.day,
+                    DateTime.now().hour,
+                    DateTime.now().minute,
+                    DateTime.now().second,
+                  )),
+          };
+          var response = await PostRequests.createTask(requestBody);
+          if (response != null) {
+            if (response.status == "Added a new task") {
+              Get.back();
+              final tasksListingController = Get.find<TasksListingController>();
+              tasksListingController.tasks.clear();
+              tasksListingController.getTasks();
+            } else {
+              Get.snackbar("error".tr, "message_server_error".tr);
+            }
           } else {
             Get.snackbar("error".tr, "message_server_error".tr);
           }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         isLoading.value = false;
@@ -449,20 +456,24 @@ class TaskCreateEditController extends GetxController {
 
     areProjectsLoading.value = true;
     try {
-      var response = await GetRequests.getProjects(requestBody);
-      if (response != null) {
-        if (response.data != null) {
-          response.data!.removeWhere((element) =>
-              element != null &&
-              element.trash != null &&
-              element.trash!.toLowerCase().contains("trash"));
+      if (await Helpers.isInternetWorking()) {
+        var response = await GetRequests.getProjects(requestBody);
+        if (response != null) {
+          if (response.data != null) {
+            response.data!.removeWhere((element) =>
+                element != null &&
+                element.trash != null &&
+                element.trash!.toLowerCase().contains("trash"));
 
-          projects.assignAll(response.data!.toList());
-          projects.insert(0, ProjectModel(name: "select_project".tr));
-          selectedProject.value = projects[0];
+            projects.assignAll(response.data!.toList());
+            projects.insert(0, ProjectModel(name: "select_project".tr));
+            selectedProject.value = projects[0];
+          }
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       areProjectsLoading.value = false;
@@ -664,23 +675,28 @@ class TaskCreateEditController extends GetxController {
 
     areEmployeesLoading.value = true;
     try {
-      var response = await GetRequests.getEmployees(requestBody);
-      if (response != null) {
-        if (response.data != null) {
-          persons.assignAll(response.data!.toList());
-          persons.insert(0, EmployeeModel(name: "select_person".tr));
-          selectedResponsiblePerson.value = persons[0];
+      if (await Helpers.isInternetWorking()) {
+        var response = await GetRequests.getEmployees(requestBody);
+        if (response != null) {
+          if (response.data != null) {
+            persons.assignAll(response.data!.toList());
+            persons.insert(0, EmployeeModel(name: "select_person".tr));
+            selectedResponsiblePerson.value = persons[0];
 
-          participants.assignAll(response.data!.toList());
-          participants.insert(0, EmployeeModel(name: "choose_participants".tr));
-          selectedDropdownParticipant.value = participants[0];
+            participants.assignAll(response.data!.toList());
+            participants.insert(
+                0, EmployeeModel(name: "choose_participants".tr));
+            selectedDropdownParticipant.value = participants[0];
 
-          observers.assignAll(response.data!.toList());
-          observers.insert(0, EmployeeModel(name: "choose_observers".tr));
-          selectedDropdownObserver.value = observers[0];
+            observers.assignAll(response.data!.toList());
+            observers.insert(0, EmployeeModel(name: "choose_observers".tr));
+            selectedDropdownObserver.value = observers[0];
+          }
+        } else {
+          Get.snackbar("error".tr, "message_server_error".tr);
         }
       } else {
-        Get.snackbar("error".tr, "message_server_error".tr);
+        Get.snackbar("error".tr, "message_check_internet".tr);
       }
     } finally {
       areEmployeesLoading.value = false;

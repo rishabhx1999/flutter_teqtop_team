@@ -6,6 +6,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:html/parser.dart' as html_parser;
 
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:teqtop_team/consts/app_consts.dart';
 import 'package:teqtop_team/consts/app_icons.dart';
 import 'package:teqtop_team/model/dashboard/feed_model.dart';
@@ -52,28 +53,9 @@ class _PostWidgetState extends State<PostWidget>
           Helpers.updateHtmlAttributes(widget.postData.description!);
       widget.postData.description =
           Helpers.updateImgStyles(widget.postData.description!);
-      // widget.postData.description =
-      //     Helpers.modifyHtmlWithClass(widget.postData.description!);
-      // widget.postData.description =
-      //     Helpers.addUserSelectToTextElements(widget.postData.description!);
       Helpers.printLog(
           description: "POST_WIDGET_BUILD",
           message: "DESCRIPTION = ${widget.postData.description}");
-      // controller = WebViewController()
-      //   ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      //   ..loadHtmlString('''
-      //   <!DOCTYPE html>
-      //   <html>
-      //   <head>
-      //     <style>
-      //       body { font-size: 20px; color: blue; text-align: center; user-select: text; }
-      //     </style>
-      //   </head>
-      //   <body>
-      //     ${widget.postData.description}
-      //   </body>
-      //   </html>
-      //   ''');
     }
 
     if (widget.postData.files is String && widget.postData.files.isNotEmpty) {
@@ -230,90 +212,40 @@ class _PostWidgetState extends State<PostWidget>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Html(
-                          data: widget.postData.description,
-                          // extensions: [
-                          //   TagExtension(
-                          //     tagsToExtend: {"p"},
-                          //     builder: (extensionContext) {
-                          //       return SelectableText(
-                          //         extensionContext.innerHtml,
-                          //       );
-                          //     },
-                          //   ),
-                          // ],
-                          onLinkTap: (url, attributes, element) {
-                            if (url != null) {
-                              Helpers.openLink(url);
-                            }
-                          },
-                          // extensions: [
-                          //   TagExtension(
-                          //     tagsToExtend: AppConsts.supportedHTMLTags,
-                          //     builder: (extensionContext) {
-                          //       final classes = extensionContext
-                          //               .attributes['class']
-                          //               ?.split(' ') ??
-                          //           [];
-                          //
-                          //       if (classes.contains('custom-box')) {
-                          //         return Container(
-                          //           padding: EdgeInsets.all(10),
-                          //           color: Colors.blue.withOpacity(0.2),
-                          //           child: Text(
-                          //             extensionContext.innerHtml,
-                          //             style: TextStyle(
-                          //                 fontSize: 16,
-                          //                 fontWeight: FontWeight.bold),
-                          //           ),
-                          //         );
-                          //       }
-                          //
-                          //       if (classes.contains('highlight')) {
-                          //         return Container(
-                          //           padding: EdgeInsets.all(5),
-                          //           decoration: BoxDecoration(
-                          //             color: Colors.yellowAccent,
-                          //             borderRadius: BorderRadius.circular(5),
-                          //           ),
-                          //           child: Text(
-                          //             extensionContext.innerHtml,
-                          //             style: TextStyle(
-                          //                 color: Colors.red,
-                          //                 fontWeight: FontWeight.w600),
-                          //           ),
-                          //         );
-                          //       }
-                          //
-                          //       return null; // Return null if no custom class is matched
-                          //     },
-                          //   ),
-                          // ],
+                        child: SelectionArea(
+                          child: Html(
+                            data: widget.postData.description,
+                            onLinkTap: (url, attributes, element) {
+                              if (url != null) {
+                                Helpers.openLink(url);
+                              }
+                            },
+                          ),
                         ),
                       ),
-                      const SizedBox(
-                        width: 12,
-                      ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          String plainText = html_parser
-                                  .parse(widget.postData.description)
-                                  .body
-                                  ?.children
-                                  .map((e) => e.text)
-                                  .join("\n") ??
-                              "";
-                          Clipboard.setData(ClipboardData(text: plainText));
-                          Get.snackbar(
-                              "success".tr, "message_copied_to_clipboard".tr);
-                        },
-                        child: const Icon(
-                          Icons.copy_rounded,
-                          color: Colors.black,
-                          size: 24,
-                        ),
-                      )
+                      // const SizedBox(
+                      //   width: 12,
+                      // ),
+                      // GestureDetector(
+                      //   behavior: HitTestBehavior.opaque,
+                      //   onTap: () {
+                      //     String plainText = html_parser
+                      //             .parse(widget.postData.description)
+                      //             .body
+                      //             ?.children
+                      //             .map((e) => e.text)
+                      //             .join("\n") ??
+                      //         "";
+                      //     Clipboard.setData(ClipboardData(text: plainText));
+                      //     Get.snackbar(
+                      //         "success".tr, "message_copied_to_clipboard".tr);
+                      //   },
+                      //   child: const Icon(
+                      //     Icons.copy_rounded,
+                      //     color: Colors.black,
+                      //     size: 24,
+                      //   ),
+                      // )
                     ],
                   ),
                 )
@@ -382,60 +314,98 @@ class _PostWidgetState extends State<PostWidget>
                     shrinkWrap: true,
                     padding: const EdgeInsets.only(top: 10),
                     itemBuilder: (context, index) {
-                      return GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () async {
-                          documents[index].isLoading.value = true;
-                          await Helpers.openFile(
-                              path: documents[index].file,
-                              fileName: documents[index].file.split("/").last);
-                          documents[index].isLoading.value = false;
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.only(
-                              left: 10, right: 10, top: 10, bottom: 10),
-                          decoration: BoxDecoration(
-                              color: AppColors.kPrimaryColor
-                                  .withValues(alpha: 0.1)),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  documents[index].file.split("/").last,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: AppColors.kPrimaryColor,
+                      return Obx(
+                        () => documents[index].isLoading.value
+                            ? Shimmer.fromColors(
+                                baseColor: AppColors.shimmerBaseColor,
+                                highlightColor: AppColors.shimmerHighlightColor,
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 50,
+                                  color: AppColors.shimmerBaseColor,
+                                ))
+                            : GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () async {
+                                  documents[index].isLoading.value = true;
+                                  await Helpers.openFile(
+                                      path: documents[index].file,
+                                      fileName: documents[index]
+                                          .file
+                                          .split("/")
+                                          .last);
+                                  documents[index].isLoading.value = false;
+                                },
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.only(
+                                      left: 10, right: 10, top: 10, bottom: 10),
+                                  decoration: BoxDecoration(
+                                      color: AppColors.kPrimaryColor
+                                          .withValues(alpha: 0.1)),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          documents[index].file.split("/").last,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 2,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: AppColors.kPrimaryColor,
+                                              ),
+                                        ),
                                       ),
+                                      const SizedBox(
+                                        width: 4,
+                                      ),
+                                      // Obx(
+                                      //   () => documents[index].isLoading.value
+                                      //       ? Padding(
+                                      //           padding:
+                                      //               const EdgeInsets.all(6.0),
+                                      //           child: SizedBox(
+                                      //             width: 20,
+                                      //             height: 20,
+                                      //             child:
+                                      //                 CircularProgressIndicator(
+                                      //                     strokeWidth: 2,
+                                      //                     color: AppColors
+                                      //                         .kPrimaryColor),
+                                      //           ),
+                                      //         )
+                                      //       : GestureDetector(
+                                      //           behavior:
+                                      //               HitTestBehavior.opaque,
+                                      //           onTap: () async {
+                                      //             // documents[index].isLoading.value =
+                                      //             //     true;
+                                      //             // await Helpers.downloadFileInDownloads(
+                                      //             //     remoteEndPath:
+                                      //             //         documents[index].file);
+                                      //             // documents[index].isLoading.value =
+                                      //             //     false;
+                                      //           },
+                                      //           child: Padding(
+                                      //             padding:
+                                      //                 const EdgeInsets.all(6.0),
+                                      //             child: Image.asset(
+                                      //               AppIcons.icDownload,
+                                      //               width: 20,
+                                      //             ),
+                                      //           ),
+                                      //         ),
+                                      // )
+                                    ],
+                                  ),
                                 ),
                               ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Obx(
-                                () => documents[index].isLoading.value
-                                    ? SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: AppColors.kPrimaryColor),
-                                      )
-                                    : Image.asset(
-                                        AppIcons.icDownload,
-                                        width: 20,
-                                      ),
-                              )
-                            ],
-                          ),
-                        ),
                       );
                     },
                     separatorBuilder: (context, index) {

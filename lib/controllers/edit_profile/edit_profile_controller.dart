@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:teqtop_team/controllers/profile_detail/profile_detail_controller.dart';
 
 import '../../network/post_requests.dart';
+import '../../utils/helpers.dart';
 import '../../utils/permission_handler.dart';
 import '../../utils/preference_manager.dart';
 import '../dashboard/dashboard_controller.dart';
@@ -120,36 +121,40 @@ class EditProfileController extends GetxController {
         userEmail != null) {
       isLoading.value = true;
       try {
-        Map<String, dynamic> requestBody = {
-          'name': nameController.text,
-          'contact_no': contactNoController.text,
-          'alternate_no': alternateNoController.text,
-          'birth_date': selectedDOB != null
-              ? DateFormat('yyyy-MM-dd').format(selectedDOB!)
-              : '',
-          'current_address': currentAddressController.text,
-          'additional_info': additionalInfoController.text,
-          'email': userEmail,
-          'permanent_address': permanentAddress
-        };
-        http.MultipartFile? uploadMedia;
-        if (selectedImage.value != null) {
-          uploadMedia = await http.MultipartFile.fromPath(
-              'file', selectedImage.value!.path);
-        }
-        var response = await PostRequests.editProfile(
-            requestBody: requestBody,
-            profileId: userId!,
-            uploadMedia: uploadMedia);
-        if (response != null) {
-          final dashboardController = Get.find<DashboardController>();
-          await dashboardController.getLoggedInUser();
-          dashboardController.refreshPage();
-          final profileDetailController = Get.find<ProfileDetailController>();
-          profileDetailController.getLoggedInUserData();
-          Get.back();
+        if (await Helpers.isInternetWorking()) {
+          Map<String, dynamic> requestBody = {
+            'name': nameController.text,
+            'contact_no': contactNoController.text,
+            'alternate_no': alternateNoController.text,
+            'birth_date': selectedDOB != null
+                ? DateFormat('yyyy-MM-dd').format(selectedDOB!)
+                : '',
+            'current_address': currentAddressController.text,
+            'additional_info': additionalInfoController.text,
+            'email': userEmail,
+            'permanent_address': permanentAddress
+          };
+          http.MultipartFile? uploadMedia;
+          if (selectedImage.value != null) {
+            uploadMedia = await http.MultipartFile.fromPath(
+                'file', selectedImage.value!.path);
+          }
+          var response = await PostRequests.editProfile(
+              requestBody: requestBody,
+              profileId: userId!,
+              uploadMedia: uploadMedia);
+          if (response != null) {
+            final dashboardController = Get.find<DashboardController>();
+            await dashboardController.getLoggedInUser();
+            dashboardController.refreshPage();
+            final profileDetailController = Get.find<ProfileDetailController>();
+            profileDetailController.getLoggedInUserData();
+            Get.back();
+          } else {
+            Get.snackbar("error".tr, "message_server_error".tr);
+          }
         } else {
-          Get.snackbar("error".tr, "message_server_error".tr);
+          Get.snackbar("error".tr, "message_check_internet".tr);
         }
       } finally {
         // isLoading.value = false;
